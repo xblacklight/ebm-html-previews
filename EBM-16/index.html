@@ -8,13 +8,13 @@
 <link rel="icon" href="photos/logo-letters.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&family=Instrument+Serif:ital@1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&family=Inter:wght@400;500;600&family=Instrument+Serif:ital@1&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* Layout: a drafting-sheet frame (hairline side rules, title-block strips) under an orbiting hero of intersection photos, 1985 to today */
 :root{
   --bg:#f2f2f0; --paper:#f7f7f5; --ink:#0d0d0e; --soft:#6b6b6e; --faint:#a3a3a6; --rule:#dcdcd8; --orbit:#c9c9c4;
   --btn:#0d0d0e; --btnInk:#f7f7f5; --accent:#1f7fb8; --glow:rgba(13,13,14,.16);
-  --wide:"Archivo",system-ui,sans-serif; --serif:"Instrument Serif",Georgia,serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+  --wide:"Archivo",system-ui,sans-serif; --serif:"Instrument Serif",Georgia,serif; --mono:"Geist Mono",ui-monospace,SFMono-Regular,Menlo,monospace; --text:"Inter",system-ui,sans-serif;
   --ease:cubic-bezier(.2,.7,.1,1); --gut:clamp(16px,4vw,56px); --frame:1160px;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
@@ -25,7 +25,7 @@
   --btn:#f1f1ee; --btnInk:#0f0f11; --accent:#5cb6ea; --glow:rgba(0,0,0,.5); color-scheme:dark}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--ink);font-family:var(--wide);font-stretch:100%;font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{background:var(--bg);color:var(--ink);font-family:var(--text);font-stretch:100%;font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 body.lock{overflow:hidden}
 a{color:inherit}
 img{display:block;max-width:100%}
@@ -119,6 +119,9 @@ html{scroll-padding-top:72px}
 .orbits{position:absolute;inset:0;pointer-events:none}
 .orbits svg{position:absolute;left:50%;top:54%;width:max(160vw,1700px);height:max(160vw,1700px);transform:translate(-50%,-50%)}
 .orbits circle{fill:none;stroke:var(--orbit);stroke-width:1.2}
+.orbits .tks{animation:spin 300s linear infinite}
+.orbits .tks circle{stroke-width:9;stroke-dasharray:1.2 34}
+.orbits .arc{stroke:var(--soft);stroke-width:2.2;stroke-dasharray:820 2700;stroke-linecap:round;animation:spin 90s linear infinite reverse;transform-origin:0 0}
 .cards{position:absolute;left:50%;top:54%;width:0;height:0}
 .ring{position:absolute;left:0;top:0;width:0;height:0;animation:spin var(--t) linear infinite}
 .ring.rev{animation-direction:reverse}
@@ -276,17 +279,28 @@ footer a:hover{color:var(--ink)}
 @media(max-width:560px){.facts{grid-template-columns:1fr}.facts>div{border-right:0;border-bottom:1px solid var(--rule)}.facts>div:last-child{border-bottom:0}}
 
 /* life-line rail */
-.rail{position:fixed;right:22px;top:50%;transform:translateY(-50%);z-index:40;height:min(60vh,520px);width:120px;pointer-events:none;opacity:0;transition:opacity .5s}
-.rail.show{opacity:1}
-.rail .track{position:absolute;right:5px;top:0;bottom:0;width:1px;background:var(--orbit)}
-.rail .fill{position:absolute;right:5px;top:0;width:1px;height:0;background:var(--ink)}
-.rail a{position:absolute;right:0;display:flex;align-items:center;gap:10px;flex-direction:row-reverse;text-decoration:none;pointer-events:auto;transform:translateY(-50%)}
-.rail a i{width:11px;height:11px;background:var(--bg);border:1px solid var(--faint);transition:all .3s}
-.rail a span{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);opacity:0;transform:translateX(6px);transition:all .3s;white-space:nowrap;background:var(--bg);padding:2px 4px}
-.rail a.past i{background:var(--ink);border-color:var(--ink)}
-.rail a.now i{background:var(--accent);border-color:var(--accent);transform:rotate(45deg) scale(1.25)}
-.rail a.now span,.rail a:hover span{opacity:1;transform:none;color:var(--ink)}
-@media(max-width:1320px){.rail{display:none}}
+/* right edge: year ruler + chapter stack, like a life timeline */
+.ruler{position:fixed;top:60px;bottom:0;right:0;width:60px;z-index:40;overflow:hidden;cursor:crosshair;border-left:1px solid var(--rule);background:color-mix(in srgb,var(--bg) 70%,transparent);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.ruler .rk{position:absolute;left:0;right:0;top:0;will-change:transform}
+.ruler .t{position:absolute;right:0;height:1px;width:12px;background:var(--faint)}
+.ruler .t.M{width:22px;background:var(--soft)}
+.ruler .t b{position:absolute;right:28px;top:-7px;font:500 9.5px/1 var(--mono);letter-spacing:.04em;color:var(--soft)}
+.ruler .rmark{position:absolute;left:0;right:0;height:1px;background:var(--accent);will-change:transform}
+.ruler .rmark span{position:absolute;right:6px;top:5px;font:500 9.5px/1.35 var(--mono);color:var(--accent);letter-spacing:.04em;text-align:right;white-space:nowrap}
+.chap{position:fixed;right:80px;top:122px;bottom:28px;z-index:39;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end;opacity:0;transition:opacity .5s}
+.chap.show{opacity:1}
+.chap div{display:grid;justify-items:end}
+.chap span{font-family:var(--wide);font-stretch:125%;font-weight:700;text-transform:uppercase;letter-spacing:.01em;line-height:1.15;color:var(--faint);font-size:15px;animation:chin .5s var(--ease) both}
+.chap .ctop span.now{font-size:32px;color:var(--ink);letter-spacing:-.01em;margin-top:2px}
+.chap .ctop span.brand{font-size:13px;letter-spacing:.08em;font-weight:500}
+@keyframes chin{from{opacity:0;transform:translateY(8px);filter:blur(4px)}}
+section{position:relative}
+.vlab{position:absolute;right:-92px;top:64px;writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--wide);font-stretch:125%;font-weight:700;text-transform:uppercase;font-size:24px;letter-spacing:.02em;color:var(--faint);pointer-events:none}
+.strip{position:sticky;top:60px;z-index:20;background:color-mix(in srgb,var(--paper) 72%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+@media(max-width:900px){.strip{top:96px}}
+@media(max-width:1180px){.ruler,.chap{display:none}}
+@media(max-width:1380px){.vlab{display:none}}
+
 
 /* reveal: blur-to-focus, from a visible resting state when scripts are off */
 .js .rv{opacity:0;transform:translateY(34px);filter:blur(10px);transition:opacity 1s var(--ease),transform 1.1s var(--ease),filter 1.1s var(--ease)}
@@ -314,7 +328,7 @@ footer a:hover{color:var(--ink)}
 </header>
 
 <section class="hero" id="hero">
-  <div class="orbits"><svg viewBox="-1000 -1000 2000 2000" aria-hidden="true"><circle r="210"/><circle r="380"/><circle r="560"/><circle r="760"/><circle r="980"/></svg></div>
+  <div class="orbits"><svg viewBox="-1000 -1000 2000 2000" aria-hidden="true"><circle r="210"/><circle r="380"/><circle r="560"/><circle r="760"/><circle r="980"/><g class="tks"><circle r="380"/><circle r="760"/></g><circle class="arc" r="560"/></svg></div>
   <div class="cards" id="cards"></div>
   <div class="mid" id="mid">
     <img class="mk" src="photos/logo-letters.png" alt="">
@@ -425,7 +439,8 @@ footer a:hover{color:var(--ink)}
 </footer>
 <div class="foot2"><span class="mono">© 2026 East Bay Mobility</span><span class="mono">Senior judgment · not production hours</span></div>
 
-<nav class="rail" id="rail" aria-label="Page timeline"><div class="track"></div><div class="fill" id="fill"></div></nav>
+<div class="ruler" id="ruler" aria-hidden="true"><div class="rk" id="rk"></div><div class="rmark" id="rmark"><span id="ryear"></span></div></div>
+<div class="chap" id="chap" aria-hidden="true"><div class="ctop" id="ctop"></div><div class="cbot" id="cbot"></div></div>
 
 <script>
 (function(){
@@ -500,13 +515,20 @@ footer a:hover{color:var(--ink)}
     r.dataset.theme=nx; try{localStorage.setItem('ebm-theme',nx)}catch(e){}
   });
 
-  // rail
-  var rail=document.getElementById('rail'),fill=document.getElementById('fill');
-  var MARKS=[['top','Home'],['firm','The firm']].concat(ERAS.map(function(e,i){return ['era-'+i,e[0]]}),[['services','Services'],['forensic','Forensic'],['why','Why us'],['work','Work'],['about','Rafat'],['contact','Contact']]);
-  rail.insertAdjacentHTML('beforeend',MARKS.map(function(m){return '<a href="#'+m[0]+'" data-t="'+m[0]+'"><i></i><span>'+m[1]+'</span></a>'}).join(''));
-  var marks=[].slice.call(rail.querySelectorAll('a'));
+  // right edge: a year ruler (1985 to 2030 across the page) and the chapter stack
   function clamp(v,a,b){return v<a?a:v>b?b:v}
-  function layout(){var H=document.documentElement.scrollHeight-innerHeight;marks.forEach(function(a){var t=document.getElementById(a.dataset.t);var y=t?clamp((t.getBoundingClientRect().top+scrollY-innerHeight*.45)/H,0,1):0;a.dataset.y=y;a.style.top=(y*100)+'%'})}
+  var CH=[['firm','The firm'],['story','Our story'],['services','Services'],['forensic','Forensic'],['why','Why us'],['work','Work'],['about','Rafat Raie'],['contact','Contact']];
+  CH.forEach(function(c){var el=document.getElementById(c[0]);if(el)el.insertAdjacentHTML('afterbegin','<span class="vlab" aria-hidden="true">'+c[1]+'</span>')});
+  var Y0=1985,Y1=2030,STEP=30,rk=document.getElementById('rk'),rmark=document.getElementById('rmark'),ryear=document.getElementById('ryear'),chap=document.getElementById('chap'),ctop=document.getElementById('ctop'),cbot=document.getElementById('cbot');
+  var tk='';for(var yy=Y0-6;yy<=Y1+6;yy++){var M=yy%5===0;tk+='<i class="t'+(M?' M':'')+'" style="top:'+((yy-Y0)*STEP)+'px">'+(M&&yy>=Y0&&yy<=Y1?'<b>'+yy+'</b>':'')+'</i>'}
+  rk.innerHTML=tk;
+  document.getElementById('ruler').addEventListener('click',function(e){var H=document.documentElement.scrollHeight-innerHeight;scrollTo({top:clamp((e.clientY-70)/(innerHeight-120),0,1)*H,behavior:'smooth'})});
+  var lastCh=-2;
+  function drawChap(k){if(k===lastCh)return;lastCh=k;
+    var top='<span class="brand">East Bay Mobility</span>',bot='';
+    CH.forEach(function(c,i){if(i===k)top+='<span class="now">'+c[1]+'</span>';else if(i>k&&i<=k+3)bot+='<span style="animation-delay:'+(i-k)*40+'ms">'+c[1]+'</span>'});
+    ctop.innerHTML=top;cbot.innerHTML=bot}
+  function layout(){}
   var mid=document.getElementById('mid'),hero=document.getElementById('hero'),navLinks=[].slice.call(document.querySelectorAll('header nav a'));
   var lastAct='',nav=document.querySelector('header nav');
   function onScroll(){
@@ -518,8 +540,8 @@ footer a:hover{color:var(--ink)}
       cards.style.opacity=String(1-q*1.1);
       mid.style.transform='translateY('+(-q*120)+'px)'; mid.style.filter='blur('+(q*8)+'px)'; mid.style.opacity=String(1-q*1.3);
     }
-    fill.style.height=(p*100)+'%'; rail.classList.toggle('show',y>h*.6);
-    var cur=0;marks.forEach(function(a,i){if(p+0.002>=+a.dataset.y)cur=i});marks.forEach(function(a,i){a.classList.toggle('past',i<cur);a.classList.toggle('now',i===cur)});
+    var my=70+p*(innerHeight-120),yr=Y0+p*(Y1-Y0);rmark.style.transform='translateY('+my+'px)';rk.style.transform='translateY('+(my-(yr-Y0)*STEP)+'px)';ryear.innerHTML=Math.floor(yr)+'<br>'+String(Math.round(p*100)).padStart(3,'0')+'%';
+    var k=-1;CH.forEach(function(c,i){var el=document.getElementById(c[0]);if(el&&el.getBoundingClientRect().top<innerHeight*.45)k=i});drawChap(k);chap.classList.toggle('show',y>h*.5);
     var sec=['top','firm','story','services','forensic','why','work','about','contact'],act='top';
     sec.forEach(function(id){var el=document.getElementById(id);if(el&&el.getBoundingClientRect().top<innerHeight*.4)act=id});
     if(act!==lastAct){lastAct=act;navLinks.forEach(function(a){var on=a.getAttribute('href')==='#'+act;a.classList.toggle('on',on);if(on&&nav.scrollWidth>nav.clientWidth)nav.scrollTo({left:Math.max(0,a.offsetLeft-nav.clientWidth/2+a.offsetWidth/2),behavior:'smooth'})})}
