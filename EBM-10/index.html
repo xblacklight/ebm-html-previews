@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>East Bay Mobility | Senior Traffic Engineering</title>
+<meta name="description" content="On-call senior traffic engineering, development review and expert support for California public agencies. Led by Rafat Raie, P.E.">
+<link rel="icon" href="../assets/img/ebm-mark.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="../assets/img/hero-aerial.jpg">
+<style>
+:root{--bg:#f5f8fb;--bg2:#ffffff;--ink:#0b2545;--soft:#516377;--line:#dbe4ec;
+--accent:#0f6fa8;--accent2:#1fb5d6;--deep:#0b2545;--onDeep:#e8f1f8;--onDeepSoft:#9fb8cc;
+--hl:#1fb5d6;--introBg:#06182e;--h1w:800;--h2w:700;--display:"Montserrat",system-ui,sans-serif;--body:"Inter",system-ui,sans-serif;--ease:cubic-bezier(.2,.7,.1,1);--gut:clamp(16px,4vw,56px)}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body.lock{overflow:hidden}
+a{color:inherit}
+img{display:block;max-width:100%}
+h1,h2,h3{font-family:var(--display);letter-spacing:-.02em;text-wrap:balance;line-height:1.08}
+.wrap{max-width:1200px;margin:0 auto;padding-inline:var(--gut)}
+.kick{font-size:12.5px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--accent)}
+
+/* ---------- intro: traffic light ---------- */
+#intro{position:fixed;inset:0;z-index:100;background:var(--introBg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;transition:opacity .55s ease,transform .7s var(--ease)}
+#intro.go{opacity:0;transform:scale(1.04);pointer-events:none}
+.tl{width:96px;padding:14px;border-radius:26px;background:linear-gradient(#20262d,#0e1216);box-shadow:0 0 0 2px #2b333b inset,0 30px 80px rgba(0,0,0,.6);display:grid;gap:12px}
+.tl i{width:68px;height:68px;border-radius:50%;background:#1a1f24;box-shadow:inset 0 4px 10px rgba(0,0,0,.7);transition:background .18s,box-shadow .18s}
+.tl.r i:nth-child(1){background:radial-gradient(circle at 40% 35%,#ff8a7a,#e0261b 60%);box-shadow:0 0 40px 8px rgba(224,38,27,.55)}
+.tl.y i:nth-child(2){background:radial-gradient(circle at 40% 35%,#ffe08a,#f2a900 60%);box-shadow:0 0 40px 8px rgba(242,169,0,.55)}
+.tl.g i:nth-child(3){background:radial-gradient(circle at 40% 35%,#9dffc9,#10b45c 60%);box-shadow:0 0 50px 12px rgba(16,180,92,.6)}
+#intro .il{width:min(240px,60vw);opacity:.9}
+#intro .il.plate{background:#f4f6f8;border-radius:12px;padding:10px 14px}
+#intro small{color:#7f8c97;font-size:11px;letter-spacing:.24em;text-transform:uppercase}
+
+/* ---------- header ---------- */
+header.top{position:fixed;top:0;left:0;right:0;z-index:50;transition:background .3s,box-shadow .3s,transform .4s var(--ease)}
+header.top.solid{background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);box-shadow:0 1px 0 var(--line)}
+header.top .wrap{display:flex;align-items:center;justify-content:space-between;height:74px;gap:20px}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.brand img{height:34px;width:auto}
+.brand span{font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:#fff;transition:color .3s}
+header.solid .brand span{color:var(--ink)}
+nav.links{display:flex;gap:28px;align-items:center;font-size:15px}
+nav.links a{text-decoration:none;color:rgba(255,255,255,.85);transition:color .2s}
+header.solid nav.links a{color:var(--soft)}
+nav.links a:hover{color:var(--accent2)}
+nav.links a.cta{white-space:nowrap;padding:9px 18px;border-radius:999px;background:var(--accent);color:#fff!important;font-weight:600}
+@media(max-width:860px){nav.links a:not(.cta){display:none}.brand span{font-size:12px;letter-spacing:.1em;white-space:nowrap}.brand img{height:28px}}
+@media(max-width:380px){.brand span{display:none}}
+
+/* ---------- hero ---------- */
+.hero{position:relative;min-height:100svh;display:flex;align-items:flex-end;color:#fff;overflow:hidden;isolation:isolate}
+.hero .bg{position:absolute;inset:0;z-index:-2}
+.hero .bg img{width:100%;height:100%;object-fit:cover;transform:scale(1.08);will-change:transform}
+.hero:after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(4,10,20,.55) 0%,rgba(4,10,20,.25) 35%,rgba(4,10,20,.85) 100%)}
+.hero .wrap{width:100%;padding-bottom:clamp(56px,10vh,110px);padding-top:140px}
+.hero .kick{color:var(--accent2)}
+.hero h1{font-weight:var(--h1w);font-size:clamp(42px,7.4vw,104px);max-width:13ch;margin:18px 0 22px}
+.hero p.lead{max-width:56ch;font-size:clamp(17px,1.6vw,20px);color:rgba(255,255,255,.86)}
+.btns{display:flex;gap:14px;flex-wrap:wrap;margin-top:34px}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:15px 26px;border-radius:999px;font-weight:600;text-decoration:none;transition:transform .25s var(--ease),background .25s}
+.btn.p{background:var(--accent);color:#fff}
+.btn.s{border:1px solid rgba(255,255,255,.45);color:#fff}
+.btn:hover{transform:translateY(-2px)}
+.scrollcue{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);width:22px;height:36px;border:2px solid rgba(255,255,255,.5);border-radius:12px}
+.scrollcue:after{content:"";position:absolute;left:50%;top:7px;width:3px;height:7px;margin-left:-1.5px;border-radius:2px;background:#fff;animation:cue 1.8s infinite}
+@keyframes cue{0%{opacity:0;transform:translateY(0)}40%{opacity:1}100%{opacity:0;transform:translateY(12px)}}
+
+/* ---------- facts ---------- */
+.facts{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--line)}
+.facts div{padding:40px 24px 40px 0}
+.facts div+div{padding-left:24px;border-left:1px solid var(--line)}
+.facts b{display:block;font-family:var(--display);font-weight:var(--h1w);font-size:clamp(34px,4vw,52px);letter-spacing:-.03em;line-height:1;color:var(--accent)}
+.facts span{display:block;margin-top:10px;color:var(--soft);font-size:15px}
+@media(max-width:860px){.facts{grid-template-columns:1fr 1fr}.facts div:nth-child(3){padding-left:0;border-left:0}.facts div{border-top:1px solid var(--line)}}
+
+/* ---------- intro statement ---------- */
+.state{padding-block:clamp(90px,14vh,160px)}
+.state p.big{font-family:var(--display);font-weight:var(--h2w);font-size:clamp(28px,3.6vw,50px);line-height:1.2;letter-spacing:-.02em;max-width:24ch}
+.state p.big em{font-style:normal;color:var(--accent)}
+.state .sub{margin-top:26px;color:var(--soft);max-width:60ch}
+
+/* ---------- timeline (story) ---------- */
+.story{position:relative;background:#05080c;color:#eef2f5}
+.story .head{padding-block:110px 40px}
+.story .head .kick{color:var(--accent2)}
+.story .head h2{font-weight:var(--h2w);font-size:clamp(36px,5vw,72px);margin-top:14px;max-width:16ch}
+.story .head p{color:#a5b1bb;margin-top:18px;max-width:56ch}
+.stage{display:grid;grid-template-columns:1.45fr 1fr;gap:clamp(24px,5vw,72px)}
+.media{position:sticky;top:0;height:100vh;display:flex;align-items:center}
+.frame{position:relative;width:100%;height:76vh;border-radius:6px;overflow:hidden;box-shadow:0 40px 120px rgba(0,0,0,.6)}
+.frame .m{position:absolute;inset:0;opacity:0;transition:opacity 1s ease}
+.frame .m img{width:100%;height:100%;object-fit:cover;transform:scale(1.14);transition:transform 6s var(--ease)}
+.frame .m.on{opacity:1}
+.frame .m.on img{transform:scale(1)}
+.frame .tag{position:absolute;left:18px;bottom:16px;z-index:3;font-family:var(--display);font-size:clamp(46px,7vw,96px);font-weight:var(--h1w);color:#fff;mix-blend-mode:overlay;letter-spacing:-.04em;line-height:1}
+.frame svg.v2x{position:absolute;inset:0;z-index:2;width:100%;height:100%;opacity:0;transition:opacity 1s}
+.frame.next svg.v2x{opacity:1}
+.v2x .ring{fill:none;stroke:#5fe3ff;stroke-width:2;animation:ping 2.4s ease-out infinite;transform-box:fill-box;transform-origin:center}
+.v2x .link{stroke:#5fe3ff;stroke-width:2;stroke-dasharray:6 8;animation:dash 1.2s linear infinite;opacity:.85}
+.v2x .car{fill:#fff}
+@keyframes ping{from{transform:scale(.3);opacity:1}to{transform:scale(2.6);opacity:0}}
+@keyframes dash{to{stroke-dashoffset:-28}}
+.steps{padding-bottom:30vh}
+.step{min-height:88vh;display:flex;flex-direction:column;justify-content:center;opacity:.25;transform:translateY(30px);transition:opacity .7s,transform .9s var(--ease)}
+.step.on{opacity:1;transform:none}
+.step .yr{font-family:var(--display);font-weight:var(--h1w);font-size:clamp(56px,7vw,110px);line-height:.9;letter-spacing:-.05em;background:linear-gradient(90deg,#fff,var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.step h3{font-size:clamp(26px,2.6vw,36px);font-weight:var(--h2w);margin:18px 0 12px}
+.step p{color:#b8c3cc;max-width:46ch}
+.step p.mine{margin-top:20px;padding:16px 18px;border-left:3px solid var(--accent2);background:rgba(255,255,255,.04);color:#eef2f5;font-size:15.5px;display:flex;gap:12px;align-items:flex-start}
+.step .dot{flex:none;width:9px;height:9px;border-radius:50%;background:var(--accent2);margin-top:8px;box-shadow:0 0 0 4px rgba(255,255,255,.08)}
+.step .si{display:none}
+@media(max-width:900px){.stage{display:block}.media{display:none}.step{min-height:auto;padding-block:36px;opacity:1;transform:none}.step .si{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:8px;margin-bottom:22px}.steps{padding-bottom:60px}}
+
+/* ---------- right life-line rail ---------- */
+.rail{position:fixed;right:22px;top:50%;transform:translateY(-50%);z-index:40;height:min(64vh,560px);width:120px;pointer-events:none;opacity:0;transition:opacity .5s}
+.rail.show{opacity:1}
+.rail .track{position:absolute;right:5px;top:0;bottom:0;width:2px;background:color-mix(in srgb,var(--soft) 30%,transparent);border-radius:2px}
+.rail .fill{position:absolute;right:5px;top:0;width:2px;height:0;background:linear-gradient(var(--accent),var(--accent2));border-radius:2px}
+.rail a{position:absolute;right:0;display:flex;align-items:center;gap:10px;flex-direction:row-reverse;text-decoration:none;pointer-events:auto;transform:translateY(-50%)}
+.rail a i{width:12px;height:12px;border-radius:50%;background:var(--bg);border:2px solid color-mix(in srgb,var(--soft) 60%,transparent);transition:all .3s}
+.rail a span{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--soft);opacity:0;transform:translateX(6px);transition:all .3s;white-space:nowrap}
+.rail a.past i{border-color:var(--accent);background:var(--accent)}
+.rail a.now i{transform:scale(1.4);border-color:var(--accent2);background:var(--accent2);box-shadow:0 0 0 5px color-mix(in srgb,var(--accent2) 25%,transparent)}
+.rail a.now span,.rail a:hover span{opacity:1;transform:none}
+.rail.ondark a span{color:#c8d2da}
+.rail.ondark a i{background:#05080c}
+.rail.ondark a.past i{background:var(--accent)}.rail.ondark a.now i{background:var(--accent2)}
+.prog{position:fixed;left:0;top:0;height:3px;width:0;z-index:60;background:linear-gradient(90deg,var(--accent),var(--accent2));display:none}
+@media(max-width:1100px){.rail{display:none}.prog{display:block}}
+
+/* ---------- services ---------- */
+.sec{padding-block:clamp(100px,14vh,150px)}
+.sec .hd{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:end;margin-bottom:56px}
+.sec h2{font-weight:var(--h2w);font-size:clamp(34px,4.6vw,64px);margin-top:14px}
+.sec .hd p{color:var(--soft);max-width:48ch}
+@media(max-width:860px){.sec .hd{grid-template-columns:1fr;gap:16px}}
+.svcs{display:grid;grid-template-columns:repeat(6,1fr);gap:18px}
+.svc{grid-column:span 2;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:32px 28px;display:flex;flex-direction:column;gap:12px;transition:transform .4s var(--ease),border-color .3s,box-shadow .4s}
+.svc:nth-child(4),.svc:nth-child(5){grid-column:span 3}
+.svc:hover{transform:translateY(-6px);border-color:var(--accent);box-shadow:0 24px 60px -30px color-mix(in srgb,var(--accent) 60%,transparent)}
+.svc .no{font-family:var(--display);font-weight:var(--h1w);color:var(--accent);font-size:15px;letter-spacing:.1em}
+.svc h3{font-size:24px;font-weight:var(--h2w)}
+.svc p{color:var(--soft);font-size:16px}
+.svc .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:10px}
+.svc .tags span{font-size:12px;padding:5px 10px;border-radius:999px;background:color-mix(in srgb,var(--accent) 10%,transparent);color:var(--accent)}
+@media(max-width:960px){.svc,.svc:nth-child(4),.svc:nth-child(5){grid-column:span 6}}
+.pledge{margin-top:28px;padding:22px 26px;border-radius:14px;border:1px dashed var(--line);color:var(--soft);display:flex;gap:14px;align-items:center}
+.pledge b{color:var(--ink);font-family:var(--display);font-weight:var(--h2w)}
+
+/* ---------- why ---------- */
+.whysec{background:var(--deep);color:var(--onDeep)}
+.whysec .hd p{color:var(--onDeepSoft)}
+.whysec .kick{color:var(--accent2)}
+.who{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:46px}
+.who span{padding:9px 16px;border-radius:999px;border:1px solid color-mix(in srgb,var(--onDeep) 22%,transparent);font-size:14px}
+.whys{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.why{background:color-mix(in srgb,var(--onDeep) 5%,transparent);border:1px solid color-mix(in srgb,var(--onDeep) 14%,transparent);border-radius:14px;padding:34px 30px}
+.why h3{font-size:21px;font-weight:var(--h2w);margin-bottom:10px}
+.why p{color:var(--onDeepSoft);font-size:15.5px}
+@media(max-width:900px){.whys{grid-template-columns:1fr}}
+
+/* ---------- about ---------- */
+.about{display:grid;grid-template-columns:.9fr 1.1fr;gap:clamp(30px,6vw,90px);align-items:center}
+.about .pic{position:relative;border-radius:16px;overflow:hidden;aspect-ratio:4/5}
+.about .pic img{width:100%;height:100%;object-fit:cover}
+.about .pic .cap{position:absolute;left:0;right:0;bottom:0;padding:22px;background:linear-gradient(transparent,rgba(0,0,0,.75));color:#fff;font-size:14px}
+.about h2{font-weight:var(--h2w);font-size:clamp(34px,4.4vw,58px);margin:14px 0 24px}
+.about p{color:var(--soft);margin-bottom:16px}
+.about p.first{font-size:19px;color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.chips span{font-size:13px;padding:7px 12px;border-radius:8px;background:var(--bg2);border:1px solid var(--line)}
+@media(max-width:900px){.about{grid-template-columns:1fr}.about .pic{aspect-ratio:16/10}}
+
+/* ---------- contact ---------- */
+.contact{display:grid;grid-template-columns:1fr 1.1fr;gap:clamp(30px,6vw,90px)}
+.contact h2{font-weight:var(--h2w);font-size:clamp(38px,5vw,72px);margin:14px 0 20px}
+.contact .side p{color:var(--soft);max-width:42ch}
+.contact .side dl{margin-top:34px;display:grid;gap:18px}
+.contact dt{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--soft)}
+.contact dd{font-family:var(--display);font-size:20px;font-weight:var(--h2w)}
+form{background:var(--bg2);border:1px solid var(--line);border-radius:18px;padding:clamp(22px,4vw,40px);display:grid;grid-template-columns:1fr 1fr;gap:16px}
+form label{display:grid;gap:6px;font-size:13px;font-weight:600;color:var(--soft)}
+form .full{grid-column:1/-1}
+form input,form select,form textarea{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:13px 14px;outline:none;transition:border-color .2s,box-shadow .2s}
+form input:focus,form select:focus,form textarea:focus{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 18%,transparent)}
+form textarea{min-height:140px;resize:vertical}
+form button{grid-column:1/-1;justify-self:start;border:0;cursor:pointer;font:inherit;font-weight:600}
+@media(max-width:900px){.contact{grid-template-columns:1fr}form{grid-template-columns:1fr}}
+
+footer{border-top:1px solid var(--line);padding-block:44px;color:var(--soft);font-size:14px}
+footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+footer img{height:58px;width:auto}
+footer img.plate{background:#f4f6f8;border-radius:10px;padding:6px 10px}
+
+/* ---------- reveal ---------- */
+.rv{opacity:0;transform:translateY(46px);filter:blur(6px);transition:opacity 1s var(--ease),transform 1.1s var(--ease),filter 1s var(--ease)}
+.rv.in{opacity:1;transform:none;filter:none}
+.d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}
+.hero .rv{transition-duration:1.3s}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none;filter:none}}
+</style>
+</head>
+<body class="lock" id="top" data-dark="0">
+
+<div id="intro" aria-hidden="true">
+  <div class="tl r" id="tl"><i></i><i></i><i></i></div>
+  <img class="il plate" src="../assets/img/ebm-logo.png" alt="">
+</div>
+
+<div class="prog" id="prog"></div>
+
+<header class="top" id="hdr"><div class="wrap">
+  <a class="brand" href="#top"><img src="../assets/img/ebm-mark.png" alt="EBM"><span>East Bay Mobility</span></a>
+  <nav class="links">
+    <a href="#story">Our story</a><a href="#services">Services</a><a href="#about">Rafat Raie</a><a class="cta" href="#contact">Contact us</a>
+  </nav>
+</div></header>
+
+<section class="hero">
+  <div class="bg"><img id="heroimg" src="../assets/img/hero-aerial.jpg" alt="Aerial view of a signalized intersection"></div>
+  <div class="wrap">
+    <div class="kick rv">On-call senior traffic engineering · California</div>
+    <h1 class="rv d1">Four decades of judgment at the intersection.</h1>
+    <p class="lead rv d2">East Bay Mobility gives cities, counties and transportation agencies direct access to a senior traffic engineer for the reviews, decisions and second opinions where experience matters more than headcount.</p>
+    <div class="btns rv d3"><a class="btn p" href="#contact">Contact us →</a><a class="btn s" href="#services">Explore services</a></div>
+  </div>
+  <div class="scrollcue"></div>
+</section>
+
+<div class="wrap">
+  <div class="facts">
+    <div class="rv"><b>40+</b><span>years in public and private traffic engineering</span></div>
+    <div class="rv d1"><b>2001</b><span>teaching engineers at UC Berkeley TechTransfer</span></div>
+    <div class="rv d2"><b>53</b><span>signals in San Rafael's cloud-based emergency vehicle preemption program</span></div>
+    <div class="rv d3"><b>1</b><span>senior engineer on every assignment</span></div>
+  </div>
+  <div class="state">
+    <p class="big rv">Not another full-service firm. <em>A senior traffic engineer on call</em> for the questions your agency has to get right.</p>
+    <p class="sub rv d1">Public Works Directors, City Engineers and agency staff use East Bay Mobility when they need an experienced, independent traffic engineering opinion, delivered directly and documented clearly.</p>
+  </div>
+</div>
+
+<section class="story" id="story">
+  <div class="wrap head">
+    <div class="kick rv">Forty years at the intersection</div>
+    <h2 class="rv d1">From paper timing sheets to connected cars.</h2>
+    <p class="rv d2">The tools have changed in every decade. The responsibility to the people crossing the street has not.</p>
+  </div>
+  <div class="wrap stage">
+    <div class="media"><div class="frame" id="frame">
+      <figure class="m on" data-i="0"><img src="../assets/img/era-1980s.jpg" alt="1980s intersection" loading="eager"></figure>
+<figure class="m" data-i="1"><img src="../assets/img/era-1990s.jpg" alt="1990s intersection" loading="eager"></figure>
+<figure class="m" data-i="2"><img src="../assets/img/era-2000s.jpg" alt="2000s intersection" loading="lazy"></figure>
+<figure class="m" data-i="3"><img src="../assets/img/era-2010s.jpg" alt="2010s intersection" loading="lazy"></figure>
+<figure class="m" data-i="4"><img src="../assets/img/era-2020s.jpg" alt="2020s intersection" loading="lazy"></figure>
+<figure class="m" data-i="5"><img src="../assets/img/era-next.jpg" alt="Next intersection" loading="lazy"></figure>
+      <svg class="v2x" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <line class="link" x1="120" y1="150" x2="200" y2="150"/><line class="link" x1="200" y1="150" x2="200" y2="70"/><line class="link" x1="200" y1="150" x2="290" y2="180"/>
+        <circle class="ring" cx="120" cy="150" r="14"/><circle class="ring" cx="200" cy="70" r="14" style="animation-delay:.6s"/><circle class="ring" cx="290" cy="180" r="14" style="animation-delay:1.2s"/><circle class="ring" cx="200" cy="150" r="18" style="animation-delay:.3s"/>
+        <rect class="car" x="113" y="144" width="14" height="12" rx="3"/><rect class="car" x="194" y="63" width="12" height="14" rx="3"/><rect class="car" x="283" y="174" width="14" height="12" rx="3"/>
+        <circle cx="200" cy="150" r="5" fill="#5fe3ff"/>
+      </svg>
+      <div class="tag" id="tag">1980s</div>
+    </div></div>
+    <div class="steps">
+      <div class="step" data-i="0" id="era-0"><img class="si" src="../assets/img/era-1980s.jpg" alt="" loading="lazy"><span class="yr">1985</span><h3>Fixed time, paper and pencil</h3><p>Signals ran on electromechanical dials and timing plans worked out by hand. You learned a corridor by walking it.</p><p class="mine"><span class="dot"></span>The start of a forty-year career in California traffic engineering.</p></div>
+<div class="step" data-i="1" id="era-1"><img class="si" src="../assets/img/era-1990s.jpg" alt="" loading="lazy"><span class="yr">1990</span><h3>Detection arrives</h3><p>Inductive loops and actuated control let signals respond to real traffic. The Americans with Disabilities Act reshaped every crosswalk and curb ramp.</p><p class="mine"><span class="dot"></span>Years of city traffic engineering across Northern and Southern California.</p></div>
+<div class="step" data-i="2" id="era-2"><img class="si" src="../assets/img/era-2000s.jpg" alt="" loading="lazy"><span class="yr">2001</span><h3>Systems and standards</h3><p>Coordinated corridors, LED signal heads and pedestrian countdown signals spread across California streets.</p><p class="mine"><span class="dot"></span>2001: begins teaching practicing engineers at UC Berkeley's Technology Transfer Program.</p></div>
+<div class="step" data-i="3" id="era-3"><img class="si" src="../assets/img/era-2010s.jpg" alt="" loading="lazy"><span class="yr">2013</span><h3>Every user on the plan</h3><p>Complete Streets and the California MUTCD put pedestrians, cyclists and transit on equal footing. SB 743 moved development review toward vehicle miles traveled.</p><p class="mine"><span class="dot"></span>Traffic Engineer, City of Walnut Creek.</p></div>
+<div class="step" data-i="4" id="era-4"><img class="si" src="../assets/img/era-2020s.jpg" alt="" loading="lazy"><span class="yr">2022</span><h3>Cloud-connected signals</h3><p>Signals, fleets and data platforms now talk to each other in real time.</p><p class="mine"><span class="dot"></span>City Traffic Engineer, San Rafael: leads a cloud-based emergency vehicle preemption deployment across 53 signals. 2023: Principal, Advanced Mobility Group. 2026: founds East Bay Mobility.</p></div>
+<div class="step" data-i="5" id="era-5"><img class="si" src="../assets/img/era-next.jpg" alt="" loading="lazy"><span class="yr">Next</span><h3>Connected and automated</h3><p>Vehicles that talk to signals and to each other. Automated driving. AI-assisted operations. Every one of them still has to meet the same standards of safety and judgment.</p><p class="mine"><span class="dot"></span>Forty years of standards, ready for what comes next.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="services"><div class="wrap">
+  <div class="hd">
+    <div><div class="kick rv">Services</div><h2 class="rv d1">Senior review and support, sized to your need.</h2></div>
+    <p class="rv d2">On-call engagements for the work that calls for professional judgment: reviewing, advising, deciding and documenting.</p>
+  </div>
+  <div class="svcs">
+    <article class="svc rv"><span class="no">01</span><h3>Development Review</h3><p>Peer review of traffic impact studies, VMT analyses, access and circulation plans, parking studies, conditions of approval and improvement plans.</p><div class="tags"><span>Traffic impact studies</span><span>VMT / SB 743</span><span>Access & circulation</span><span>Conditions of approval</span></div></article>
+<article class="svc rv"><span class="no">02</span><h3>Traffic Engineering Review</h3><p>Signing and striping plans, traffic control plans, sight distance, stop-control and warrant studies, safety evaluations and operational reviews.</p><div class="tags"><span>Signing & striping</span><span>Traffic control plans</span><span>Sight distance</span><span>Warrants</span></div></article>
+<article class="svc rv"><span class="no">03</span><h3>Municipal Staff Support</h3><p>A senior extension of your Public Works or Engineering team when you need traffic engineering capacity, or an experienced independent voice.</p><div class="tags"><span>On-call</span><span>Task orders</span><span>Council-ready memos</span></div></article>
+<article class="svc rv"><span class="no">04</span><h3>Special Assignments</h3><p>Controversial developments, unusual access conditions, resident safety concerns, intersection evaluations and second opinions on consultant recommendations.</p><div class="tags"><span>Second opinions</span><span>Safety concerns</span><span>Intersection evaluations</span></div></article>
+<article class="svc rv"><span class="no">05</span><h3>Forensic & Litigation Support</h3><p>Independent review of whether a roadway's design, signing, signals and traffic control met accepted practice. We work alongside reconstruction experts, not in place of them.</p><div class="tags"><span>CA MUTCD compliance</span><span>Signal operations</span><span>Work zones</span><span>Agency records</span></div></article>
+  </div>
+  <div class="pledge rv"><b>Senior judgment, not production hours.</b> We focus on review, advice and recommendations, and keep every assignment in the hands of the senior engineer.</div>
+</div></section>
+
+<section class="sec whysec"><div class="wrap">
+  <div class="hd">
+    <div><div class="kick rv">Why agencies call</div><h2 class="rv d1">Built for the people who answer for the roadway.</h2></div>
+    <p class="rv d2">Small and mid-sized agencies often need senior traffic engineering expertise for specific decisions, not a permanent position or a large consultant team.</p>
+  </div>
+  <div class="who rv"><span>Public Works Directors</span><span>City & County Engineers</span><span>Caltrans & State DOT staff</span><span>Transportation authorities</span><span>Planning departments</span><span>Agency & legal counsel</span></div>
+  <div class="whys">
+    <div class="why rv"><h3>Fills the gap on your staff</h3><p>Senior traffic engineering expertise your team may not have in-house, without adding a full-time position.</p></div>
+<div class="why rv"><h3>On-call, task-order based</h3><p>Defined scopes and not-to-exceed budgets, the way public agencies already contract for this work.</p></div>
+<div class="why rv"><h3>The senior engineer does the work</h3><p>The person you speak with is the person who reviews, writes and signs. No hand-offs.</p></div>
+<div class="why rv"><h3>An independent second opinion</h3><p>A clear, unbiased read on consultant studies, contested projects and resident concerns.</p></div>
+<div class="why rv"><h3>Defensible recommendations</h3><p>Grounded in the California MUTCD, Caltrans standards and documented engineering practice, written for council and the record.</p></div>
+<div class="why rv"><h3>Fluent in the technology</h3><p>Signal systems, emergency vehicle preemption, transit signal priority and connected-corridor programs.</p></div>
+  </div>
+</div></section>
+
+<section class="sec" id="about"><div class="wrap about">
+  <div class="pic rv"><img src="../assets/img/era-2020s.jpg" alt="Aerial view of a California intersection" loading="lazy"><div class="cap">Four decades serving California communities</div></div>
+  <div>
+    <div class="kick rv">Leadership</div>
+    <h2 class="rv d1">Rafat Raie, P.E.</h2>
+    <p class="first rv d1">Rafat Raie has spent more than forty years making California streets work, most of them on the public side of the counter.</p>
+    <p class="rv d2">He has served as City Traffic Engineer for communities across Northern and Southern California, including the City of Walnut Creek and the City of San Rafael, where he was Deputy Director of Public Works. In San Rafael he led a cloud-based emergency vehicle preemption program that connected 53 traffic signals with the city's emergency fleet. He went on to serve as a Principal at Advanced Mobility Group and led the Contra Costa Transportation Authority's first Digital Motions Master Plan.</p>
+    <p class="rv d2">Since 2001 he has taught practicing engineers through UC Berkeley's Technology Transfer Program, in courses from Fundamentals of Traffic Engineering to Traffic Signal Diagnostics and the California Traffic Engineer license review. He founded East Bay Mobility to bring that experience directly to the agencies that need it.</p>
+    <div class="chips rv d3"><span>B.S. Civil Engineering, San José State</span><span>UC Berkeley TechTransfer instructor</span><span>City Traffic Engineer</span><span>Deputy Director of Public Works</span></div>
+  </div>
+</div></section>
+
+<section class="sec" id="contact" style="padding-top:40px"><div class="wrap contact">
+  <div class="side">
+    <div class="kick rv">Contact us</div>
+    <h2 class="rv d1">Let's talk about your project.</h2>
+    <p class="rv d2">Tell us about the review, question or decision in front of you. Public agencies, private clients and legal teams are all welcome here.</p>
+    <dl class="rv d3">
+      <div><dt>Email</dt><dd><a href="mailto:info@ebmobility.com">info@ebmobility.com</a></dd></div>
+      <div><dt>Service area</dt><dd>California</dd></div>
+    </dl>
+  </div>
+  <form class="rv d1" id="cf">
+    <label>Name<input name="name" required autocomplete="name"></label>
+    <label>Organization<input name="org" autocomplete="organization"></label>
+    <label>Email<input name="email" type="email" required autocomplete="email"></label>
+    <label>Phone<input name="phone" type="tel" autocomplete="tel"></label>
+    <label class="full">How can we help?<select name="topic">
+      <option>Development review</option><option>Traffic engineering review</option><option>Municipal staff support</option><option>Special assignment / second opinion</option><option>Forensic & litigation support</option><option>Something else</option>
+    </select></label>
+    <label class="full">Message<textarea name="msg" required></textarea></label>
+    <button class="btn p" type="submit">Send message →</button>
+  </form>
+</div></section>
+
+<footer><div class="wrap">
+  <img class="" src="../assets/img/ebm-logo.png" alt="East Bay Mobility">
+  <span>© 2026 East Bay Mobility · Senior traffic engineering for California</span>
+</div></footer>
+
+<nav class="rail" id="rail" aria-label="Page timeline"><div class="track"></div><div class="fill" id="fill"></div>
+<a href="#top" data-t="top"><i></i><span>Home</span></a>
+<a href="#era-0" data-t="era-0"><i></i><span>1980s</span></a>
+<a href="#era-1" data-t="era-1"><i></i><span>1990s</span></a>
+<a href="#era-2" data-t="era-2"><i></i><span>2000s</span></a>
+<a href="#era-3" data-t="era-3"><i></i><span>2010s</span></a>
+<a href="#era-4" data-t="era-4"><i></i><span>2020s</span></a>
+<a href="#era-5" data-t="era-5"><i></i><span>Next</span></a>
+<a href="#services" data-t="services"><i></i><span>Services</span></a>
+<a href="#about" data-t="about"><i></i><span>Rafat</span></a>
+<a href="#contact" data-t="contact"><i></i><span>Contact</span></a>
+</nav>
+
+<script>
+(function(){
+  // ---- intro: red -> amber -> green, page already rendered underneath (<= 2.6s)
+  var intro=document.getElementById('intro'),tl=document.getElementById('tl');
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function done(){ if(intro.classList.contains('go'))return; tl.className='tl g'; intro.classList.add('go'); document.body.classList.remove('lock'); reveal(document.querySelectorAll('.hero .rv')); setTimeout(function(){intro.remove()},800); }
+  if(reduce){ setTimeout(done,600); } else {
+    setTimeout(function(){tl.className='tl y'},850);
+    setTimeout(function(){tl.className='tl g'},1600);
+    setTimeout(done,2000);
+  }
+  intro.addEventListener('click',done);
+  setTimeout(done,3000);
+
+  // ---- reveal on scroll
+  function reveal(list){ list.forEach(function(el){el.classList.add('in')}); }
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){ if(e.isIntersecting && !e.target.closest('.hero')){e.target.classList.add('in');io.unobserve(e.target);} });},{rootMargin:'0px 0px -12% 0px'});
+  document.querySelectorAll('.rv').forEach(function(el){io.observe(el)});
+
+  // ---- timeline: sticky media follows active step
+  var steps=[].slice.call(document.querySelectorAll('.step')),ms=[].slice.call(document.querySelectorAll('.frame .m'));
+  var frame=document.getElementById('frame'),tag=document.getElementById('tag');
+  var labels=["1980s", "1990s", "2000s", "2010s", "2020s", "Next"];
+  var so=new IntersectionObserver(function(es){es.forEach(function(e){ if(e.isIntersecting){ var i=+e.target.dataset.i;
+    steps.forEach(function(s){s.classList.toggle('on',s===e.target)});
+    ms.forEach(function(m){m.classList.toggle('on',+m.dataset.i===i)});
+    tag.textContent=labels[i]; frame.classList.toggle('next',i===labels.length-1); } });},{rootMargin:'-45% 0px -45% 0px'});
+  steps.forEach(function(s){so.observe(s)});
+
+  // ---- header, hero parallax, life-line rail
+  var hdr=document.getElementById('hdr'),hero=document.getElementById('heroimg'),rail=document.getElementById('rail'),fill=document.getElementById('fill'),prog=document.getElementById('prog');
+  var marks=[].slice.call(rail.querySelectorAll('a')),story=document.getElementById('story');
+  function layout(){
+    var H=document.documentElement.scrollHeight-innerHeight;
+    marks.forEach(function(a){ var t=document.getElementById(a.dataset.t); var y=t?Math.max(0,Math.min(1,(t.getBoundingClientRect().top+scrollY-innerHeight*.45)/H)):0; a.dataset.y=y; a.style.top=(y*100)+'%'; });
+  }
+  function onScroll(){
+    var y=scrollY,H=document.documentElement.scrollHeight-innerHeight,p=H>0?y/H:0;
+    hdr.classList.toggle('solid',y>innerHeight*.6);
+    if(y<innerHeight) hero.style.transform='scale('+(1.08+y/innerHeight*.12)+') translateY('+(y*.25)+'px)';
+    fill.style.height=(p*100)+'%'; prog.style.width=(p*100)+'%';
+    rail.classList.toggle('show',y>innerHeight*.5);
+    var dk=false; document.querySelectorAll('.story,.whysec').forEach(function(el){var r=el.getBoundingClientRect(); if(r.top<innerHeight*.5&&r.bottom>innerHeight*.5) dk=true;}); rail.classList.toggle('ondark',dk||document.body.dataset.dark==='1');
+    var cur=0; marks.forEach(function(a,i){ if(p+0.002>=+a.dataset.y) cur=i; });
+    marks.forEach(function(a,i){a.classList.toggle('past',i<cur);a.classList.toggle('now',i===cur)});
+  }
+  addEventListener('scroll',onScroll,{passive:true}); addEventListener('resize',function(){layout();onScroll()});
+  addEventListener('load',function(){layout();onScroll()}); layout(); onScroll();
+
+  // ---- contact form -> email
+  document.getElementById('cf').addEventListener('submit',function(e){ e.preventDefault(); var f=e.target;
+    var body='Name: '+f.name.value+'\nOrganization: '+f.org.value+'\nEmail: '+f.email.value+'\nPhone: '+f.phone.value+'\nTopic: '+f.topic.value+'\n\n'+f.msg.value;
+    location.href='mailto:info@ebmobility.com?subject='+encodeURIComponent('Inquiry: '+f.topic.value)+'&body='+encodeURIComponent(body); });
+})();
+</script>
+</body>
+</html>
