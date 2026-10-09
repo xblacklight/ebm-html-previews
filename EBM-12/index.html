@@ -709,934 +709,997 @@ html.ebk-carcur input,html.ebk-carcur textarea,html.ebk-carcur select,html.ebk-c
 })();
 </script>
 <script>/*!
- * SkyWay hero background (East Bay Mobility)
- * Dependency-free canvas 2D animation: elevated skyways, flying cars with
- * light trails, floating road signs and an occasional shuttle launch.
- * Usage: var h = SkyWay.mount(el, { theme: 'blue', density: 1, opacity: 1, dim: 0.25 }); h.destroy();
+ * TrafficSky — mountable night-sky canvas background.
+ * Floating signal heads, light-trail road ribbons, flying cars, rockets.
+ * Based on the East Bay Mobility v3a "Cinematic Traffic Sky".
+ *
+ *   var h = TrafficSky.mount(el, { intensity: 1, calmLeft: true, fixed: false });
+ *   h.destroy();
+ *
+ * No dependencies. ES5 syntax.
  */
 (function (root) {
-  'use strict';
+  "use strict";
 
-  /* ------------------------------------------------------------------ utils */
+  var TAU = Math.PI * 2;
+  var C_RED = "255,59,74", C_AMBER = "255,176,32", C_GREEN = "46,230,166";
+  var C_CYAN = "120,200,255", C_BLUE = "138,180,255", C_WARM = "255,226,170";
+  var C_FLAME = "255,150,60";
+
+  function rand(a, b) { return a + Math.random() * (b - a); }
   function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
-  function lerp(a, b, t) { return a + (b - a) * t; }
-  function smooth(a, b, x) { var t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); }
-  function rgba(c, a) { return 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + (a < 0 ? 0 : a > 1 ? 1 : +a.toFixed(3)) + ')'; }
-  function mix(a, b, t) { return [Math.round(lerp(a[0], b[0], t)), Math.round(lerp(a[1], b[1], t)), Math.round(lerp(a[2], b[2], t))]; }
-  function freeCanvas(c) { if (c) { c.width = 0; c.height = 0; } }
-  function rng(seed) {
-    return function () {
-      seed = (seed + 0x6D2B79F5) | 0;
-      var t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    };
-  }
-  function mkCanvas(w, h) {
-    var c = document.createElement('canvas');
-    c.width = Math.max(1, Math.ceil(w)); c.height = Math.max(1, Math.ceil(h));
+  function smooth(e0, e1, x) { var t = clamp((x - e0) / (e1 - e0), 0, 1); return t * t * (3 - 2 * t); }
+  function makeCanvas(w, h) {
+    var c = document.createElement("canvas");
+    c.width = Math.max(1, Math.ceil(w));
+    c.height = Math.max(1, Math.ceil(h));
     return c;
   }
-  function rrect(g, x, y, w, h, r) {
+  function now() { return (root.performance && performance.now) ? performance.now() : Date.now(); }
+  function roundRect(c, x, y, w, h, r) {
+    c.beginPath();
+    c.moveTo(x + r, y);
+    c.arcTo(x + w, y, x + w, y + h, r);
+    c.arcTo(x + w, y + h, x, y + h, r);
+    c.arcTo(x, y + h, x, y, r);
+    c.arcTo(x, y, x + w, y, r);
+    c.closePath();
+  }
+
+  /* ---------- shared sprites (built once, reused by every mount) ---------- */
+  var SPR = null;
+  function radial(rgb, stops, size) {
+    var S = size || 128, c = makeCanvas(S, S), g = c.getContext("2d");
+    var gr = g.createRadialGradient(S / 2, S / 2, 0, S / 2, S / 2, S / 2);
+    for (var i = 0; i < stops.length; i++) gr.addColorStop(stops[i][0], "rgba(" + rgb + "," + stops[i][1] + ")");
+    g.fillStyle = gr;
+    g.fillRect(0, 0, S, S);
+    return c;
+  }
+  // Horizontal streak: transparent on the left, bright on the right.
+  function streak(rgb) {
+    var W = 256, H = 32, c = makeCanvas(W, H), g = c.getContext("2d");
+    var gx = g.createLinearGradient(0, 0, W, 0);
+    gx.addColorStop(0, "rgba(" + rgb + ",0)");
+    gx.addColorStop(0.55, "rgba(" + rgb + ",0.22)");
+    gx.addColorStop(0.9, "rgba(" + rgb + ",0.8)");
+    gx.addColorStop(1, "rgba(" + rgb + ",1)");
+    g.fillStyle = gx;
+    g.fillRect(0, 0, W, H);
+    g.globalCompositeOperation = "destination-in";
+    var gy = g.createLinearGradient(0, 0, 0, H);
+    gy.addColorStop(0, "rgba(0,0,0,0)");
+    gy.addColorStop(0.32, "rgba(0,0,0,0.18)");
+    gy.addColorStop(0.5, "rgba(0,0,0,1)");
+    gy.addColorStop(0.68, "rgba(0,0,0,0.18)");
+    gy.addColorStop(1, "rgba(0,0,0,0)");
+    g.fillStyle = gy;
+    g.fillRect(0, 0, W, H);
+    return c;
+  }
+  function cone() {
+    var W = 256, H = 128, c = makeCanvas(W, H), g = c.getContext("2d");
+    var gr = g.createRadialGradient(0, H / 2, 0, 0, H / 2, W);
+    gr.addColorStop(0, "rgba(255,232,190,0.6)");
+    gr.addColorStop(0.3, "rgba(255,205,120,0.17)");
+    gr.addColorStop(1, "rgba(255,200,110,0)");
+    g.fillStyle = gr;
     g.beginPath();
-    g.moveTo(x + r, y); g.lineTo(x + w - r, y); g.quadraticCurveTo(x + w, y, x + w, y + r);
-    g.lineTo(x + w, y + h - r); g.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    g.lineTo(x + r, y + h); g.quadraticCurveTo(x, y + h, x, y + h - r);
-    g.lineTo(x, y + r); g.quadraticCurveTo(x, y, x + r, y); g.closePath();
-  }
-  function bez(P, t, o) {
-    var m = 1 - t, a = m * m * m, b = 3 * m * m * t, c = 3 * m * t * t, d = t * t * t;
-    o[0] = a * P[0] + b * P[2] + c * P[4] + d * P[6];
-    o[1] = a * P[1] + b * P[3] + c * P[5] + d * P[7];
-  }
-  function bezD(P, t, o) {
-    var m = 1 - t, a = 3 * m * m, b = 6 * m * t, c = 3 * t * t;
-    o[0] = a * (P[2] - P[0]) + b * (P[4] - P[2]) + c * (P[6] - P[4]);
-    o[1] = a * (P[3] - P[1]) + b * (P[5] - P[3]) + c * (P[7] - P[5]);
-  }
-  var FONT = '"Inter", "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif';
-
-  /* ----------------------------------------------------------------- themes */
-  var THEMES = {
-    blue: {
-      sky: [[0, '#02060f'], [0.38, '#051226'], [0.66, '#0a2742'], [0.84, '#0e4a5e'], [1, '#14707a']],
-      horizon: [43, 179, 192], hub: [140, 228, 255], star: [215, 238, 255],
-      cityFar: [12, 36, 56], cityNear: [4, 12, 22], haze: [24, 110, 140],
-      win: [[150, 220, 255], [100, 180, 240], [255, 214, 160]],
-      deck: [9, 26, 46], deck2: [14, 44, 72], side: [3, 10, 19],
-      edge: [104, 226, 255], center: [43, 179, 192], dash: [220, 246, 255], under: [31, 127, 184],
-      trailA: [140, 236, 255], trailB: [255, 70, 96], head: [235, 250, 255], tail: [255, 44, 64],
-      body: ['#4a6278', '#18242f', '#05080c'], rim: [150, 230, 255], glass: [80, 200, 255],
-      flame: [255, 238, 210], plume: [110, 210, 255], signGlow: [90, 210, 255], beacon: [255, 60, 70],
-      dim: [2, 6, 14], green: ['#15834d', '#0b5d36']
-    },
-    signal: {
-      sky: [[0, '#06060c'], [0.38, '#0f0f20'], [0.66, '#1d1832'], [0.84, '#3e2230'], [1, '#7c3a1c']],
-      horizon: [242, 140, 40], hub: [255, 196, 110], star: [255, 242, 225],
-      cityFar: [34, 24, 40], cityNear: [10, 8, 14], haze: [150, 70, 40],
-      win: [[255, 200, 120], [255, 168, 80], [200, 228, 255]],
-      deck: [18, 16, 26], deck2: [30, 26, 40], side: [8, 7, 12],
-      edge: [242, 169, 0], center: [16, 180, 92], dash: [255, 240, 205], under: [242, 120, 0],
-      trailA: [255, 226, 160], trailB: [224, 38, 27], head: [255, 248, 230], tail: [240, 40, 28],
-      body: ['#565663', '#1d1d25', '#07070a'], rim: [255, 200, 120], glass: [255, 180, 90],
-      flame: [255, 236, 200], plume: [242, 169, 0], signGlow: [242, 169, 0], beacon: [224, 38, 27],
-      dim: [6, 5, 9], green: ['#10b45c', '#0a7a3e']
-    },
-    night: {
-      sky: [[0, '#07090c'], [0.42, '#090b14'], [0.68, '#110f26'], [0.86, '#22194e'], [1, '#3a2c88']],
-      horizon: [116, 86, 255], hub: [176, 160, 255], star: [228, 230, 255],
-      cityFar: [24, 18, 52], cityNear: [7, 6, 14], haze: [70, 50, 170],
-      win: [[190, 175, 255], [130, 160, 255], [255, 200, 230]],
-      deck: [11, 11, 22], deck2: [20, 18, 40], side: [5, 5, 10],
-      edge: [150, 128, 255], center: [84, 140, 255], dash: [228, 230, 255], under: [110, 90, 255],
-      trailA: [196, 212, 255], trailB: [255, 46, 99], head: [245, 245, 255], tail: [255, 40, 80],
-      body: ['#4a4866', '#181730', '#06060c'], rim: [180, 165, 255], glass: [140, 125, 255],
-      flame: [236, 228, 255], plume: [150, 128, 255], signGlow: [150, 128, 255], beacon: [255, 46, 99],
-      dim: [2, 2, 5], green: ['#13804b', '#0b5a35']
-    }
-  };
-
-  /* ---------------------------------------------------------------- layouts */
-  // Bezier control points normalised to the viewport; P0 is the far end.
-  // hw = near half-width in units of min(W,H); r = far/near width ratio.
-  var LAYOUTS = {
-    wide: {
-      hub: [0.705, 0.52], horizon: 0.82, cityTop: 0.66,
-      roads: [
-        { p: [0.655, 0.505, 0.60, 0.40, 0.53, 0.17, 0.34, -0.16], hw: 0.065, r: 0.16, speed: 0.85, glow: 0.45 },
-        { p: [0.725, 0.505, 0.80, 0.44, 0.93, 0.27, 1.30, 0.06], hw: 0.12, r: 0.10, speed: 1, glow: 0.85 },
-        { p: [0.72, 0.55, 0.80, 0.66, 0.84, 0.92, 0.38, 1.36], hw: 0.25, r: 0.06, speed: 1, glow: 1 }
-      ],
-      signs: [
-        { type: 'highway', x: 0.80, y: 0.18, s: 1 },
-        { type: 'v2x', x: 0.94, y: 0.47, s: 0.85 },
-        { type: 'speed', x: 0.915, y: 0.73, s: 0.95 },
-        { type: 'exit', x: 0.60, y: 0.655, s: 0.82 }
-      ],
-      rocketX: [0.56, 0.96], rocketTop: 0
-    },
-    tall: {
-      hub: [0.56, 0.585], horizon: 0.84, cityTop: 0.72,
-      roads: [
-        { p: [0.52, 0.575, 0.40, 0.53, 0.20, 0.49, -0.25, 0.47], hw: 0.10, r: 0.16, speed: 0.85, glow: 0.6 },
-        { p: [0.60, 0.57, 0.72, 0.53, 0.95, 0.47, 1.40, 0.40], hw: 0.17, r: 0.10, speed: 1, glow: 0.85 },
-        { p: [0.575, 0.61, 0.74, 0.68, 0.98, 0.88, 0.40, 1.22], hw: 0.42, r: 0.06, speed: 1, glow: 1 }
-      ],
-      signs: [
-        { type: 'highway', x: 0.74, y: 0.465, s: 0.8 },
-        { type: 'speed', x: 0.20, y: 0.68, s: 0.85 }
-      ],
-      rocketX: [0.12, 0.45], rocketTop: 0.5
-    }
-  };
-
-  var LANES = [
-    { lat: 0.24, dir: 1, v: 0.085 }, { lat: 0.68, dir: 1, v: 0.11 },
-    { lat: -0.24, dir: -1, v: 0.08 }, { lat: -0.68, dir: -1, v: 0.10 }
-  ];
-  var RF = 0.35;              // far/near apparent speed ratio along a skyway
-  var PAD = 16;               // parallax margin for pre-rendered layers (css px)
-  var SHIFT = { sky: 3, city: 5, road: 9, sign: 13 };
-
-  /* --------------------------------------------------------------- sprites */
-  var glowCache = {};
-  function glowSprite(c) {
-    var k = c.join(',');
-    if (glowCache[k]) return glowCache[k];
-    var s = 64, cv = mkCanvas(s, s), g = cv.getContext('2d');
-    var gr = g.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
-    gr.addColorStop(0, rgba(c, 1)); gr.addColorStop(0.12, rgba(c, 0.72));
-    gr.addColorStop(0.32, rgba(c, 0.24)); gr.addColorStop(0.65, rgba(c, 0.06)); gr.addColorStop(1, rgba(c, 0));
-    g.fillStyle = gr; g.fillRect(0, 0, s, s);
-    return (glowCache[k] = cv);
-  }
-
-  function carBodyPath(g) {
-    g.beginPath();
-    g.moveTo(-0.5, -0.05);
-    g.bezierCurveTo(-0.515, -0.1, -0.49, -0.135, -0.43, -0.145);
-    g.lineTo(-0.3, -0.155);
-    g.bezierCurveTo(-0.2, -0.165, -0.12, -0.25, 0.02, -0.252);
-    g.bezierCurveTo(0.14, -0.252, 0.21, -0.19, 0.3, -0.152);
-    g.bezierCurveTo(0.4, -0.125, 0.48, -0.11, 0.51, -0.072);
-    g.bezierCurveTo(0.53, -0.04, 0.51, -0.008, 0.45, -0.006);
-    g.lineTo(-0.44, -0.006);
-    g.bezierCurveTo(-0.49, -0.006, -0.505, -0.025, -0.5, -0.05);
+    g.moveTo(0, H / 2 - 3);
+    g.lineTo(W, 0);
+    g.lineTo(W, H);
+    g.lineTo(0, H / 2 + 3);
     g.closePath();
+    g.fill();
+    return c;
   }
-  function carGlassPath(g) {
-    g.beginPath();
-    g.moveTo(-0.25, -0.158);
-    g.bezierCurveTo(-0.17, -0.172, -0.1, -0.236, 0.02, -0.237);
-    g.bezierCurveTo(0.12, -0.237, 0.18, -0.19, 0.255, -0.152);
-    g.bezierCurveTo(0.1, -0.148, -0.1, -0.15, -0.25, -0.158);
-    g.closePath();
-  }
-  function makeCarSprite(T) {
-    var S = 360, w = S * 1.1, h = S * 0.34, ox = w / 2, oy = h * 0.86;
-    var cv = mkCanvas(w, h), g = cv.getContext('2d');
-    g.translate(ox, oy); g.scale(S, S);
-    carBodyPath(g);
-    var gr = g.createLinearGradient(0, -0.255, 0, 0);
-    gr.addColorStop(0, T.body[0]); gr.addColorStop(0.42, T.body[1]); gr.addColorStop(1, T.body[2]);
-    g.fillStyle = gr; g.fill();
-    g.save(); carBodyPath(g); g.clip();
-    // rim light from road glow
-    g.lineWidth = 0.014; g.strokeStyle = rgba(T.rim, 0.55); carBodyPath(g); g.stroke();
-    // lower-body shade
-    var sh = g.createLinearGradient(0, -0.07, 0, 0);
-    sh.addColorStop(0, 'rgba(0,0,0,0)'); sh.addColorStop(1, 'rgba(0,0,0,0.55)');
-    g.fillStyle = sh; g.fillRect(-0.6, -0.07, 1.2, 0.08);
-    // aura character line
-    g.beginPath(); g.moveTo(-0.47, -0.088);
-    g.bezierCurveTo(-0.2, -0.097, 0.2, -0.094, 0.48, -0.08);
-    g.lineWidth = 0.007; g.strokeStyle = rgba(T.rim, 0.85); g.stroke();
-    g.restore();
-    // canopy glass
-    carGlassPath(g);
-    var gg = g.createLinearGradient(-0.22, -0.24, 0.24, -0.15);
-    gg.addColorStop(0, rgba(T.glass, 0.18)); gg.addColorStop(0.6, rgba(T.glass, 0.5)); gg.addColorStop(1, 'rgba(255,255,255,0.85)');
-    g.fillStyle = gg; g.fill();
-    g.beginPath(); g.moveTo(-0.12, -0.215); g.quadraticCurveTo(0.0, -0.235, 0.1, -0.226);
-    g.lineWidth = 0.006; g.strokeStyle = 'rgba(255,255,255,0.55)'; g.stroke();
-    // light bars
-    g.lineCap = 'round';
-    g.beginPath(); g.moveTo(0.42, -0.104); g.quadraticCurveTo(0.49, -0.096, 0.515, -0.07);
-    g.lineWidth = 0.016; g.strokeStyle = '#ffffff'; g.stroke();
-    g.beginPath(); g.moveTo(-0.503, -0.07); g.quadraticCurveTo(-0.5, -0.118, -0.43, -0.128);
-    g.lineWidth = 0.016; g.strokeStyle = rgba(T.tail, 1); g.stroke();
-    // hover pods
-    g.fillStyle = '#05070a';
-    rrect(g, -0.36, -0.02, 0.2, 0.03, 0.015); g.fill();
-    rrect(g, 0.16, -0.02, 0.2, 0.03, 0.015); g.fill();
-    g.fillStyle = rgba(T.rim, 0.9);
-    g.fillRect(-0.34, 0.004, 0.16, 0.004); g.fillRect(0.18, 0.004, 0.16, 0.004);
-    return { img: cv, S: S, ox: ox, oy: oy, w: w, h: h };
-  }
-
-  /* ----------------------------------------------------------------- signs */
-  function fitFont(g, text, weight, size, maxW) {
-    g.font = weight + ' ' + size + 'px ' + FONT;
-    var m = g.measureText(text).width;
-    if (m > maxW) { size = size * maxW / m; g.font = weight + ' ' + size + 'px ' + FONT; }
-    return size;
-  }
-  var SIGN_DEF = {
-    highway: { w: 212, h: 64 }, exit: { w: 196, h: 54 }, speed: { w: 70, h: 92 }, v2x: { w: 96, h: 96 }
-  };
-  function drawSignFace(g, type, T) {
-    var d = SIGN_DEF[type], w = d.w, h = d.h;
-    g.textBaseline = 'middle'; g.textAlign = 'center';
-    if (type === 'highway' || type === 'exit') {
-      rrect(g, 0, 0, w, h, 9);
-      var gr = g.createLinearGradient(0, 0, 0, h);
-      gr.addColorStop(0, T.green[0]); gr.addColorStop(1, T.green[1]);
-      g.fillStyle = gr; g.fill();
-      g.shadowColor = 'transparent';
-      rrect(g, 4.5, 4.5, w - 9, h - 9, 6); g.lineWidth = 2.2; g.strokeStyle = 'rgba(255,255,255,0.95)'; g.stroke();
-      g.fillStyle = '#ffffff';
-      if (type === 'highway') {
-        g.textAlign = 'left';
-        fitFont(g, 'SKYWAY 2030', 700, 24, w - 72);
-        g.fillText('SKYWAY 2030', 17, h / 2 + 1);
-        // arrow
-        var ax = w - 50, ay = h / 2;
-        g.beginPath(); g.moveTo(ax, ay - 3); g.lineTo(ax + 20, ay - 3); g.lineTo(ax + 20, ay - 10);
-        g.lineTo(ax + 33, ay); g.lineTo(ax + 20, ay + 10); g.lineTo(ax + 20, ay + 3); g.lineTo(ax, ay + 3); g.closePath(); g.fill();
-      } else {
-        fitFont(g, 'EXIT · BAY AREA', 700, 19, w - 30);
-        g.fillText('EXIT · BAY AREA', w / 2, h / 2 + 1);
-      }
-    } else if (type === 'speed') {
-      rrect(g, 0, 0, w, h, 7); g.fillStyle = '#f3f5f7'; g.fill();
-      g.shadowColor = 'transparent';
-      rrect(g, 4, 4, w - 8, h - 8, 4); g.lineWidth = 2.2; g.strokeStyle = '#111418'; g.stroke();
-      g.fillStyle = '#111418';
-      fitFont(g, 'SPEED', 700, 12.5, w - 18); g.fillText('SPEED', w / 2, 21);
-      fitFont(g, 'LIMIT', 700, 12.5, w - 18); g.fillText('LIMIT', w / 2, 36);
-      fitFont(g, 'AI', 800, 36, w - 16); g.fillText('AI', w / 2, 66);
-    } else if (type === 'v2x') {
-      var c = w / 2, s = 66;
-      g.save(); g.translate(c, c); g.rotate(Math.PI / 4);
-      rrect(g, -s / 2, -s / 2, s, s, 8); g.fillStyle = '#f2a900'; g.fill();
-      g.shadowColor = 'transparent';
-      rrect(g, -s / 2 + 4.5, -s / 2 + 4.5, s - 9, s - 9, 5); g.lineWidth = 2.2; g.strokeStyle = '#121212'; g.stroke();
-      g.restore();
-      g.fillStyle = '#121212'; g.strokeStyle = '#121212'; g.lineWidth = 2; g.lineCap = 'round';
-      fitFont(g, 'V2X', 800, 19, 50); g.fillText('V2X', c, c + 9);
-      g.beginPath(); g.arc(c, c - 6, 1.8, 0, Math.PI * 2); g.fill();
-      g.beginPath(); g.arc(c, c - 6, 6.5, -Math.PI * 0.78, -Math.PI * 0.22); g.stroke();
-      g.beginPath(); g.arc(c, c - 6, 11.5, -Math.PI * 0.76, -Math.PI * 0.24); g.stroke();
-    }
-    // glass sheen
-    g.save();
-    if (type === 'v2x') { g.translate(w / 2, w / 2); g.rotate(Math.PI / 4); rrect(g, -33, -33, 66, 66, 8); g.rotate(-Math.PI / 4); g.translate(-w / 2, -w / 2); }
-    else rrect(g, 0, 0, w, h, type === 'speed' ? 7 : 9);
-    g.clip();
-    var sh = g.createLinearGradient(0, 0, w * 0.4, h);
-    sh.addColorStop(0, 'rgba(255,255,255,0.20)'); sh.addColorStop(0.45, 'rgba(255,255,255,0.04)'); sh.addColorStop(1, 'rgba(0,0,0,0.12)');
-    g.fillStyle = sh; g.fillRect(0, 0, w, h);
-    g.restore();
-  }
-  function makeSign(type, T, scale, dpr) {
-    var d = SIGN_DEF[type], pad = 26, beam = 0.0;
-    var wC = d.w + pad * 2, hC = d.h + pad * 2 + beam;
-    var k = scale * dpr;
-    var cv = mkCanvas(wC * k, hC * k), g = cv.getContext('2d');
-    g.scale(k, k); g.translate(pad, pad);
-    // soft halo
-    g.save();
-    g.shadowColor = rgba(T.signGlow, 0.55); g.shadowBlur = 22 * k;
-    drawSignFace(g, type, T);
-    g.restore();
-    // faint anti-grav light spill under the sign
-    var cx = d.w / 2, by = (type === 'v2x' ? d.h - 2 : d.h) + 7, ew = d.w * 0.42;
-    g.save(); g.translate(cx, by); g.scale(1, 0.16);
-    var eg = g.createRadialGradient(0, 0, 0, 0, 0, ew);
-    eg.addColorStop(0, rgba(T.signGlow, 0.5)); eg.addColorStop(1, rgba(T.signGlow, 0));
-    g.fillStyle = eg; g.fillRect(-ew, -ew, ew * 2, ew * 2); g.restore();
-    return { img: cv, w: wC * scale, h: hC * scale, ax: (pad + d.w / 2) * scale, ay: (pad + d.h / 2) * scale };
-  }
-
-  /* ------------------------------------------------------------------ mount */
-  function mount(container, options) {
-    if (!container || typeof container.appendChild !== 'function') throw new Error('SkyWay.mount: container element required');
-    var o = options || {};
-    var T = THEMES[o.theme] || THEMES.blue;
-    var density = clamp(o.density == null || isNaN(+o.density) ? 1 : +o.density, 0.25, 3);
-    var dimAmt = clamp(o.dim == null || isNaN(+o.dim) ? 0.25 : +o.dim, 0, 1);
-    var opacity = clamp(o.opacity == null || isNaN(+o.opacity) ? 1 : +o.opacity, 0, 1);
-    var parallax = o.parallax !== false;
-    var mq = root.matchMedia ? root.matchMedia('(prefers-reduced-motion: reduce)') : null;
-    var reduced = o.reducedMotion != null ? !!o.reducedMotion : !!(mq && mq.matches);
-
-    try { if (root.getComputedStyle(container).position === 'static') container.style.position = 'relative'; } catch (e) { /* noop */ }
-    var canvas = document.createElement('canvas');
-    canvas.setAttribute('aria-hidden', 'true');
-    canvas.className = 'skyway-canvas';
-    canvas.style.cssText = 'position:absolute;inset:0;top:0;left:0;width:100%;height:100%;display:block;pointer-events:none;opacity:' + opacity;
-    container.insertBefore(canvas, container.firstChild);
-    var ctx = canvas.getContext('2d');
-
-    var W = 0, H = 0, D = 1, dpr = 1, sD = 1, rD = 1, L = null, ready = false, roadBox = null;
-    var skyLayer = null, cityLayer = null, roadLayer = null, tmpLayer = null, cityY = 0;
-    var roads = [], cars = [], signs = [], beacons = [], twinkles = [];
-    var overlay = null, carSpr = makeCarSprite(T), beamGrad = null;
-    var time = 0, last = 0, raf = 0, visible = true, destroyed = false;
-    var rocket = null, nextRocket = 0.8;
-    var mx = 0, my = 0, px = 0, py = 0;
-    var R = rng(20300 + (o.seed | 0));
-    var S0 = { x: 0, y: 0, nx: 0, ny: 0, tx: 0, ty: 0, hw: 0 }, S1 = { x: 0, y: 0, nx: 0, ny: 0, tx: 0, ty: 0, hw: 0 };
-    var G = {
-      head: glowSprite(T.head), tail: glowSprite(T.tail), trailA: glowSprite(T.trailA), trailB: glowSprite(T.trailB),
-      under: glowSprite(T.under), edge: glowSprite(T.edge), star: glowSprite(T.star), flame: glowSprite(T.flame),
-      plume: glowSprite(T.plume), hub: glowSprite(T.hub), beacon: glowSprite(T.beacon), sign: glowSprite(T.signGlow)
+  function sprites() {
+    if (SPR) return SPR;
+    var glowStops = [[0, 1], [0.16, 0.55], [0.42, 0.16], [0.7, 0.04], [1, 0]];
+    SPR = {
+      glow: {
+        red: radial(C_RED, glowStops), amber: radial(C_AMBER, glowStops), green: radial(C_GREEN, glowStops),
+        cyan: radial(C_CYAN, glowStops), blue: radial(C_BLUE, glowStops), warm: radial(C_WARM, glowStops),
+        flame: radial(C_FLAME, glowStops)
+      },
+      under: radial(C_GREEN, [[0, 0.22], [0.5, 0.08], [1, 0]]),
+      smoke: radial("176,188,214", [[0, 0.5], [0.3, 0.34], [0.65, 0.12], [1, 0]], 64),
+      streak: { red: streak(C_RED), warm: streak(C_WARM), cyan: streak(C_CYAN), amber: streak(C_AMBER), teal: streak(C_GREEN) },
+      cone: cone()
     };
+    return SPR;
+  }
 
-    /* ---- road geometry: arc-length LUT with perspective half-width ---- */
-    function buildRoad(def) {
-      var P = [], i;
-      for (i = 0; i < 8; i += 2) { P.push(def.p[i] * W, def.p[i + 1] * H); }
-      var NS = 400, cum = new Float32Array(NS + 1), pt = [0, 0], prev = [0, 0];
-      bez(P, 0, prev);
-      for (i = 1; i <= NS; i++) { bez(P, i / NS, pt); cum[i] = cum[i - 1] + Math.hypot(pt[0] - prev[0], pt[1] - prev[1]); prev[0] = pt[0]; prev[1] = pt[1]; }
-      var total = cum[NS] || 1, M = 256, d = [0, 0], j = 0;
-      var lut = { n: M, x: new Float32Array(M + 1), y: new Float32Array(M + 1), nx: new Float32Array(M + 1), ny: new Float32Array(M + 1), tx: new Float32Array(M + 1), ty: new Float32Array(M + 1), hw: new Float32Array(M + 1) };
-      for (i = 0; i <= M; i++) {
-        var target = total * i / M;
-        while (j < NS - 1 && cum[j + 1] < target) j++;
-        var f = clamp((target - cum[j]) / Math.max(1e-6, cum[j + 1] - cum[j]), 0, 1), t = (j + f) / NS;
-        bez(P, t, pt); bezD(P, t, d);
-        var len = Math.hypot(d[0], d[1]) || 1, tx = d[0] / len, ty = d[1] / len;
-        lut.x[i] = pt[0]; lut.y[i] = pt[1]; lut.tx[i] = tx; lut.ty[i] = ty; lut.nx[i] = -ty; lut.ny[i] = tx;
-        lut.hw[i] = def.hw * D * (def.r + (1 - def.r) * i / M);
+  var LAMPS = [
+    { key: "red", rgb: C_RED, hex: "#ff3b4a" },
+    { key: "amber", rgb: C_AMBER, hex: "#ffb020" },
+    { key: "green", rgb: C_GREEN, hex: "#2ee6a6" }
+  ];
+  var PCOL = ["#ffb020", "#2ee6a6", "#ff3b4a", "#8ab4ff"];
+
+  /* ---------------------------------- mount ---------------------------------- */
+  function mount(el, opts) {
+    if (!el || !el.appendChild) throw new Error("TrafficSky.mount: container element required");
+    opts = opts || {};
+    var intensity = clamp(opts.intensity == null ? 1 : +opts.intensity || 1, 0.2, 2);
+    var calmLeft = opts.calmLeft !== false;
+    var fixed = !!opts.fixed;
+    var S = sprites();
+
+    var canvas = document.createElement("canvas");
+    canvas.setAttribute("aria-hidden", "true");
+    canvas.className = "trafficsky-canvas";
+    var cs = canvas.style;
+    cs.position = fixed ? "fixed" : "absolute";
+    cs.left = "0";
+    cs.top = "0";
+    cs.width = fixed ? "100vw" : "100%";
+    cs.height = "100%";
+    if (fixed) { cs.width = "100%"; cs.height = "100vh"; cs.height = "100lvh"; } // lvh ignored where unsupported
+    cs.display = "block";
+    cs.zIndex = "-1";
+    cs.pointerEvents = "none";
+    cs.background = "#03050c";
+
+    // Container: positioned + own stacking context so the canvas sits behind content.
+    var saved = { position: el.style.position, isolation: el.style.isolation };
+    var compPos = root.getComputedStyle ? getComputedStyle(el).position : el.style.position;
+    if (!fixed && (!compPos || compPos === "static")) el.style.position = "relative";
+    el.style.isolation = "isolate";
+    el.insertBefore(canvas, el.firstChild);
+
+    var ctx = canvas.getContext("2d", { alpha: false }) || canvas.getContext("2d");
+    var w = 0, h = 0, dpr = 1, u = 1, wide = true;
+    var bg = null, scene = null, sceneCtx = null, sceneT = -1;
+    var starGroups = [], stars = [], signals = [], trails = [], vehicles = [], particles = [], rockets = [];
+    var clock = 0, last = 0, raf = 0, nextRocket = 0.7;
+    var visible = true, destroyed = false;
+    var stat = { n: 0, sum: 0, max: 0 };
+    var mql = root.matchMedia ? root.matchMedia("(prefers-reduced-motion: reduce)") : null;
+    var reduced = !!(mql && mql.matches);
+
+    // On HiDPI screens, whole-device-pixel blits are much cheaper and visually identical.
+    function snap(v) { return dpr >= 1.5 ? Math.round(v) : v; }
+
+    /* ---- calm zones ---- */
+    function calmAt(x, y) {
+      if (!calmLeft) return 1;
+      if (wide) return 0.26 + 0.74 * smooth(0.3, 0.6, x / w);
+      var d = Math.abs(y / h - 0.5);
+      return 0.3 + 0.7 * smooth(0.12, 0.34, d);
+    }
+    // Portrait: pick a y biased away from the calm middle band.
+    function busyY(lo, hi, calmShare) {
+      if (calmLeft && !wide && Math.random() > calmShare) {
+        return (Math.random() < 0.5 ? rand(Math.min(lo, 0.05), 0.24) : rand(0.75, Math.max(hi, 0.95))) * h;
       }
-      var k = Math.round(0.22 * M);
-      var road = { lut: lut, def: def, S: Math.log(1 / RF) / (1 - RF), fadeR: Math.hypot(lut.x[k] - lut.x[0], lut.y[k] - lut.y[0]) || 1 };
-      return road;
-    }
-    function uOf(s) { return RF * (Math.exp(s * (1 - RF)) - 1) / (1 - RF); }
-    function sOf(u) { return Math.log(1 + u * (1 - RF) / RF) / (1 - RF); }
-    function sample(rd, u, out) {
-      if (!(u >= 0 && u <= 1)) return false;
-      var l = rd.lut, n = l.n, f = u * n, i = f | 0;
-      if (i >= n) i = n - 1;
-      f -= i; var g = 1 - f;
-      out.x = l.x[i] * g + l.x[i + 1] * f; out.y = l.y[i] * g + l.y[i + 1] * f;
-      out.nx = l.nx[i] * g + l.nx[i + 1] * f; out.ny = l.ny[i] * g + l.ny[i + 1] * f;
-      out.tx = l.tx[i] * g + l.tx[i + 1] * f; out.ty = l.ty[i] * g + l.ty[i + 1] * f;
-      out.hw = l.hw[i] * g + l.hw[i + 1] * f;
-      return true;
-    }
-    function fadeAt(rd, x, y) {
-      var q = Math.hypot(x - rd.lut.x[0], y - rd.lut.y[0]) / rd.fadeR;
-      return q >= 1 ? 1 : q < 0.3 ? 0.25 * q / 0.3 : 0.25 + 0.75 * smooth(0.3, 1, q);
-    }
-    function strip(g, rd, la, lb, dy) {
-      var l = rd.lut, n = l.n, i;
-      g.beginPath();
-      for (i = 0; i <= n; i++) g.lineTo(l.x[i] + l.nx[i] * la * l.hw[i], l.y[i] + l.ny[i] * la * l.hw[i] + dy * l.hw[i]);
-      for (i = n; i >= 0; i--) g.lineTo(l.x[i] + l.nx[i] * lb * l.hw[i], l.y[i] + l.ny[i] * lb * l.hw[i] + dy * l.hw[i]);
-      g.closePath();
+      return rand(lo, hi) * h;
     }
 
-    /* ---------------------------------------------- static layer renders */
-    function renderSky() {
-      var lw = W + PAD * 2, lh = H + PAD * 2;
-      freeCanvas(skyLayer); skyLayer = mkCanvas(lw * sD, lh * sD);
-      var g = skyLayer.getContext('2d'); g.scale(sD, sD); g.translate(PAD, PAD);
-      var hy = L.horizon * H, i, gr = g.createLinearGradient(0, -PAD, 0, hy);
-      for (i = 0; i < T.sky.length; i++) gr.addColorStop(T.sky[i][0], T.sky[i][1]);
-      g.fillStyle = gr; g.fillRect(-PAD, -PAD, lw, lh);
-      // horizon glow band
-      g.save(); g.translate(L.hub[0] * W, hy); g.scale(1, 0.32);
-      var rr = Math.max(W, H) * 0.75, hg = g.createRadialGradient(0, 0, 0, 0, 0, rr);
-      hg.addColorStop(0, rgba(T.horizon, 0.5)); hg.addColorStop(0.35, rgba(T.horizon, 0.18)); hg.addColorStop(1, rgba(T.horizon, 0));
-      g.fillStyle = hg; g.fillRect(-rr, -rr, rr * 2, rr * 2); g.restore();
-      // vanishing-point bloom where the skyways converge
-      var hx = L.hub[0] * W, hyy = L.hub[1] * H, br = D * 0.55, bg = g.createRadialGradient(hx, hyy, 0, hx, hyy, br);
-      bg.addColorStop(0, rgba(T.hub, 0.32)); bg.addColorStop(0.25, rgba(T.hub, 0.12)); bg.addColorStop(1, rgba(T.hub, 0));
-      g.fillStyle = bg; g.fillRect(hx - br, hyy - br, br * 2, br * 2);
-      // stars
-      var r2 = rng(77), count = Math.round(W * H / 2300);
-      for (i = 0; i < count; i++) {
-        var x = r2() * (W + PAD * 2) - PAD, y = Math.pow(r2(), 1.6) * hy * 0.95 - PAD;
-        var fall = 1 - smooth(0.35, 0.95, y / hy), a = (0.15 + 0.6 * Math.pow(r2(), 2.2)) * fall;
-        var sz = 0.45 + Math.pow(r2(), 3) * 1.1;
-        if (a < 0.03) continue;
-        g.fillStyle = rgba(T.star, a);
-        g.beginPath(); g.arc(x, y, sz * 0.5, 0, Math.PI * 2); g.fill();
+    /* ---- background cache ---- */
+    function buildBg() {
+      bg = makeCanvas(w * dpr, h * dpr);
+      scene = makeCanvas(w * dpr, h * dpr);
+      sceneCtx = scene.getContext("2d");
+      sceneT = -1;
+      var b = bg.getContext("2d");
+      b.scale(dpr, dpr);
+      var g = b.createLinearGradient(0, 0, 0, h);
+      g.addColorStop(0, "#0c1630");
+      g.addColorStop(0.35, "#080e1c");
+      g.addColorStop(0.7, "#050910");
+      g.addColorStop(1, "#03050c");
+      b.fillStyle = g;
+      b.fillRect(0, 0, w, h);
+      var R = Math.max(w, h);
+      function blob(px, py, rad, rgb, a) {
+        var pg = b.createRadialGradient(w * px, h * py, 0, w * px, h * py, rad);
+        pg.addColorStop(0, "rgba(" + rgb + "," + a + ")");
+        pg.addColorStop(1, "rgba(" + rgb + ",0)");
+        b.fillStyle = pg;
+        b.fillRect(0, 0, w, h);
       }
-      twinkles = [];
-      var tc = Math.round(clamp(W * H / 40000, 8, 34));
-      for (i = 0; i < tc; i++) twinkles.push({ x: r2() * W, y: Math.pow(r2(), 1.4) * hy * 0.7, p: r2() * 6.28, f: 0.6 + r2() * 1.4, s: 3 + r2() * 4 });
-    }
-
-    function renderCity() {
-      var top = L.cityTop * H, ch = H - top + PAD, lw = W + PAD * 2;
-      cityY = top;
-      freeCanvas(cityLayer); cityLayer = mkCanvas(lw * sD, (ch + PAD) * sD);
-      var g = cityLayer.getContext('2d'); g.scale(sD, sD); g.translate(PAD, 0);
-      var r2 = rng(4242), base = ch, hubX = L.hub[0] * W, unit = clamp(W / 1440, 0.55, 1.4);
-      beacons = [];
-      function row(cfar, hmin, hmax, wmin, wmax, winA, gapP) {
-        var x = -PAD, bs = [];
-        while (x < W + PAD) {
-          var bw = (wmin + r2() * (wmax - wmin)) * unit;
-          var dc = (x + bw / 2 - hubX) / (W * 0.16);
-          var boost = Math.exp(-dc * dc);
-          var bh = (hmin + (hmax - hmin) * (0.25 * r2() + 0.75 * Math.pow(r2(), 2) * 0.7 + boost * 0.55 * r2())) * (H - top);
-          if (r2() < gapP) { x += bw * 0.6; continue; }
-          bs.push([x, bw, bh]);
-          x += bw + (r2() < 0.3 ? 1.5 * unit : 0);
+      // Horizon glow (East Bay dusk remnant) + soft city pockets
+      blob(0.5, 0.95, R * 0.55, "255,140,40", 0.07);
+      blob(0.5, 0.95, R * 0.3, "80,100,180", 0.04);
+      blob(0.2, 0.55, R * 0.25, C_RED, 0.06);
+      blob(0.75, 0.45, R * 0.25, C_GREEN, 0.05);
+      blob(0.5, 0.3, R * 0.25, C_AMBER, 0.045);
+      blob(0.82, 0.18, R * 0.2, "80,110,200", 0.05);
+      // Legibility overlays
+      if (calmLeft) {
+        var o;
+        if (wide) {
+          o = b.createLinearGradient(0, 0, w, 0);
+          o.addColorStop(0, "rgba(3,5,12,0.5)");
+          o.addColorStop(0.32, "rgba(3,5,12,0.3)");
+          o.addColorStop(0.6, "rgba(3,5,12,0)");
+        } else {
+          o = b.createLinearGradient(0, 0, 0, h);
+          o.addColorStop(0, "rgba(3,5,12,0.05)");
+          o.addColorStop(0.28, "rgba(3,5,12,0.36)");
+          o.addColorStop(0.5, "rgba(3,5,12,0.48)");
+          o.addColorStop(0.72, "rgba(3,5,12,0.36)");
+          o.addColorStop(1, "rgba(3,5,12,0.12)");
         }
-        var i, b;
-        for (i = 0; i < bs.length; i++) {
-          b = bs[i];
-          var gr = g.createLinearGradient(0, base - b[2], 0, base);
-          gr.addColorStop(0, rgba(mix(cfar, T.haze, 0.18), 1)); gr.addColorStop(1, rgba(cfar, 1));
-          g.fillStyle = gr; g.fillRect(b[0], base - b[2], b[1], b[2] + PAD);
-          if (b[2] > (H - top) * 0.55 && r2() < 0.6) { // spire
-            g.fillRect(b[0] + b[1] / 2 - 0.6, base - b[2] - b[2] * 0.12, 1.2, b[2] * 0.12);
-            if (beacons.length < 6) beacons.push({ x: b[0] + b[1] / 2, y: top + base - b[2] - b[2] * 0.12, p: r2() * 6.28 });
-          }
-        }
-        // windows
-        for (i = 0; i < bs.length; i++) {
-          b = bs[i];
-          var cw = 3.2 * unit, rh = 4.2 * unit;
-          for (var yy = base - b[2] + 4 * unit; yy < base - 2; yy += rh) {
-            for (var xx = b[0] + 2 * unit; xx < b[0] + b[1] - 2; xx += cw) {
-              if (r2() > winA) continue;
-              var wc = T.win[(r2() * T.win.length) | 0];
-              g.fillStyle = rgba(wc, 0.25 + r2() * 0.5);
-              g.fillRect(xx, yy, 1.3 * unit, 1.7 * unit);
-            }
-          }
-        }
+        b.fillStyle = o;
+        b.fillRect(0, 0, w, h);
       }
-      row(T.cityFar, 0.18, 0.95, 10, 34, 0.05, 0.08);
-      // haze between rows
-      var hz = g.createLinearGradient(0, 0, 0, base);
-      hz.addColorStop(0, rgba(T.haze, 0)); hz.addColorStop(0.55, rgba(T.haze, 0.16)); hz.addColorStop(1, rgba(T.haze, 0.06));
-      g.fillStyle = hz; g.fillRect(-PAD, 0, lw, base + PAD);
-      row(T.cityNear, 0.08, 0.42, 14, 46, 0.035, 0.04);
-      // ground fade
-      var gf = g.createLinearGradient(0, base * 0.5, 0, base + PAD);
-      gf.addColorStop(0, 'rgba(0,0,0,0)'); gf.addColorStop(1, 'rgba(0,0,0,0.55)');
-      g.fillStyle = gf; g.fillRect(-PAD, 0, lw, base + PAD);
+      // Vignette
+      var vg = b.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.3, w / 2, h / 2, R * 0.75);
+      vg.addColorStop(0, "rgba(3,5,12,0)");
+      vg.addColorStop(1, "rgba(3,5,12,0.5)");
+      b.fillStyle = vg;
+      b.fillRect(0, 0, w, h);
     }
 
-    function renderRoads() {
-      // crop the layer to the skyways' bounding box (+ glow margin) to save GPU memory
-      var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9, r, i;
-      for (r = 0; r < roads.length; r++) {
-        var lt = roads[r].lut, m0 = lt.hw[lt.n] * 0.6;
-        for (i = 0; i <= lt.n; i += 4) {
-          var e = lt.hw[i] * 1.5 + m0;
-          x0 = Math.min(x0, lt.x[i] - e); x1 = Math.max(x1, lt.x[i] + e);
-          y0 = Math.min(y0, lt.y[i] - e); y1 = Math.max(y1, lt.y[i] + e);
-        }
+    /* ---- world ---- */
+    function initStars() {
+      stars.length = 0;
+      var n = Math.min(260, Math.floor((w * h) / 14000));
+      for (var i = 0; i < n; i++) {
+        var r = rand(0.4, 1.4);
+        stars.push({ x: Math.random() * w, y: Math.random() * h * 0.78, r: r, g: i % 6 });
       }
-      x0 = Math.max(-PAD, Math.floor(x0)); y0 = Math.max(-PAD, Math.floor(y0));
-      x1 = Math.min(W + PAD, Math.ceil(x1)); y1 = Math.min(H + PAD, Math.ceil(y1));
-      roadBox = { x: x0, y: y0, w: Math.max(1, x1 - x0), h: Math.max(1, y1 - y0) };
-      var lw = roadBox.w, lh = roadBox.h;
-      freeCanvas(roadLayer);
-      roadLayer = mkCanvas(lw * rD, lh * rD);
-      tmpLayer = mkCanvas(lw * rD, lh * rD);
-      var rc = roadLayer.getContext('2d'), c = tmpLayer.getContext('2d');
-      for (var r = 0; r < roads.length; r++) {
-        var rd = roads[r], l = rd.lut, nearHW = l.hw[l.n];
-        c.setTransform(1, 0, 0, 1, 0, 0); c.globalCompositeOperation = 'source-over'; c.clearRect(0, 0, tmpLayer.width, tmpLayer.height);
-        c.setTransform(rD, 0, 0, rD, -x0 * rD, -y0 * rD);
-        // under-glow halo (shadow-only trick)
-        var OFF = (W + H) * 3;
-        c.save();
-        c.shadowColor = rgba(T.under, 0.42); c.shadowBlur = Math.max(10, nearHW * 0.5) * rD;
-        c.shadowOffsetX = -OFF * rD; c.shadowOffsetY = 0;
-        c.translate(OFF, 0); strip(c, rd, -1.15, 1.15, 0.22); c.fillStyle = '#000'; c.fill();
-        c.restore();
-        // slab side
-        strip(c, rd, -1, 1, 0.13); c.fillStyle = rgba(T.side, 0.96); c.fill();
-        strip(c, rd, 1, 0.97, 0.13); c.fillStyle = rgba(T.edge, 0.35); c.fill();
-        strip(c, rd, -1, -0.97, 0.13); c.fillStyle = rgba(T.edge, 0.35); c.fill();
-        // deck
-        strip(c, rd, -1, 1, 0);
-        var dg = c.createLinearGradient(l.x[0], l.y[0], l.x[l.n], l.y[l.n]);
-        dg.addColorStop(0, rgba(T.deck2, 0.9)); dg.addColorStop(1, rgba(T.deck, 0.94));
-        c.fillStyle = dg; c.fill();
-        // inner sheen toward edges
-        c.save(); c.globalCompositeOperation = 'lighter';
-        strip(c, rd, 0.6, 0.97, 0); c.fillStyle = rgba(T.edge, 0.05); c.fill();
-        strip(c, rd, -0.6, -0.97, 0); c.fill();
-        strip(c, rd, 0.82, 0.97, 0); c.fillStyle = rgba(T.edge, 0.06); c.fill();
-        strip(c, rd, -0.82, -0.97, 0); c.fill();
-        c.restore();
-        // static lane separators (faint)
-        c.fillStyle = rgba(T.dash, 0.08);
-        strip(c, rd, 0.455, 0.475, 0); c.fill(); strip(c, rd, -0.455, -0.475, 0); c.fill();
-        // centre double line
-        c.save(); c.shadowColor = rgba(T.center, 0.8); c.shadowBlur = 6 * rD;
-        c.fillStyle = rgba(T.center, 0.9);
-        strip(c, rd, 0.018, 0.042, 0); c.fill(); strip(c, rd, -0.018, -0.042, 0); c.fill();
-        c.restore();
-        // glowing edge strips
-        c.save(); c.shadowColor = rgba(T.edge, 0.95); c.shadowBlur = Math.max(8, nearHW * 0.09) * rD;
-        c.fillStyle = rgba(mix(T.edge, [255, 255, 255], 0.35), 1);
-        strip(c, rd, 0.955, 1.0, 0); c.fill(); strip(c, rd, -0.955, -1.0, 0); c.fill();
-        c.shadowBlur = Math.max(18, nearHW * 0.25) * rD; c.shadowColor = rgba(T.edge, 0.6);
-        strip(c, rd, 0.97, 1.0, 0); c.fill(); strip(c, rd, -0.97, -1.0, 0); c.fill();
-        c.restore();
-        // far-end fade toward the vanishing point
-        c.globalCompositeOperation = 'destination-in';
-        var mg = c.createRadialGradient(l.x[0], l.y[0], 0, l.x[0], l.y[0], rd.fadeR);
-        mg.addColorStop(0, 'rgba(0,0,0,0)'); mg.addColorStop(0.3, 'rgba(0,0,0,0.25)'); mg.addColorStop(1, 'rgba(0,0,0,1)');
-        c.fillStyle = mg; c.fillRect(x0, y0, lw, lh);
-        c.globalCompositeOperation = 'source-over';
-        rc.globalAlpha = rd.def.glow || 1; rc.drawImage(tmpLayer, 0, 0); rc.globalAlpha = 1;
-      }
-      freeCanvas(tmpLayer); tmpLayer = null;
+      starGroups = [];
+      for (i = 0; i < 6; i++) starGroups.push({ a: rand(0.3, 0.7), tw: rand(0.5, 2.2), ph: Math.random() * TAU });
     }
 
-    function buildOverlay() {
-      // wide: darken the left half; tall (phones): darken the upper half where copy stacks
-      var g = ctx, wide = L === LAYOUTS.wide, dg = wide ? g.createLinearGradient(0, 0, W * 0.62, 0) : g.createLinearGradient(0, 0, 0, H * 0.62);
-      var a = dimAmt;
-      dg.addColorStop(0, rgba(T.dim, a * 0.95)); dg.addColorStop(0.5, rgba(T.dim, a * 0.55)); dg.addColorStop(1, rgba(T.dim, 0));
-      var vt = g.createLinearGradient(0, 0, 0, H);
-      vt.addColorStop(0, 'rgba(0,0,0,0.28)'); vt.addColorStop(0.16, 'rgba(0,0,0,0)');
-      vt.addColorStop(0.86, 'rgba(0,0,0,0)'); vt.addColorStop(1, 'rgba(0,0,0,0.32)');
-      overlay = { dim: dg, vig: vt };
-    }
-
-    function buildSigns() {
-      signs = [];
-      var sc = clamp(Math.min(W, H) / 900, 0.55, 1.25);
-      if (W < 360) return;
-      for (var i = 0; i < L.signs.length; i++) {
-        var s = L.signs[i], sp = makeSign(s.type, T, sc * s.s, dpr);
-        signs.push({ sp: sp, x: s.x * W, y: s.y * H, ph: i * 1.7 + 0.4, amp: 3.2 * sc, rot: (i % 2 ? 1 : -1) * 0.012 });
-      }
-    }
-
-    /* ------------------------------------------------------------- traffic */
-    function buildCars() {
-      cars = [];
-      var n = Math.round(lerp(8, 14, clamp((W - 390) / (1440 - 390), 0, 1)) * density);
-      n = clamp(n, 3, 40);
-      var share = [0.22, 0.34, 0.44], r, i, k = 0;
-      for (r = 0; r < roads.length; r++) {
-        var cnt = r === roads.length - 1 ? n - k : Math.max(1, Math.round(n * share[r]));
-        k += cnt;
-        var perLane = [0, 0, 0, 0];
-        for (i = 0; i < cnt; i++) perLane[(i + r) % 4]++;
-        for (var ln = 0; ln < 4; ln++) {
-          for (i = 0; i < perLane[ln]; i++) {
-            var lane = LANES[ln], rd = roads[r];
-            var frac = (i + 0.15 + R() * 0.55) / perLane[ln];
-            // bias initial spread toward the visible mid/near section
-            var s = sOf(clamp(0.1 + 0.85 * frac, 0, 1));
-            cars.push({ road: r, lane: ln, lat: lane.lat, dir: lane.dir, v: lane.v * rd.def.speed * (0.97 + R() * 0.06), s: s * 0.999 });
-          }
-        }
-      }
-    }
-    function respawn(c) {
-      var rd = roads[c.road], S = rd.S, gap = S * 0.16, i, o;
-      if (c.dir > 0) {
-        var s = sOf(0.035) - S * R() * 0.08;
-        for (i = 0; i < cars.length; i++) { o = cars[i]; if (o !== c && o.road === c.road && o.lane === c.lane && o.s < s + gap) s = o.s - gap; }
-        c.s = s;
-      } else {
-        var s2 = S * (1.03 + R() * 0.1);
-        for (i = 0; i < cars.length; i++) { o = cars[i]; if (o !== c && o.road === c.road && o.lane === c.lane && o.s > s2 - gap) s2 = o.s + gap; }
-        c.s = s2;
-      }
-    }
-
-    function update(dt) {
-      time += dt;
-      for (var i = 0; i < cars.length; i++) {
-        var c = cars[i], S = roads[c.road].S;
-        c.s += c.dir * c.v * S * dt;
-        if ((c.dir > 0 && c.s > S * 1.04) || (c.dir < 0 && c.s < sOf(0.045))) respawn(c);
-      }
-      if (!rocket && time >= nextRocket) launch();
-      if (rocket && time - rocket.t0 > rocket.dur) { rocket = null; nextRocket = time + 8 + R() * 4; }
-      px += (mx - px) * Math.min(1, dt * 3); py += (my - py) * Math.min(1, dt * 3);
-    }
-
-    function launch() {
-      var sc = clamp(Math.min(W, H) / 900, 0.75, 1.4) * 1.25;
-      rocket = {
-        t0: time, dur: 7.5, x0: lerp(L.rocketX[0], L.rocketX[1], R()) * W, y0: cityY + (H - cityY) * 0.18,
-        drift: (R() < 0.5 ? -1 : 1) * (0.004 + R() * 0.006) * W, v0: 0.03 * H, a: 0.042 * H, sc: sc
+    function makeSignal(x, y, sc, hero) {
+      return {
+        x: x, y: y, sc: sc, hero: hero, rot: rand(-0.16, 0.16), phase: Math.random() * 10,
+        cycle: rand(3.2, 5.5), driftX: rand(-8, 8) * u, driftY: rand(-6, 6) * u, bob: rand(0.4, 1.1)
       };
     }
-    function rocketPos(t, out) {
-      var k = rocket;
-      out[0] = k.x0 + k.drift * t * t; out[1] = k.y0 - (k.v0 * t + 0.5 * k.a * t * t);
+    function initSignals() {
+      signals.length = 0;
+      var n = Math.max(3, Math.floor(3.5 * intensity + w / 480));
+      var heroes = wide ? [[0.7, 0.22], [0.9, 0.58], [0.6, 0.74]] : [[0.84, 0.13], [0.15, 0.86], [0.86, 0.8]];
+      if (w < 600 || intensity < 0.6) heroes = heroes.slice(0, 2);
+      for (var k = 0; k < heroes.length; k++) {
+        signals.push(makeSignal((heroes[k][0] + rand(-0.04, 0.04)) * w, (heroes[k][1] + rand(-0.04, 0.04)) * h,
+          rand(1.4, 1.65) * u * (0.85 + 0.15 * intensity), true));
+      }
+      for (var i = 0; i < n; i++) {
+        var x, y, tries = 0, ok;
+        do {
+          if (calmLeft && wide && i % 4 === 3) { x = rand(0.03, 0.2) * w; y = rand(0.1, 0.85) * h; }
+          else {
+            x = calmLeft && wide ? rand(0.5, 0.96) * w : rand(0.06, 0.94) * w;
+            y = wide ? rand(0.12, 0.74) * h : busyY(0.1, 0.9, 0.12);
+          }
+          ok = true;
+          for (var j = 0; j < signals.length; j++) {
+            var dx = signals[j].x - x, dy = signals[j].y - y, md = (signals[j].hero ? 130 : 80) * u;
+            if (dx * dx + dy * dy < md * md) { ok = false; break; }
+          }
+        } while (!ok && ++tries < 14);
+        var sc = rand(0.62, 1.12) * u * (0.72 + 0.28 * intensity) * (0.7 + 0.3 * calmAt(x, y));
+        signals.push(makeSignal(x, y, sc, false));
+      }
     }
 
-    /* ---------------------------------------------------------------- draw */
-    function drawRocket(g) {
-      if (!rocket) return;
-      var t = time - rocket.t0, k = rocket, sc = k.sc, p = [0, 0], q = [0, 0], i;
-      rocketPos(t, p);
-      var life = smooth(0, 0.6, t) * (1 - smooth(k.dur - 2.2, k.dur, t)) * smooth(L.rocketTop * H, L.rocketTop * H + H * 0.18, p[1]);
-      if (life <= 0.005) return;
-      if (p[1] < -40) return;
-      // exhaust trail (analytic history), widening & fading with age
-      var N = 26, span = Math.min(t, 2.0), pts = [];
-      for (i = 0; i <= N; i++) { var tt = Math.max(0, t - span * i / N); rocketPos(tt, q); pts.push(q[0], q[1], i / N); }
-      g.save(); g.globalCompositeOperation = 'lighter';
-      for (var pass = 0; pass < 2; pass++) {
-        var wMul = pass ? 1 : 4.5, aMul = pass ? 0.9 : 0.2;
-        g.beginPath();
-        var side = [];
-        for (i = 0; i <= N; i++) {
-          var j = Math.min(i + 1, N), jj = Math.max(i - 1, 0);
-          var dx = pts[j * 3] - pts[jj * 3], dy = pts[j * 3 + 1] - pts[jj * 3 + 1], dl = Math.hypot(dx, dy) || 1;
-          var a = pts[i * 3 + 2], ww = (1.6 + (pass ? 2 : 6) * a) * sc * wMul * 0.5;
-          side.push(pts[i * 3] - dy / dl * ww, pts[i * 3 + 1] + dx / dl * ww, pts[i * 3] + dy / dl * ww, pts[i * 3 + 1] - dx / dl * ww);
-        }
-        for (i = 0; i <= N; i++) g.lineTo(side[i * 4], side[i * 4 + 1]);
-        for (i = N; i >= 0; i--) g.lineTo(side[i * 4 + 2], side[i * 4 + 3]);
-        g.closePath();
-        var gr = g.createLinearGradient(pts[0], pts[1], pts[N * 3], pts[N * 3 + 1]);
-        gr.addColorStop(0, rgba(pass ? T.flame : T.plume, aMul * life));
-        gr.addColorStop(pass ? 0.12 : 0.25, rgba(T.plume, aMul * 0.5 * life));
-        gr.addColorStop(1, rgba(T.plume, 0));
-        g.fillStyle = gr; g.fill();
+    function trailY(tr, x, t) {
+      return tr.y + Math.sin(x * tr.freq + t * tr.speed + tr.phase) * tr.amp + Math.sin(x * tr.freq * 2.3 + tr.phase) * tr.amp * 0.25;
+    }
+    // Ribbons are stroked in a few solid-colour segments whose alpha follows the
+    // calm zone (much cheaper to rasterise than a gradient stroke).
+    function trailStyles(tr) {
+      var steps = Math.ceil(w / 10), cuts = (calmLeft && wide) ? [0, 0.18, 0.3, 0.4, 0.48, 0.56, 0.64, 1] : [0, 1];
+      tr.steps = steps;
+      tr.segs = [];
+      for (var i = 0; i < cuts.length - 1; i++) {
+        var i0 = Math.round(cuts[i] * steps), i1 = Math.round(cuts[i + 1] * steps);
+        var c = calmAt(((cuts[i] + cuts[i + 1]) / 2) * w, tr.y);
+        tr.segs.push({ i0: i0, i1: i1, s1: "rgba(" + tr.rgb + "," + (tr.alpha * c).toFixed(3) + ")", s2: "rgba(" + tr.rgb + "," + (tr.alpha * c * 0.5).toFixed(3) + ")" });
       }
-      // flame + glow
-      var fl = 0.85 + Math.sin(time * 47) * 0.08 + Math.sin(time * 31) * 0.07;
-      var ang = Math.atan2(-(k.v0 + k.a * t), 2 * k.drift * t) + Math.PI / 2;
-      var ex = p[0] - Math.sin(ang) * 9 * sc, ey = p[1] + Math.cos(ang) * 9 * sc;
-      var gs = 34 * sc * fl;
-      g.globalAlpha = life;
-      g.drawImage(G.plume, ex - gs, ey - gs, gs * 2, gs * 2);
-      gs = 12 * sc * fl; g.drawImage(G.flame, ex - gs, ey - gs, gs * 2, gs * 2);
-      g.restore();
+      tr.pts = new Array(steps + 1);
+    }
+    function initTrails() {
+      trails.length = 0;
+      var n = Math.max(3, Math.floor(4 * intensity + w / 500));
+      var cols = [C_AMBER, C_GREEN, "120,170,255"];
+      for (var i = 0; i < n; i++) {
+        var tr = {
+          y: rand(0.35, 0.9) * h, amp: rand(18, 55) * intensity * u, freq: rand(0.0012, 0.0028) / Math.max(0.6, u),
+          speed: rand(0.08, 0.22), phase: Math.random() * 100, width: rand(1.2, 2.6), rgb: cols[i % 3],
+          alpha: rand(0.13, 0.3) * Math.min(1.2, intensity), cars: []
+        };
+        if (!wide && calmLeft) tr.y = (i % 2 ? rand(0.12, 0.3) : rand(0.7, 0.92)) * h;
+        var nc = Math.floor(rand(2, 5));
+        for (var c = 0; c < nc; c++) tr.cars.push({ t: Math.random(), speed: rand(0.015, 0.042), hue: Math.random() > 0.5 ? "amber" : "cyan" });
+        trailStyles(tr);
+        trails.push(tr);
+      }
+    }
+
+    function placeVehicle(v, edge) {
+      var dir = v.vx >= 0 ? 1 : -1;
+      if (edge) v.x = dir > 0 ? -v.size * 6 : w + v.size * 6;
+      if (v.big) v.y = wide ? (calmLeft ? (v.band === 1 ? rand(0.07, 0.15) : rand(0.84, 0.93)) : rand(0.6, 0.86)) * h : (v.band % 2 ? rand(0.06, 0.2) : rand(0.78, 0.92)) * h;
+      else v.y = wide ? rand(0.13, 0.66) * h : busyY(0.1, 0.9, 0.12);
+    }
+    function initVehicles() {
+      vehicles.length = 0;
+      var n = Math.max(3, Math.floor(5 * intensity + w / 380));
+      var nb = w < 600 ? 2 : 3;
+      if (intensity < 0.6) nb = 1;
+      for (var i = 0; i < n + nb; i++) {
+        var big = i >= n;
+        var v = {
+          big: big,
+          size: big ? rand(44, 64) * u : rand(14, 30) * (0.75 + 0.25 * intensity) * u,
+          vx: (big ? rand(48, 80) : rand(10, 33)) * u * (Math.random() > 0.5 ? 1 : -1),
+          bob: rand(0.6, 1.4), phase: Math.random() * TAU, lights: big || Math.random() > 0.3,
+          altitude: rand(0.2, 1), trail: rand(3, 5.5), band: i - n
+        };
+        v.x = rand(-0.05, 1.05) * w;
+        if (big) v.x = ((i - n + 0.5) / nb + rand(-0.1, 0.1)) * w;
+        placeVehicle(v, false);
+        vehicles.push(v);
+      }
+      // far ones first, big ones drawn later (closer)
+      vehicles.sort(function (a, b) { return a.size - b.size; });
+    }
+
+    function initParticles() {
+      particles.length = 0;
+      var n = Math.floor(30 * intensity * Math.max(0.6, Math.min(1.4, (w * h) / 1.2e6)));
+      for (var i = 0; i < n; i++) {
+        particles.push({ x: Math.random() * w, y: Math.random() * h, r: rand(0.6, 2), vx: rand(-9, 9), vy: rand(-5, 3), a: rand(0.1, 0.4), c: PCOL[i % 4] });
+      }
+    }
+
+    /* ---- rockets ---- */
+    function liveRockets() {
+      var n = 0;
+      for (var i = 0; i < rockets.length; i++) if (rockets[i].alive) n++;
+      return n;
+    }
+    function spawnRocket() {
+      var x, dir;
+      if (calmLeft && wide) {
+        x = rand(0.52, 0.93) * w;
+        dir = x > 0.78 * w && Math.random() < 0.35 ? -0.4 : 1;
+      } else if (calmLeft) {
+        var left = Math.random() < 0.5;
+        x = (left ? rand(0.08, 0.3) : rand(0.7, 0.92)) * w;
+        dir = left ? -0.6 : 0.6;
+      } else {
+        x = rand(0.08, 0.92) * w;
+        dir = x < w / 2 ? -1 : 1;
+      }
+      var H = Math.max(h, 520), len = 42 * u;
+      var r = {
+        alive: true, len: len, x: x, y: h + len, vx: dir * rand(0, 0.02) * w, vy: -rand(0.09, 0.11) * H,
+        ax: dir * rand(0.03, 0.055) * Math.min(w, 1600), ay: -rand(0.065, 0.08) * H,
+        age: 0, emit: 0, smoke: [], flick: Math.random() * 10
+      };
+      r.ang = Math.atan2(r.vy, r.vx);
+      rockets.push(r);
+      return r;
+    }
+    function stepRockets(dt) {
+      if (clock >= nextRocket) {
+        if (liveRockets() < 2 && w > 0) {
+          spawnRocket();
+          nextRocket = clock + rand(4, 7);
+        } else nextRocket = clock + 0.5;
+      }
+      for (var i = rockets.length - 1; i >= 0; i--) {
+        var r = rockets[i];
+        r.age += dt;
+        if (r.alive) {
+          r.vx += r.ax * dt;
+          r.vy += r.ay * dt;
+          r.x += r.vx * dt;
+          r.y += r.vy * dt;
+          r.ang = Math.atan2(r.vy, r.vx);
+          r.emit += dt;
+          var cx = Math.cos(r.ang), cy = Math.sin(r.ang);
+          while (r.emit > 0.055) {
+            r.emit -= 0.055;
+            var back = r.len * 0.7 + rand(0, r.len * 0.3);
+            r.smoke.push({
+              x: r.x - cx * back + rand(-1.5, 1.5), y: r.y - cy * back + rand(-1.5, 1.5),
+              vx: -cx * rand(6, 16) + rand(-5, 5) * u, vy: -cy * rand(6, 16) + rand(-3, 5) * u,
+              r0: r.len * 0.3, r1: r.len * rand(1.2, 1.8), age: 0, life: rand(2.4, 3.8), rot: Math.random()
+            });
+          }
+          if (r.y < -r.len * 2 || r.x < -r.len * 3 || r.x > w + r.len * 3) r.alive = false;
+        }
+        for (var j = r.smoke.length - 1; j >= 0; j--) {
+          var p = r.smoke[j];
+          p.age += dt;
+          if (p.age >= p.life) { r.smoke.splice(j, 1); continue; }
+          var damp = 1 - Math.min(1, dt * 1.6);
+          p.vx = p.vx * damp + 3 * u * dt;
+          p.vy = p.vy * damp - 2.5 * u * dt;
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+        }
+        if (!r.alive && !r.smoke.length) rockets.splice(i, 1);
+      }
+    }
+    function drawRocketSmoke(r) {
+      var img = S.smoke, warm = S.glow.flame;
+      for (var j = 0; j < r.smoke.length; j++) {
+        var p = r.smoke[j], k = p.age / p.life;
+        var rad = p.r0 + (p.r1 - p.r0) * (1 - (1 - k) * (1 - k));
+        var a = 0.5 * (1 - k) * (1 - k * 0.5) * Math.min(1, p.age * 6 + 0.35) * (0.6 + 0.4 * calmAt(p.x, p.y));
+        if (a < 0.012) continue;
+        ctx.globalAlpha = a;
+        ctx.drawImage(img, p.x - rad, p.y - rad, rad * 2, rad * 2);
+      }
+      // freshly-lit exhaust near the flame: a hot contrail + warm puffs
+      ctx.globalCompositeOperation = "lighter";
+      var n = r.smoke.length;
+      if (r.alive && n > 2) {
+        var j0 = n - 1;
+        while (j0 > 0 && r.smoke[j0 - 1].age < 0.9) j0--;
+        if (j0 < n - 1) {
+          var tail = r.smoke[j0], cx = Math.cos(r.ang), cy = Math.sin(r.ang);
+          var hx = r.x - cx * r.len * 0.55, hy = r.y - cy * r.len * 0.55;
+          var gr = ctx.createLinearGradient(hx, hy, tail.x, tail.y);
+          gr.addColorStop(0, "rgba(255,190,110,0.55)");
+          gr.addColorStop(0.35, "rgba(255,150,80,0.18)");
+          gr.addColorStop(1, "rgba(160,170,210,0)");
+          ctx.globalAlpha = 1;
+          ctx.strokeStyle = gr;
+          ctx.lineWidth = Math.max(1.5, r.len * 0.1);
+          ctx.lineCap = "round";
+          ctx.beginPath();
+          ctx.moveTo(hx, hy);
+          for (j = n - 1; j >= j0; j--) ctx.lineTo(r.smoke[j].x, r.smoke[j].y);
+          ctx.stroke();
+        }
+      }
+      for (j = r.smoke.length - 1; j >= 0; j--) {
+        p = r.smoke[j];
+        if (p.age > 0.35) break;
+        var wr = p.r0 * 2.2 + p.age * r.len * 1.4;
+        ctx.globalAlpha = 0.28 * (1 - p.age / 0.35);
+        ctx.drawImage(warm, p.x - wr, p.y - wr, wr * 2, wr * 2);
+      }
+      ctx.globalCompositeOperation = "source-over";
+      ctx.globalAlpha = 1;
+    }
+    function drawRocket(r, t) {
+      var L = r.len, bw = L * 0.13;
+      var calm = 0.65 + 0.35 * calmAt(r.x, r.y);
+      ctx.save();
+      ctx.translate(r.x, r.y);
+      ctx.rotate(r.ang);
+      // glow + flame (additive)
+      var fl = L * (0.75 + 0.22 * Math.sin(t * 43 + r.flick) + 0.12 * Math.sin(t * 71 + r.flick * 2)) * Math.min(1, 0.4 + r.age * 2);
+      var nx = -L * 0.5;
+      ctx.globalCompositeOperation = "lighter";
+      ctx.globalAlpha = 0.26 * calm;
+      ctx.drawImage(S.glow.flame, nx - L * 2.75, -L * 2.75, L * 5.5, L * 5.5);
+      ctx.globalAlpha = 0.75 * calm;
+      ctx.drawImage(S.glow.flame, nx - fl * 0.5 - L * 1.1, -L * 1.1, L * 2.2, L * 2.2);
+      ctx.globalAlpha = calm;
+      ctx.fillStyle = "rgba(255,120,40,0.85)";
+      ctx.beginPath();
+      ctx.moveTo(nx, -bw * 0.95);
+      ctx.quadraticCurveTo(nx - fl * 0.45, -bw * 1.35, nx - fl * 1.35, 0);
+      ctx.quadraticCurveTo(nx - fl * 0.45, bw * 1.35, nx, bw * 0.95);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = "rgba(255,214,120,0.95)";
+      ctx.beginPath();
+      ctx.moveTo(nx, -bw * 0.6);
+      ctx.quadraticCurveTo(nx - fl * 0.3, -bw * 0.8, nx - fl * 0.8, 0);
+      ctx.quadraticCurveTo(nx - fl * 0.3, bw * 0.8, nx, bw * 0.6);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = "rgba(255,255,240,0.95)";
+      ctx.beginPath();
+      ctx.ellipse(nx - fl * 0.12, 0, fl * 0.2, bw * 0.4, 0, 0, TAU);
+      ctx.fill();
+      ctx.globalCompositeOperation = "source-over";
+      // fins
+      ctx.fillStyle = "#ff3b4a";
+      ctx.beginPath();
+      ctx.moveTo(-L * 0.18, -bw);
+      ctx.lineTo(-L * 0.5, -bw * 2.5);
+      ctx.lineTo(-L * 0.5, -bw * 0.7);
+      ctx.closePath();
+      ctx.moveTo(-L * 0.18, bw);
+      ctx.lineTo(-L * 0.5, bw * 2.5);
+      ctx.lineTo(-L * 0.5, bw * 0.7);
+      ctx.closePath();
+      ctx.fill();
       // body
-      g.save(); g.globalAlpha = life; g.translate(p[0], p[1]); g.rotate(ang); g.scale(sc, sc);
-      g.beginPath(); g.moveTo(0, -11);
-      g.bezierCurveTo(2.6, -7, 2.8, -1, 2.6, 7); g.lineTo(-2.6, 7); g.bezierCurveTo(-2.8, -1, -2.6, -7, 0, -11); g.closePath();
-      var bg = g.createLinearGradient(-3, 0, 3, 0);
-      bg.addColorStop(0, '#9aa6b4'); bg.addColorStop(0.45, '#f4f8fc'); bg.addColorStop(1, '#5d6774');
-      g.fillStyle = bg; g.fill();
-      g.fillStyle = rgba(T.edge, 1);
-      g.beginPath(); g.moveTo(-2.5, 3); g.lineTo(-5, 8.5); g.lineTo(-2.4, 7); g.closePath(); g.fill();
-      g.beginPath(); g.moveTo(2.5, 3); g.lineTo(5, 8.5); g.lineTo(2.4, 7); g.closePath(); g.fill();
-      g.beginPath(); g.arc(0, -4, 0.9, 0, Math.PI * 2); g.fill();
-      g.restore();
+      ctx.fillStyle = "#e3e9f6";
+      ctx.beginPath();
+      ctx.moveTo(L * 0.52, 0);
+      ctx.quadraticCurveTo(L * 0.34, -bw * 1.05, L * 0.1, -bw);
+      ctx.lineTo(-L * 0.46, -bw);
+      ctx.lineTo(-L * 0.5, -bw * 0.75);
+      ctx.lineTo(-L * 0.5, bw * 0.75);
+      ctx.lineTo(-L * 0.46, bw);
+      ctx.lineTo(L * 0.1, bw);
+      ctx.quadraticCurveTo(L * 0.34, bw * 1.05, L * 0.52, 0);
+      ctx.fill();
+      // shaded lower half (light comes from above/sky)
+      ctx.fillStyle = "rgba(60,80,120,0.35)";
+      ctx.fillRect(-L * 0.46, bw * 0.15, L * 0.56, bw * 0.85);
+      // nose band + window
+      ctx.fillStyle = "#ff3b4a";
+      ctx.beginPath();
+      ctx.moveTo(L * 0.52, 0);
+      ctx.quadraticCurveTo(L * 0.42, -bw * 0.85, L * 0.32, -bw * 0.95);
+      ctx.lineTo(L * 0.32, bw * 0.95);
+      ctx.quadraticCurveTo(L * 0.42, bw * 0.85, L * 0.52, 0);
+      ctx.fill();
+      ctx.fillStyle = "#2a4a7a";
+      ctx.beginPath();
+      ctx.arc(L * 0.14, 0, bw * 0.48, 0, TAU);
+      ctx.fill();
+      ctx.fillStyle = "rgba(138,200,255,0.9)";
+      ctx.beginPath();
+      ctx.arc(L * 0.14, -bw * 0.1, bw * 0.28, 0, TAU);
+      ctx.fill();
+      ctx.restore();
+      ctx.globalAlpha = 1;
     }
 
-    function drawLaunchBloom(g) {
-      if (!rocket) return;
-      var t = time - rocket.t0, a = smooth(0, 0.3, t) * (1 - smooth(0.4, 2.6, t));
-      if (a <= 0.01) return;
-      var r = D * 0.16, x = rocket.x0, y = cityY + (H - cityY) * 0.3;
-      g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha = a * 0.55;
-      g.drawImage(G.plume, x - r * 1.6, y - r * 0.5, r * 3.2, r);
-      g.restore();
-    }
-
-    function quad(g, rd, s1, s2, lat, w) {
-      var u1 = uOf(s1), u2 = uOf(s2), um = uOf((s1 + s2) / 2);
-      if (u1 < 0) u1 = 0; if (u2 > 1) u2 = 1; if (u2 <= u1) return;
-      if (um < u1 || um > u2) um = (u1 + u2) / 2;
-      var us = [u1, um, u2], i, a = lat + w, b = lat - w, P = [];
-      for (i = 0; i < 3; i++) { sample(rd, us[i], S0); P.push(S0.x, S0.y, S0.nx * S0.hw, S0.ny * S0.hw); }
-      g.moveTo(P[0] + P[2] * a, P[1] + P[3] * a);
-      for (i = 1; i < 3; i++) g.lineTo(P[i * 4] + P[i * 4 + 2] * a, P[i * 4 + 1] + P[i * 4 + 3] * a);
-      for (i = 2; i >= 0; i--) g.lineTo(P[i * 4] + P[i * 4 + 2] * b, P[i * 4 + 1] + P[i * 4 + 3] * b);
-      g.closePath();
-    }
-
-    function drawMarkings(g, rd) {
-      var S = rd.S, per = S / 26, buckets = [[], [], []], cuts = [0.12, 0.26];
-      var defs = [
-        { lat: 0.465, w: 0.016, len: 0.42, phase: time * 0.05 * S, dir: 1, per: per, col: T.dash, a: [0.12, 0.35, 0.7] },
-        { lat: -0.465, w: 0.016, len: 0.42, phase: -time * 0.05 * S, dir: -1, per: per, col: T.dash, a: [0.12, 0.35, 0.7] },
-        { lat: 0.977, w: 0.022, len: 0.8, phase: time * 0.11 * S, dir: 1, per: per * 5, col: [255, 255, 255], a: [0.15, 0.4, 0.85] },
-        { lat: -0.977, w: 0.022, len: 0.8, phase: -time * 0.11 * S, dir: -1, per: per * 5, col: [255, 255, 255], a: [0.15, 0.4, 0.85] }
-      ];
-      g.save(); g.globalCompositeOperation = 'lighter';
-      for (var d = 0; d < defs.length; d++) {
-        var df = defs[d], ph = ((df.phase % df.per) + df.per) % df.per, b;
-        buckets[0].length = buckets[1].length = buckets[2].length = 0;
-        for (var s = ph - df.per; s < S; s += df.per) {
-          var s1 = s, s2 = s + df.per * df.len;
-          if (s2 < 0) continue;
-          var um = uOf(s1);
-          b = um < cuts[0] ? 0 : um < cuts[1] ? 1 : 2;
-          buckets[b].push(s1, s2);
+    /* ---- drawing ---- */
+    function drawStars(t) {
+      ctx.fillStyle = "#dce6ff";
+      for (var gi = 0; gi < starGroups.length; gi++) {
+        var G = starGroups[gi];
+        ctx.globalAlpha = G.a * (0.35 + 0.65 * (0.5 + 0.5 * Math.sin(t * G.tw + G.ph)));
+        ctx.beginPath();
+        for (var i = 0; i < stars.length; i++) {
+          var s = stars[i];
+          if (s.g !== gi) continue;
+          ctx.moveTo(s.x + s.r, s.y);
+          ctx.arc(s.x, s.y, s.r, 0, TAU);
         }
-        for (b = 0; b < 3; b++) {
-          if (!buckets[b].length) continue;
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    function drawTrail(g, tr, t) {
+      var steps = tr.steps, pts = tr.pts, i, j, sg;
+      for (i = 0; i <= steps; i++) pts[i] = trailY(tr, (i / steps) * w, t);
+      g.lineCap = "butt";
+      g.lineJoin = "round";
+      for (j = 0; j < 2; j++) {
+        if (j) { g.setLineDash([6, 18]); g.lineWidth = 1; } else g.lineWidth = tr.width;
+        for (var k = 0; k < tr.segs.length; k++) {
+          sg = tr.segs[k];
           g.beginPath();
-          for (var i = 0; i < buckets[b].length; i += 2) quad(g, rd, buckets[b][i], buckets[b][i + 1], df.lat, df.w);
-          g.fillStyle = rgba(df.col, df.a[b]); g.fill();
+          for (i = sg.i0; i <= sg.i1; i++) {
+            if (i === sg.i0) g.moveTo((i / steps) * w, pts[i]);
+            else g.lineTo((i / steps) * w, pts[i]);
+          }
+          g.strokeStyle = j ? sg.s2 : sg.s1;
+          if (j) g.lineDashOffset = -(sg.i0 / steps) * w;
+          g.stroke();
         }
       }
-      g.restore();
+      g.setLineDash([]);
+      g.lineDashOffset = 0;
+    }
+    /* Static sky + slowly-morphing road ribbons are composited into one
+       device-resolution layer, refreshed ~12x/s; each frame is then one blit. */
+    function updateScene(t) {
+      sceneCtx.setTransform(1, 0, 0, 1, 0, 0);
+      sceneCtx.drawImage(bg, 0, 0);
+      sceneCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      for (var i = 0; i < trails.length; i++) drawTrail(sceneCtx, trails[i], t);
+      sceneT = t;
+    }
+    function drawTrailCars(tr, t, dt) {
+      for (var i = 0; i < tr.cars.length; i++) {
+        var car = tr.cars[i];
+        car.t += car.speed * dt;
+        if (car.t > 1.05) car.t = -0.05;
+        var x = car.t * w, y = trailY(tr, x, t);
+        var a = calmAt(x, y) * Math.min(1, 0.55 + 0.45 * intensity);
+        var amber = car.hue === "amber";
+        ctx.globalAlpha = 0.85 * a;
+        var g = amber ? S.glow.amber : S.glow.cyan;
+        ctx.drawImage(g, x - 18, y - 18, 36, 36);
+        ctx.globalAlpha = 0.9 * a;
+        ctx.drawImage(amber ? S.streak.amber : S.streak.cyan, x - 30, y - 4, 38, 8);
+      }
+      ctx.globalAlpha = 1;
     }
 
-    function drawTraffic(g, ri) {
-      var rd = roads[ri], i, c, list = [];
-      for (i = 0; i < cars.length; i++) if (cars[i].road === ri) list.push(cars[i]);
-      // trails
-      g.save(); g.globalCompositeOperation = 'lighter';
-      var K = 16, side = new Array((K + 1) * 4);
-      for (i = 0; i < list.length; i++) {
-        c = list[i];
-        var trailS = rd.S * 0.2, sh = c.s, st = c.s - c.dir * trailS;
-        var uh = uOf(sh), ut = uOf(st);
-        if ((uh < 0 && ut < 0) || (uh > 1 && ut > 1)) continue;
-        var col = c.dir > 0 ? T.trailA : T.trailB, n = 0, hx = 0, hy = 0, ex = 0, ey = 0;
-        for (var k = 0; k <= K; k++) {
-          var u = uOf(lerp(sh, st, k / K));
-          if (!sample(rd, clamp(u, 0, 1), S1)) continue;
-          var up = c.dir * (S1.tx >= 0 ? 1 : -1) > 0 ? 1 : -1; // keep "up" screen-ward
-          var ux = S1.ty * up, uy = -S1.tx * up; if (uy > 0) { ux = -ux; uy = -uy; }
-          var lift = 0.8 * S1.hw * 0.085;
-          var x = S1.x + S1.nx * c.lat * S1.hw + ux * lift, y = S1.y + S1.ny * c.lat * S1.hw + uy * lift;
-          var tw = S1.hw * 0.055 * (1 - 0.75 * k / K) + 0.35;
-          side[n * 4] = x + S1.nx * tw; side[n * 4 + 1] = y + S1.ny * tw; side[n * 4 + 2] = x - S1.nx * tw; side[n * 4 + 3] = y - S1.ny * tw;
-          if (n === 0) { hx = x; hy = y; } ex = x; ey = y; n++;
+    /* Signal heads are pre-rendered per signal (one sprite per lit lamp) so a
+       frame costs one drawImage + one additive glow per signal. */
+    var SIG = { HW: 26, HH: 72, LS: 22, LR: 7.4, BW: 42, BH: 88, X0: -25, Y0: -60, W: 50, H: 110 };
+    function paintSignal(g, hero, active) {
+      var HW = SIG.HW, HH = SIG.HH, LS = SIG.LS, LR = SIG.LR, BW = SIG.BW, BH = SIG.BH;
+      // mount
+      g.fillStyle = "rgba(30,40,62,0.95)";
+      g.fillRect(-3.5, -BH / 2 - 11, 7, 12);
+      g.fillRect(-9, -BH / 2 - 13, 18, 3);
+      // backplate
+      roundRect(g, -BW / 2, -BH / 2, BW, BH, 8);
+      g.fillStyle = "rgba(7,11,22,0.84)";
+      g.fill();
+      g.lineWidth = hero ? 1.3 : 1.1;
+      g.strokeStyle = hero ? "rgba(255,176,32,0.45)" : "rgba(148,180,255,0.34)";
+      g.stroke();
+      // housing
+      roundRect(g, -HW / 2, -HH / 2, HW, HH, 6);
+      g.fillStyle = "rgba(16,23,40,0.97)";
+      g.fill();
+      g.lineWidth = 1;
+      g.strokeStyle = "rgba(148,180,255,0.24)";
+      g.stroke();
+      for (var i = 0; i < 3; i++) {
+        var L = LAMPS[i], ly = (i - 1) * LS, lit = i === active;
+        g.globalAlpha = 1;
+        g.beginPath();
+        g.arc(0, ly, LR, 0, TAU);
+        g.fillStyle = "rgba(30,40,60,0.95)";
+        g.fill();
+        g.globalAlpha = lit ? 1 : 0.17;
+        g.fillStyle = L.hex;
+        g.fill();
+        if (lit) {
+          var lg = g.createRadialGradient(-1.5, ly - 1.5, 0, 0, ly, LR);
+          lg.addColorStop(0, "rgba(255,250,235,0.85)");
+          lg.addColorStop(0.45, "rgba(" + L.rgb + ",0.2)");
+          lg.addColorStop(1, "rgba(" + L.rgb + ",0)");
+          g.fillStyle = lg;
+          g.fill();
         }
-        if (n < 2) continue;
-        var fa = fadeAt(rd, hx, hy) * smooth(0.04, 0.16, uh);
-        for (var pass = 0; pass < 2; pass++) {
-          var sc = pass ? 1 : 3.6, al = pass ? 0.95 : 0.24;
-          g.beginPath();
-          for (k = 0; k < n; k++) { var mxp = (side[k * 4] + side[k * 4 + 2]) / 2, myp = (side[k * 4 + 1] + side[k * 4 + 3]) / 2; g.lineTo(mxp + (side[k * 4] - mxp) * sc, myp + (side[k * 4 + 1] - myp) * sc); }
-          for (k = n - 1; k >= 0; k--) { mxp = (side[k * 4] + side[k * 4 + 2]) / 2; myp = (side[k * 4 + 1] + side[k * 4 + 3]) / 2; g.lineTo(mxp + (side[k * 4 + 2] - mxp) * sc, myp + (side[k * 4 + 3] - myp) * sc); }
-          g.closePath();
-          var gr = g.createLinearGradient(hx, hy, ex === hx && ey === hy ? hx + 1 : ex, ey);
-          gr.addColorStop(0, rgba(col, al * fa)); gr.addColorStop(0.35, rgba(col, al * 0.45 * fa)); gr.addColorStop(1, rgba(col, 0));
-          g.fillStyle = gr; g.fill();
-        }
-      }
-      g.restore();
-      // bodies + lights
-      for (i = 0; i < list.length; i++) {
-        c = list[i];
-        var uc = uOf(c.s);
-        if (!sample(rd, uc, S0)) continue;
-        var Lp = S0.hw * 0.8;
-        var cx = S0.x + S0.nx * c.lat * S0.hw, cy = S0.y + S0.ny * c.lat * S0.hw;
-        var f = fadeAt(rd, cx, cy) * smooth(0.04, 0.16, uc);
-        if (f < 0.02 || cx < -Lp * 2 || cx > W + Lp * 2 || cy < -Lp * 2 || cy > H + Lp * 2) continue;
-        var mtx = S0.tx * c.dir, mty = S0.ty * c.dir, flip = mtx < 0;
-        g.save();
-        g.translate(cx, cy); g.rotate(Math.atan2(mty, mtx)); if (flip) g.scale(1, -1);
-        g.globalAlpha = f;
-        // hover under-glow on deck
-        g.globalCompositeOperation = 'lighter';
-        g.drawImage(G.under, -Lp * 0.65, -Lp * 0.06, Lp * 1.3, Lp * 0.2);
-        // headlight beam
-        if (Lp > 8) {
-          g.save(); g.scale(Lp, Lp); g.fillStyle = beamGrad;
-          g.beginPath(); g.moveTo(0.5, -0.1); g.lineTo(1.9, -0.2); g.lineTo(1.9, 0.02); g.lineTo(0.5, -0.05); g.closePath(); g.fill();
-          g.restore();
-        }
-        g.globalCompositeOperation = 'source-over';
-        if (Lp > 5) {
-          var k2 = Lp / carSpr.S;
-          g.drawImage(carSpr.img, -carSpr.ox * k2, -carSpr.oy * k2, carSpr.w * k2, carSpr.h * k2);
-        }
-        g.globalCompositeOperation = 'lighter';
-        var hb = c.dir > 0 ? 1 : 0.6, tb = c.dir > 0 ? 0.55 : 1;
-        var hr = Math.max(3, Lp * 0.34) * hb, tr = Math.max(2.5, Lp * 0.26) * tb;
-        g.drawImage(G.trailA, 0.5 * Lp - hr * 1.6, -0.08 * Lp - hr * 1.6, hr * 3.2, hr * 3.2);
-        g.drawImage(G.head, 0.5 * Lp - hr * 0.5, -0.082 * Lp - hr * 0.5, hr, hr);
-        g.drawImage(G.tail, -0.5 * Lp - tr, -0.1 * Lp - tr, tr * 2, tr * 2);
-        g.restore();
+        g.globalAlpha = 1;
+        // visor / hood
+        g.beginPath();
+        g.arc(0, ly, LR + 3.2, Math.PI * 1.02, Math.PI * 1.98);
+        g.arc(0, ly - 0.6, LR + 0.6, Math.PI * 1.9, Math.PI * 1.1, true);
+        g.closePath();
+        g.fillStyle = "rgba(5,8,16,0.98)";
+        g.fill();
+        g.lineWidth = 0.9;
+        g.strokeStyle = "rgba(148,180,255,0.32)";
+        g.beginPath();
+        g.arc(0, ly, LR + 3.2, Math.PI * 1.04, Math.PI * 1.96);
+        g.stroke();
       }
     }
-
-    function drawSigns(g) {
-      for (var i = 0; i < signs.length; i++) {
-        var s = signs[i], sp = s.sp, bob = Math.sin(time * 0.9 + s.ph) * s.amp;
-        g.save(); g.translate(s.x, s.y + bob); g.rotate(Math.sin(time * 0.6 + s.ph) * s.rot);
-        g.drawImage(sp.img, -sp.ax, -sp.ay, sp.w, sp.h);
-        g.restore();
+    function signalSprites(s) {
+      var k = s.sc * dpr, out = [], G = s.hero ? 46 : 36;
+      var hx = Math.max(-SIG.X0, G), hy = Math.max(-SIG.Y0, SIG.LS + G);
+      var cs = Math.abs(Math.cos(s.rot)), sn = Math.abs(Math.sin(s.rot));
+      var bw = (cs * hx + sn * hy) * 2 * k, bh = (sn * hx + cs * hy) * 2 * k;
+      for (var a = 0; a < 3; a++) {
+        var c = makeCanvas(bw, bh), g = c.getContext("2d");
+        g.setTransform(k, 0, 0, k, c.width / 2, c.height / 2);
+        g.rotate(s.rot);
+        paintSignal(g, s.hero, a);
+        g.globalCompositeOperation = "lighter";
+        g.globalAlpha = 0.85;
+        var gy = (a - 1) * SIG.LS;
+        g.drawImage(S.glow[LAMPS[a].key], -G, gy - G, G * 2, G * 2);
+        out.push(c);
       }
+      return out;
     }
 
-    function draw() {
-      if (!ready) return;
-      var g = ctx;
-      g.setTransform(1, 0, 0, 1, 0, 0);
-      g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
-      g.setTransform(dpr, 0, 0, dpr, 0, 0);
-      var ox = -px, oy = -py;
-      g.drawImage(skyLayer, -PAD + ox * SHIFT.sky, -PAD + oy * SHIFT.sky, W + PAD * 2, H + PAD * 2);
-      // twinkles + beacons
-      g.save(); g.globalCompositeOperation = 'lighter';
-      var i;
-      for (i = 0; i < twinkles.length; i++) {
-        var tw = twinkles[i], a = 0.12 + 0.35 * (0.5 + 0.5 * Math.sin(time * tw.f + tw.p));
-        g.globalAlpha = a;
-        g.drawImage(G.star, tw.x + ox * SHIFT.sky - tw.s, tw.y + oy * SHIFT.sky - tw.s, tw.s * 2, tw.s * 2);
+    function drawSignal(s, t) {
+      var cyc = s.cycle, period = cyc * 2.55, p = (t + s.phase) % period;
+      // real-world order: red -> green -> amber -> red
+      var active, since, prev;
+      if (p < cyc) { active = 0; since = p; prev = 1; }
+      else if (p < cyc * 2.2) { active = 2; since = p - cyc; prev = 0; }
+      else { active = 1; since = p - cyc * 2.2; prev = 2; }
+      var on = Math.min(1, since / 0.14);
+      var x = s.x + Math.sin(t * 0.3 * s.bob + s.phase) * s.driftX;
+      var y = s.y + Math.cos(t * 0.4 * s.bob + s.phase) * s.driftY;
+      var a = calmAt(x, y);
+      if (!s.spr) s.spr = signalSprites(s);
+      var c = s.spr[active], dx = snap(x * dpr - c.width / 2), dy = snap(y * dpr - c.height / 2);
+      if (on < 1) {
+        ctx.globalAlpha = a;
+        ctx.drawImage(s.spr[prev], dx, dy);
       }
-      g.restore();
-      g.save(); g.translate(ox * SHIFT.city, oy * SHIFT.city);
-      drawRocket(g);
-      g.drawImage(cityLayer, -PAD, cityY, W + PAD * 2, H - cityY + PAD * 2);
-      drawLaunchBloom(g);
-      g.globalCompositeOperation = 'lighter';
-      for (i = 0; i < beacons.length; i++) {
-        var bc = beacons[i], ba = Math.pow(0.5 + 0.5 * Math.sin(time * 2.2 + bc.p), 6);
-        g.globalAlpha = 0.25 + 0.75 * ba;
-        g.drawImage(G.beacon, bc.x - 5, bc.y - 5, 10, 10);
+      ctx.globalAlpha = a * on;
+      ctx.drawImage(c, dx, dy);
+    }
+
+    /* Vehicles: body and light layers are pre-rendered per vehicle. */
+    function vehicleSprites(v) {
+      var s = v.size, Lt = s * v.trail, th = Math.max(4, s * 0.22), k = dpr;
+      // lights layer (additive): streaks, headlight cone, lamp glows
+      var lx0 = -(0.84 * s + Lt * 1.5) - 4, lx1 = s * (v.big ? 2.7 : 2.3), ly0 = -Math.max(0.45 * s, th), ly1 = Math.max(0.6 * s, th * 1.4);
+      var lc = makeCanvas((lx1 - lx0) * k, (ly1 - ly0) * k), g = lc.getContext("2d");
+      g.setTransform(k, 0, 0, k, -lx0 * k, -ly0 * k);
+      g.globalCompositeOperation = "lighter";
+      g.globalAlpha = v.big ? 0.8 : 0.6;
+      g.drawImage(S.streak.red, -s * 0.84 - Lt, s * 0.05 - th / 2, Lt, th);
+      if (v.lights) {
+        g.globalAlpha = v.big ? 0.42 : 0.32;
+        g.drawImage(S.streak.warm, s * 0.6 - Lt * 1.5, -s * 0.06 - th * 0.4, Lt * 1.5, th * 0.8);
       }
-      g.restore();
-      // skyways + traffic (far to near)
-      g.save(); g.translate(ox * SHIFT.road, oy * SHIFT.road);
-      g.drawImage(roadLayer, roadBox.x, roadBox.y, roadBox.w, roadBox.h);
-      for (i = 0; i < roads.length; i++) { drawMarkings(g, roads[i]); drawTraffic(g, i); }
-      g.restore();
-      g.save(); g.translate(ox * SHIFT.sign, oy * SHIFT.sign); drawSigns(g); g.restore();
-      // legibility dim + vignette
-      g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
-      if (dimAmt > 0) { g.fillStyle = overlay.dim; g.fillRect(0, 0, W, H); }
-      g.fillStyle = overlay.vig; g.fillRect(0, 0, W, H);
+      g.globalAlpha = 0.24;
+      g.drawImage(S.streak.teal, -s * 0.6 - Lt * 0.8, s * 0.3 - th, Lt * 0.8 + s * 0.4, th * 2);
+      if (v.lights) {
+        g.globalAlpha = v.big ? 1 : 0.85;
+        g.drawImage(S.cone, s * 0.7, -s * 0.38, s * (v.big ? 1.9 : 1.5), s * 0.76);
+        g.globalAlpha = 1;
+        g.drawImage(S.glow.warm, s * 0.61, -s * 0.25, s * 0.44, s * 0.44);
+      }
+      g.globalAlpha = 1;
+      g.drawImage(S.glow.red, -s * 1.04, s * 0.05 - s * 0.2, s * 0.4, s * 0.4);
+      // body layer
+      var bx0 = -1.25 * s, bx1 = 1.25 * s, by0 = -0.6 * s, by1 = 0.8 * s;
+      var bc = makeCanvas((bx1 - bx0) * k, (by1 - by0) * k), b = bc.getContext("2d");
+      b.setTransform(k, 0, 0, k, -bx0 * k, -by0 * k);
+      b.drawImage(S.under, -s * 1.2, s * 0.2, s * 2.4, s * 0.55);
+      b.fillStyle = v.big ? "rgba(24,36,62,0.96)" : "rgba(18,28,48,0.9)";
+      b.beginPath();
+      b.moveTo(-s * 0.9, 0);
+      b.quadraticCurveTo(-s * 0.5, -s * 0.55, 0, -s * 0.5);
+      b.quadraticCurveTo(s * 0.55, -s * 0.45, s * 0.85, -s * 0.1);
+      b.quadraticCurveTo(s * 0.95, s * 0.15, s * 0.7, s * 0.25);
+      b.lineTo(-s * 0.75, s * 0.25);
+      b.quadraticCurveTo(-s * 0.95, s * 0.1, -s * 0.9, 0);
+      b.fill();
+      b.strokeStyle = v.big ? "rgba(160,195,255,0.45)" : "rgba(148,180,255,0.26)";
+      b.lineWidth = v.big ? 1.2 : 1;
+      b.stroke();
+      if (v.big) {
+        b.fillStyle = "rgba(46,230,166,0.6)";
+        b.fillRect(-s * 0.55, s * 0.25, s * 0.28, s * 0.045);
+        b.fillRect(s * 0.25, s * 0.25, s * 0.28, s * 0.045);
+      }
+      b.fillStyle = v.big ? "rgba(110,170,230,0.34)" : "rgba(100,160,220,0.26)";
+      b.beginPath();
+      b.moveTo(-s * 0.25, -s * 0.12);
+      b.quadraticCurveTo(0, -s * 0.48, s * 0.35, -s * 0.15);
+      b.lineTo(s * 0.15, -s * 0.02);
+      b.lineTo(-s * 0.2, -s * 0.02);
+      b.closePath();
+      b.fill();
+      b.fillStyle = "rgba(255,59,74,0.95)";
+      b.beginPath();
+      b.arc(-s * 0.84, s * 0.05, Math.max(1.6, s * 0.075), 0, TAU);
+      b.fill();
+      if (v.lights) {
+        b.fillStyle = "rgba(255,244,220,0.95)";
+        b.beginPath();
+        b.ellipse(s * 0.83, -s * 0.03, Math.max(1.3, s * 0.05), Math.max(1, s * 0.035), 0, 0, TAU);
+        b.fill();
+      }
+      // merge into one device-resolution sprite, mirrored for the travel direction
+      var dir = v.vx >= 0 ? 1 : -1;
+      var x0 = Math.min(lx0, bx0), x1 = Math.max(lx1, bx1), y0 = Math.min(ly0, by0), y1 = Math.max(ly1, by1);
+      var fx0 = dir > 0 ? x0 : -x1;
+      var mc = makeCanvas((x1 - x0) * k, (y1 - y0) * k), m = mc.getContext("2d");
+      m.setTransform(dir, 0, 0, 1, dir > 0 ? (lx0 - x0) * k : (x1 - lx0) * k, (ly0 - y0) * k);
+      m.drawImage(lc, 0, 0);
+      m.setTransform(dir, 0, 0, 1, dir > 0 ? (bx0 - x0) * k : (x1 - bx0) * k, (by0 - y0) * k);
+      m.drawImage(bc, 0, 0);
+      v.spr = { c: mc, ox: fx0, oy: y0 };
     }
 
-    /* -------------------------------------------------------------- sizing */
-    function resize() {
-      if (destroyed) return;
-      var rect = container.getBoundingClientRect();
-      var w = Math.round(rect.width), h = Math.round(rect.height);
-      if (w < 2 || h < 2) { ready = false; return; }
-      var nd = Math.min(root.devicePixelRatio || 1, 2);
-      if (ready && w === W && h === H && nd === dpr) return;
-      var first = !ready || (W > H) !== (w > h) || Math.abs(w - W) > 40;
-      W = w; H = h; dpr = nd; D = Math.min(W, H);
-      // soft backdrop layers are rendered at 1x (indistinguishable, saves GPU memory); skyways stay crisp
-      sD = Math.min(dpr, 1); rD = dpr;
-      L = W >= H * 1.05 ? LAYOUTS.wide : LAYOUTS.tall;
-      canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
-      roads = []; for (var i = 0; i < L.roads.length; i++) roads.push(buildRoad(L.roads[i]));
-      renderSky(); renderCity(); renderRoads(); buildOverlay(); buildSigns();
-      beamGrad = ctx.createLinearGradient(0.5, 0, 1.9, 0);
-      beamGrad.addColorStop(0, rgba(T.head, 0.22)); beamGrad.addColorStop(1, rgba(T.head, 0));
-      if (first || !cars.length) buildCars();
-      ready = true;
-      if (reduced) still(); else { draw(); start(); }
+    function drawVehicle(v, t, dt) {
+      v.x += v.vx * dt;
+      if ((v.vx > 0 && v.x > w + v.size * 6) || (v.vx < 0 && v.x < -v.size * 6)) placeVehicle(v, true);
+      if (!v.spr) vehicleSprites(v);
+      var x = v.x, y = v.y + Math.sin(t * v.bob + v.phase) * 6 * v.altitude * u;
+      ctx.globalAlpha = calmAt(x, y);
+      ctx.drawImage(v.spr.c, snap((x + v.spr.ox) * dpr), snap((y + v.spr.oy) * dpr));
     }
 
-    function still() {
-      // deterministic, composed still frame
-      time = 0; nextRocket = 0.6; rocket = null; buildCars();
-      for (var i = 0; i < 100; i++) update(1 / 30);
-      px = py = mx = my = 0;
-      draw();
+    var PRGB = { "#ffb020": "rgb(255,176,32)", "#2ee6a6": "rgb(46,230,166)", "#ff3b4a": "rgb(255,59,74)", "#8ab4ff": "rgb(138,180,255)" };
+    function drawParticles(t, dt) {
+      for (var i = 0; i < particles.length; i++) {
+        var p = particles[i];
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        if (p.x < 0) p.x = w;
+        if (p.x > w) p.x = 0;
+        if (p.y < 0) p.y = h;
+        if (p.y > h) p.y = 0;
+        ctx.globalAlpha = p.a * (0.55 + 0.45 * Math.sin(t * 2 + p.x * 0.01)) * calmAt(p.x, p.y);
+        ctx.fillStyle = PRGB[p.c];
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, TAU);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
     }
 
-    /* ---------------------------------------------------------------- loop */
-    function running() { return !destroyed && ready && !reduced && visible && !document.hidden; }
-    function frame(now) {
+    function render(dt) {
+      var t = clock, i;
+      if (sceneT < 0 || t < sceneT || t - sceneT >= 1 / 12) updateScene(t);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = "source-over";
+      ctx.drawImage(scene, 0, 0);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      drawStars(t);
+      ctx.globalCompositeOperation = "lighter";
+      for (i = 0; i < trails.length; i++) drawTrailCars(trails[i], t, dt);
+      ctx.globalCompositeOperation = "source-over";
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      for (i = 0; i < vehicles.length; i++) if (!vehicles[i].big) drawVehicle(vehicles[i], t, dt);
+      for (i = 0; i < signals.length; i++) if (!signals[i].hero) drawSignal(signals[i], t);
+      ctx.globalAlpha = 1;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      for (i = 0; i < rockets.length; i++) drawRocketSmoke(rockets[i]);
+      for (i = 0; i < rockets.length; i++) if (rockets[i].alive) drawRocket(rockets[i], t);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      for (i = 0; i < signals.length; i++) if (signals[i].hero) drawSignal(signals[i], t);
+      for (i = 0; i < vehicles.length; i++) if (vehicles[i].big) drawVehicle(vehicles[i], t, dt);
+      ctx.globalAlpha = 1;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      drawParticles(t, dt);
+    }
+
+    /* ---- loop / lifecycle ---- */
+    function frame(ts) {
       raf = 0;
-      if (!running()) return;
-      var dt = Math.min(0.05, Math.max(0, (now - last) / 1000)); last = now;
-      update(dt); draw();
-      raf = root.requestAnimationFrame(frame);
+      if (!shouldRun()) return;
+      var dt = last ? (ts - last) / 1000 : 1 / 60;
+      last = ts;
+      if (dt > 0.05) dt = 0.05;
+      if (dt < 0) dt = 0;
+      var t0 = now();
+      clock += dt;
+      stepRockets(dt);
+      render(dt);
+      var ms = now() - t0;
+      stat.n++;
+      stat.sum += ms;
+      if (ms > stat.max) stat.max = ms;
+      raf = requestAnimationFrame(frame);
     }
-    function start() {
-      if (raf || !running()) return;
-      last = root.performance && performance.now ? performance.now() : Date.now();
-      raf = root.requestAnimationFrame(frame);
+    function shouldRun() {
+      return !destroyed && !reduced && visible && !document.hidden && w > 0 && h > 0;
     }
-    function stop() { if (raf) { root.cancelAnimationFrame(raf); raf = 0; } }
+    function update() {
+      if (shouldRun()) {
+        if (!raf) { last = 0; raf = requestAnimationFrame(frame); }
+      } else if (raf) {
+        cancelAnimationFrame(raf);
+        raf = 0;
+      }
+    }
+    function renderStill() {
+      if (!w || !h) return;
+      rockets.length = 0;
+      clock = 3.7;
+      var r = spawnRocket(), k;
+      nextRocket = 1e9;
+      for (k = 0; k < 108; k++) stepRockets(1 / 60);
+      if (!r.alive || r.y < h * 0.15) { rockets.length = 0; r = spawnRocket(); for (k = 0; k < 80; k++) stepRockets(1 / 60); }
+      render(0);
+      nextRocket = clock + rand(1, 3);
+    }
+
+    function measure() {
+      if (fixed) return [canvas.clientWidth || root.innerWidth, canvas.clientHeight || root.innerHeight];
+      return [el.clientWidth, el.clientHeight];
+    }
+    function scaleWorld(sx, sy) {
+      var i, j;
+      for (i = 0; i < signals.length; i++) { signals[i].x *= sx; signals[i].y *= sy; }
+      for (i = 0; i < vehicles.length; i++) { vehicles[i].x *= sx; vehicles[i].y *= sy; }
+      for (i = 0; i < trails.length; i++) trails[i].y *= sy;
+      for (i = 0; i < particles.length; i++) { particles[i].x *= sx; particles[i].y *= sy; }
+      for (i = 0; i < rockets.length; i++) {
+        var r = rockets[i];
+        r.x *= sx; r.y *= sy;
+        for (j = 0; j < r.smoke.length; j++) { r.smoke[j].x *= sx; r.smoke[j].y *= sy; }
+      }
+    }
+    function applySize(force) {
+      if (destroyed) return;
+      var m = measure(), nw = Math.round(m[0]), nh = Math.round(m[1]);
+      var ndpr = Math.min(root.devicePixelRatio || 1, 2);
+      if (!nw || !nh) { w = nw; h = nh; update(); return; }
+      if (!force && nw === w && nh === h && ndpr === dpr) return;
+      var nwide = nw / nh > 1.1;
+      var full = force || !w || !h || nwide !== wide || ndpr !== dpr || Math.abs(nw - w) / w > 0.15 || Math.abs(nh - h) / h > 0.3;
+      if (!full) scaleWorld(nw / w, nh / h);
+      w = nw; h = nh; dpr = ndpr; wide = nwide;
+      u = clamp(Math.min(w, h) / 900, 0.7, 1.25);
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      buildBg();
+      initStars();
+      if (full) {
+        initSignals();
+        initTrails();
+        initVehicles();
+        initParticles();
+      } else {
+        for (var i = 0; i < trails.length; i++) trailStyles(trails[i]);
+      }
+      if (reduced) renderStill();
+      else render(0);
+      update();
+    }
+
+    var rzTimer = 0;
+    function onResize() {
+      clearTimeout(rzTimer);
+      rzTimer = setTimeout(function () { applySize(false); }, 120);
+    }
+    function onVis() { update(); }
+    function onMotion() {
+      reduced = !!(mql && mql.matches);
+      if (reduced) { update(); renderStill(); } else update();
+    }
 
     var ro = null, io = null;
-    function onVis() { if (document.hidden) stop(); else start(); }
-    function onMove(e) {
-      if (!ready) return;
-      var r = container.getBoundingClientRect();
-      mx = clamp((e.clientX - r.left) / (r.width || 1) - 0.5, -0.5, 0.5) * 2;
-      my = clamp((e.clientY - r.top) / (r.height || 1) - 0.5, -0.5, 0.5) * 2;
+    if (root.ResizeObserver) {
+      ro = new ResizeObserver(onResize);
+      ro.observe(fixed ? canvas : el);
     }
-    function onMQ() { var was = reduced; reduced = o.reducedMotion != null ? !!o.reducedMotion : !!(mq && mq.matches); if (was !== reduced && ready) { if (reduced) { stop(); still(); } else start(); } }
+    root.addEventListener("resize", onResize);
+    document.addEventListener("visibilitychange", onVis);
+    if (mql) {
+      if (mql.addEventListener) mql.addEventListener("change", onMotion);
+      else if (mql.addListener) mql.addListener(onMotion);
+    }
+    if (!fixed && root.IntersectionObserver) {
+      io = new IntersectionObserver(function (entries) {
+        visible = entries[entries.length - 1].isIntersecting;
+        update();
+      }, { rootMargin: "50px" });
+      io.observe(canvas);
+    }
 
-    if (root.ResizeObserver) { ro = new ResizeObserver(function () { resize(); }); ro.observe(container); }
-    else root.addEventListener('resize', resize);
-    if (root.IntersectionObserver) {
-      io = new IntersectionObserver(function (en) {
-        visible = en[en.length - 1].isIntersecting;
-        if (visible) start(); else stop();
-      }, { threshold: 0 });
-      io.observe(container);
-    }
-    document.addEventListener('visibilitychange', onVis);
-    if (parallax && !reduced) root.addEventListener('pointermove', onMove, { passive: true });
-    if (mq && mq.addEventListener) mq.addEventListener('change', onMQ);
-    resize();
+    applySize(true);
 
     return {
+      canvas: canvas,
       destroy: function () {
         if (destroyed) return;
-        destroyed = true; stop();
-        if (ro) ro.disconnect(); else root.removeEventListener('resize', resize);
+        destroyed = true;
+        if (raf) cancelAnimationFrame(raf);
+        raf = 0;
+        clearTimeout(rzTimer);
+        if (ro) ro.disconnect();
         if (io) io.disconnect();
-        document.removeEventListener('visibilitychange', onVis);
-        root.removeEventListener('pointermove', onMove);
-        if (mq && mq.removeEventListener) mq.removeEventListener('change', onMQ);
+        root.removeEventListener("resize", onResize);
+        document.removeEventListener("visibilitychange", onVis);
+        if (mql) {
+          if (mql.removeEventListener) mql.removeEventListener("change", onMotion);
+          else if (mql.removeListener) mql.removeListener(onMotion);
+        }
         if (canvas.parentNode) canvas.parentNode.removeChild(canvas);
-        freeCanvas(skyLayer); freeCanvas(cityLayer); freeCanvas(roadLayer); freeCanvas(canvas);
-        skyLayer = cityLayer = roadLayer = null; cars = []; signs = [];
+        el.style.position = saved.position;
+        el.style.isolation = saved.isolation;
+        rockets.length = signals.length = vehicles.length = trails.length = particles.length = stars.length = 0;
+        bg = null;
+      },
+      /** Average/max JS time per animated frame in ms (diagnostics). */
+      stats: function (reset) {
+        if (reset) { stat.n = 0; stat.sum = 0; stat.max = 0; }
+        return { frames: stat.n, avgMs: stat.n ? stat.sum / stat.n : 0, maxMs: stat.max, rockets: liveRockets(), running: !!raf, width: w, height: h, dpr: dpr };
+      },
+      /** Render n frames synchronously, forcing rasterisation; returns avg ms (diagnostics). */
+      _bench: function (n) {
+        n = n || 120;
+        var t0 = now();
+        for (var i = 0; i < n; i++) {
+          clock += 1 / 60;
+          stepRockets(1 / 60);
+          render(1 / 60);
+          ctx.getImageData(0, 0, 1, 1);
+        }
+        return (now() - t0) / n;
       }
     };
   }
 
-  root.SkyWay = { mount: mount, themes: Object.keys(THEMES), version: '1.0.0' };
-})(typeof window !== 'undefined' ? window : this);
-</script><style>#ebk-sky{position:absolute;inset:0;background:#07060f;overflow:hidden}#ebk-sky .ebk-sc{position:absolute;top:0;bottom:0;right:0;left:30%;-webkit-mask-image:linear-gradient(90deg,transparent,#000 22%);mask-image:linear-gradient(90deg,transparent,#000 22%)}@media(max-width:899px){#ebk-sky .ebk-sc{left:0;top:56%;-webkit-mask-image:linear-gradient(180deg,transparent,#000 30%);mask-image:linear-gradient(180deg,transparent,#000 30%)}}</style><script>(function(){var el=document.querySelector('.hero .bg')||document.querySelector('.hero');if(!el||!window.SkyWay)return;var w=document.createElement('div');w.id='ebk-sky';var sc=document.createElement('div');sc.className='ebk-sc';w.appendChild(sc);el.insertBefore(w,el.firstChild);SkyWay.mount(sc,{theme:"night",density:1,opacity:1,dim:.12});})();</script>
+  root.TrafficSky = { mount: mount, version: "1.0.0" };
+})(typeof window !== "undefined" ? window : this);
+</script><style>#ebk-sky{position:absolute;inset:0;background:#050910;overflow:hidden}</style><script>(function(){var el=document.querySelector('.hero .bg')||document.querySelector('.hero');if(!el||!window.TrafficSky)return;var w=document.createElement('div');w.id='ebk-sky';el.insertBefore(w,el.firstChild);TrafficSky.mount(w,{intensity:1,calmLeft:true});})();</script>
 <!--/EBM-KIT-->
 
 </body>
