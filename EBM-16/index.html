@@ -426,7 +426,7 @@ section{position:relative}
       <label for="f-phone">Phone<input id="f-phone" name="phone" type="tel" autocomplete="tel"></label>
       <label class="full" for="f-topic">How can we help?<select id="f-topic" name="topic"><option>Development review</option><option>Traffic engineering review</option><option>Municipal staff support</option><option>Special assignment / second opinion</option><option>Forensic &amp; litigation support</option><option>Something else</option></select></label>
       <label class="full" for="f-msg">Message<textarea id="f-msg" name="msg" required></textarea></label>
-      <div class="send"><button class="btn k" type="submit">Send message</button><small id="cfNote">Or email info@ebmobility.com</small></div>
+      <div class="send"><button class="btn k" type="submit">Send message</button><small id="cfNote">Or email rafat@ebmobility.com</small></div>
     </form>
   </section>
 </main>
@@ -435,7 +435,7 @@ section{position:relative}
   <div><img src="photos/logo-full.png" alt="East Bay Mobility"><p>Independent, senior-level traffic engineering for California municipalities and legal professionals.</p></div>
   <div><span class="mono">Services</span><ul><li><a href="#services">Development review</a></li><li><a href="#services">Traffic engineering review</a></li><li><a href="#services">Staff support</a></li><li><a href="#forensic">Forensic &amp; litigation</a></li></ul></div>
   <div><span class="mono">Company</span><ul><li><a href="#story">Our story</a></li><li><a href="#about">Rafat Raie, P.E.</a></li><li><a href="#why">Why agencies call</a></li></ul></div>
-  <div><span class="mono">Contact</span><ul><li>info@ebmobility.com</li><li>California</li><li><a href="#contact">Contact form</a></li></ul></div>
+  <div><span class="mono">Contact</span><ul><li>rafat@ebmobility.com</li><li>California</li><li><a href="#contact">Contact form</a></li></ul></div>
 </footer>
 <div class="foot2"><span class="mono">© 2026 East Bay Mobility</span><span class="mono">Senior judgment · not production hours</span></div>
 
@@ -558,9 +558,198 @@ section{position:relative}
   document.getElementById('cf').addEventListener('submit',function(e){e.preventDefault();var f=e.target;
     if(!f.name.value||!f.email.value||!f.msg.value){document.getElementById('cfNote').textContent='Please add your name, email and a message.';return}
     var body='Name: '+f.name.value+'\nOrganization: '+f.org.value+'\nEmail: '+f.email.value+'\nPhone: '+f.phone.value+'\nTopic: '+f.topic.value+'\n\n'+f.msg.value;
-    document.getElementById('cfNote').textContent='Opening your email app. If nothing opens, email info@ebmobility.com.';
-    location.href='mailto:info@ebmobility.com?subject='+encodeURIComponent('Inquiry: '+f.topic.value)+'&body='+encodeURIComponent(body)});
+    document.getElementById('cfNote').textContent='Opening your email app. If nothing opens, email rafat@ebmobility.com.';
+    location.href='mailto:rafat@ebmobility.com?subject='+encodeURIComponent('Inquiry: '+f.topic.value)+'&body='+encodeURIComponent(body)});
 })();
 </script>
+<!--EBM-KIT-->
+<style id="ebk-style">
+/* EBM shared kit: 3D traffic-signal intro, section dock, car cursor, contact fallback. Everything is prefixed ebk- so it never collides with the page. */
+#ebk-intro{position:fixed;inset:0;z-index:2147483000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;transition:opacity .55s ease,transform .7s cubic-bezier(.2,.7,.1,1);cursor:pointer}
+#ebk-intro.ebk-go{opacity:0;transform:scale(1.04);pointer-events:none}
+#ebk-intro *{box-sizing:border-box}
+#ebk-intro .ebk-logo{width:min(230px,58vw);height:auto;background:#f4f6f8;border-radius:12px;padding:10px 14px;box-shadow:0 20px 50px -20px rgba(0,0,0,.8)}
+#ebk-intro .ebk-skip{position:absolute;bottom:22px;left:0;right:0;text-align:center;font:500 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.2em;text-transform:uppercase;color:#6b7078}
+/* 3D signal head: yellow retroreflective backplate, cast housing, door rings, LED lens arrays, tunnel visors */
+#ebk-intro{perspective:1200px;background:radial-gradient(ellipse 60% 50% at 50% 42%,#15181c,#08090b 70%)}
+.ebk-sig{--lw:84px;position:relative;width:206px;height:420px;transform-style:preserve-3d;transform:rotateY(-34deg) rotateX(4deg);animation:ebksigturn 2.4s cubic-bezier(.2,.7,.1,1) forwards;flex:none}
+@keyframes ebksigturn{to{transform:rotateY(-18deg) rotateX(2deg)}}
+.ebk-sig .ebk-bp{position:absolute;inset:0;border-radius:12px;border:9px solid transparent;background:linear-gradient(#0d0e10,#121417) padding-box,repeating-linear-gradient(135deg,#f4cf22 0 2px,#e2bb12 2px 4px,#f7d93f 4px 5px) border-box;box-shadow:0 40px 90px -20px rgba(0,0,0,.9),inset 0 0 0 1px rgba(255,255,255,.04)}
+.ebk-sig .ebk-bp:after{content:"";position:absolute;inset:-9px;border-radius:12px;background:linear-gradient(115deg,rgba(255,255,255,.22),transparent 35%);pointer-events:none}
+.ebk-sig .ebk-sl{position:absolute;left:31px;right:31px;top:24px;bottom:24px;border-radius:16px;background:#1c1e21;transform:translateZ(calc(var(--z)*1px))}
+.ebk-sig .ebk-hs{position:absolute;left:31px;right:31px;top:24px;bottom:24px;border-radius:16px;transform:translateZ(18px);background:linear-gradient(90deg,#1b1d20,#33373c 22%,#2a2d31 55%,#17191b);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),inset 0 -2px 0 rgba(0,0,0,.5)}
+.ebk-sig .ebk-hs:before{content:"";position:absolute;inset:0;border-radius:inherit;background:repeating-linear-gradient(90deg,rgba(255,255,255,.015) 0 1px,transparent 1px 3px)}
+.ebk-sig .ebk-lamp{position:absolute;left:50%;width:104px;height:104px;margin-left:-52px;transform-style:preserve-3d;transform:translateZ(19px)}
+.ebk-sig .ebk-l1{top:36px}.ebk-sig .ebk-l2{top:158px}.ebk-sig .ebk-l3{top:280px}
+.ebk-sig .ebk-door{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle,#0a0b0c 0 44px,#3b3f44 45px,#1e2023 48px,#2c2f33 51px,#151719 52px);box-shadow:0 2px 3px rgba(0,0,0,.6)}
+.ebk-sig .ebk-lens{position:absolute;left:10px;top:10px;width:var(--lw);height:var(--lw);border-radius:50%;overflow:hidden;
+  --on:var(--dim);
+  background:
+    radial-gradient(circle at 50% 50%,transparent 58%,rgba(0,0,0,.55) 100%),
+    repeating-radial-gradient(circle at 50% 50%,rgba(255,255,255,.07) 0 1px,transparent 1.2px 5px),
+    radial-gradient(circle,var(--on) 0 1.25px,transparent 1.9px) 0 0/5.2px 5.2px,
+    radial-gradient(circle at 50% 50%,var(--b1),var(--b2));
+  transition:filter .12s,box-shadow .18s}
+.ebk-sig .ebk-lens:before{content:"";position:absolute;left:12%;top:7%;width:58%;height:34%;border-radius:50%;background:radial-gradient(ellipse at 50% 30%,rgba(255,255,255,.42),rgba(255,255,255,0) 70%);transform:rotate(-18deg)}
+.ebk-sig .ebk-lens:after{content:"";position:absolute;inset:4px;border-radius:50%;border:1px solid rgba(255,255,255,.08);border-bottom-color:transparent;border-left-color:transparent;transform:rotate(-30deg)}
+.ebk-sig .ebk-l1 .ebk-lens{--dim:#4a1210;--b1:#2a0b0a;--b2:#120404;--hot:#ff5a43;--h1:#ff8f72;--h2:#d71e12;--glow:rgba(255,52,30,.75)}
+.ebk-sig .ebk-l2 .ebk-lens{--dim:#4d3409;--b1:#2c1e06;--b2:#130d02;--hot:#ffc23a;--h1:#ffe08a;--h2:#e79a00;--glow:rgba(255,176,20,.7)}
+.ebk-sig .ebk-l3 .ebk-lens{--dim:#0b3d2f;--b1:#06261d;--b2:#02100b;--hot:#4dffc0;--h1:#a8ffe0;--h2:#00b57a;--glow:rgba(20,230,150,.7)}
+.ebk-sig.ebk-r .ebk-l1 .ebk-lens,.ebk-sig.ebk-y .ebk-l2 .ebk-lens,.ebk-sig.ebk-g .ebk-l3 .ebk-lens{--on:var(--hot);--b1:var(--h1);--b2:var(--h2);box-shadow:0 0 22px 4px var(--glow),0 0 70px 18px var(--glow)}
+.ebk-sig .ebk-hood{position:absolute;left:-10px;top:-12px;width:118px;height:118px;transform:translateZ(14px);pointer-events:none;border-radius:50%;
+  background:conic-gradient(from 225deg,#2b2f33 0deg,#5d636b 55deg,#7d848c 90deg,#4c5157 140deg,#1b1d20 230deg,#1b1d20 270deg,transparent 270.5deg);
+  -webkit-mask:radial-gradient(circle at 50% 50%,transparent 0 47px,#000 48px 58px,transparent 59px);mask:radial-gradient(circle at 50% 50%,transparent 0 47px,#000 48px 58px,transparent 59px);
+  filter:drop-shadow(-6px 8px 6px rgba(0,0,0,.55))}
+.ebk-sig .ebk-hood:after{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 225deg,transparent 0 30deg,rgba(255,255,255,.35) 80deg,transparent 120deg)}
+.ebk-sig .ebk-lens{box-shadow:inset 0 14px 16px -6px rgba(0,0,0,.75)}
+.ebk-sig.ebk-r .ebk-l1 .ebk-hood,.ebk-sig.ebk-y .ebk-l2 .ebk-hood,.ebk-sig.ebk-g .ebk-l3 .ebk-hood{background:conic-gradient(from 225deg,#2b2f33 0deg,color-mix(in srgb,var(--hot) 35%,#5d636b) 60deg,color-mix(in srgb,var(--hot) 25%,#7d848c) 90deg,#4c5157 140deg,#1b1d20 230deg,#1b1d20 270deg,transparent 270.5deg)}
+.ebk-sig .ebk-l1{--hot:#ff5a43}.ebk-sig .ebk-l2{--hot:#ffc23a}.ebk-sig .ebk-l3{--hot:#4dffc0}
+.ebk-sig .ebk-bloom{position:absolute;left:50%;width:300px;height:300px;margin-left:-150px;border-radius:50%;pointer-events:none;opacity:0;transform:translateZ(60px);transition:opacity .2s,top 0s;mix-blend-mode:screen;filter:blur(18px)}
+.ebk-sig.ebk-r .ebk-bloom{top:-60px;opacity:.55;background:radial-gradient(circle,rgba(255,60,40,.55),transparent 60%)}
+.ebk-sig.ebk-y .ebk-bloom{top:60px;opacity:.5;background:radial-gradient(circle,rgba(255,180,30,.5),transparent 60%)}
+.ebk-sig.ebk-g .ebk-bloom{top:182px;opacity:.55;background:radial-gradient(circle,rgba(30,240,160,.5),transparent 60%)}
+.ebk-sig .ebk-mount{position:absolute;left:50%;top:-38px;width:34px;height:40px;margin-left:-17px;background:linear-gradient(90deg,#1a1c1f,#3a3e43,#1a1c1f);border-radius:4px 4px 0 0;transform:translateZ(10px)}
+@media(max-height:700px),(max-width:420px){.ebk-sig{scale:.78;margin-block:-46px}}
+@media(prefers-reduced-motion:reduce){.ebk-sig{animation:none}}
+html.ebk-lock,html.ebk-lock body{overflow:hidden!important}
+
+
+/* section dock: a horizontal bar on every screen size */
+#ebk-dock{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translate(-50%,140%);z-index:2147482000;display:flex;align-items:center;gap:2px;max-width:calc(100vw - 24px);padding:5px;border-radius:999px;background:rgba(14,15,18,.82);backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);box-shadow:0 18px 50px -12px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.08);transition:transform .6s cubic-bezier(.2,.7,.1,1);font:500 12px/1 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+#ebk-dock.ebk-in{transform:translate(-50%,0)}
+#ebk-dock,#ebk-dock *{box-sizing:border-box}
+#ebk-dock{flex-wrap:nowrap!important;margin:0;width:auto;height:auto}
+#ebk-dock .ebk-track{flex:1 1 auto;flex-wrap:nowrap;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;min-width:0}
+#ebk-dock .ebk-track::-webkit-scrollbar{display:none}
+#ebk-dock a{margin:0;border:0!important;box-shadow:none;outline-offset:2px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-weight:500;line-height:1;background:transparent;flex:none;display:flex;align-items:center;gap:7px;padding:10px 14px;border-radius:999px;color:#c9ccd2;text-decoration:none;letter-spacing:.06em;text-transform:uppercase;font-size:11.5px;white-space:nowrap;transition:background .2s,color .2s}
+#ebk-dock a::before,#ebk-dock a::after{content:none!important;display:none!important}
+#ebk-dock a:hover{color:#fff;background:rgba(255,255,255,.08)}
+#ebk-dock a.ebk-on{color:#0d0e10;background:#fff}
+#ebk-dock a i{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.5}
+#ebk-dock a.ebk-on i{background:#e0261b;opacity:1}
+#ebk-dock a.ebk-cta{flex:none;margin-left:4px;color:#fff;background:#0d0e10}
+#ebk-dock a.ebk-cta:hover{filter:brightness(1.1)}
+@media(max-width:560px){#ebk-dock{left:10px;right:10px;transform:translateY(140%);max-width:none}#ebk-dock.ebk-in{transform:none}#ebk-dock a{padding:10px 11px;font-size:11px}}
+@media print{#ebk-dock,#ebk-car{display:none}}
+
+/* contact fallback (only on pages without a contact section) */
+#ebk-contact{background:#0e1114;color:#e8ebef;padding:clamp(56px,8vw,96px) clamp(16px,5vw,64px) 140px;font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+#ebk-contact .ebk-w{max-width:980px;margin:0 auto;display:grid;grid-template-columns:1fr 1.2fr;gap:clamp(24px,5vw,64px)}
+#ebk-contact h2{font:700 clamp(30px,4vw,48px)/1.05 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;letter-spacing:-.02em;margin:10px 0 14px;color:#fff}
+#ebk-contact .ebk-k{font:500 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.2em;text-transform:uppercase;color:#8a919a}
+#ebk-contact p{color:#aab1ba;margin:0 0 10px}
+#ebk-contact b.ebk-mail{color:#fff;font:500 17px ui-monospace,SFMono-Regular,Menlo,monospace;user-select:all}
+#ebk-contact form{display:grid;gap:12px}
+#ebk-contact input,#ebk-contact select,#ebk-contact textarea{width:100%;box-sizing:border-box;font:inherit;color:#fff;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:12px 14px}
+#ebk-contact textarea{min-height:110px;resize:vertical}
+#ebk-contact button{justify-self:start;font:600 12px/1 system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#fff;background:#0d0e10;border:0;border-radius:999px;padding:15px 24px;cursor:pointer}
+#ebk-contact small{color:#8a919a}
+@media(max-width:760px){#ebk-contact .ebk-w{grid-template-columns:1fr}}
+
+/* car cursor */
+#ebk-car{position:fixed;inset:0;z-index:2147481000;pointer-events:none}
+html.ebk-carcur,html.ebk-carcur *{cursor:none!important}
+html.ebk-carcur input,html.ebk-carcur textarea,html.ebk-carcur select,html.ebk-carcur [contenteditable]{cursor:text!important}
+</style>
+<script>
+(function(){
+  var C={"intro": false, "nav": null, "offset": 70, "addContact": false, "contactBefore": null, "cursor": "smoke", "carColor": "#d8452f", "carColor2": "#8f2416", "smoke": "120,120,124"};
+  var doc=document,root=doc.documentElement,reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // 1. intro: red, amber, green, then reveal the page that is already rendered underneath (never more than 3 s)
+  var intro=doc.getElementById('ebk-intro'),tl=doc.getElementById('ebk-tl'),done=false;
+  function reveal(){ if(done)return; done=true; if(tl)tl.className='ebk-sig ebk-g'; if(intro){intro.classList.add('ebk-go');setTimeout(function(){intro.remove()},700);} root.classList.remove('ebk-lock'); setTimeout(showDock,250); }
+  if(C.intro&&intro){
+    root.classList.add('ebk-lock');
+    if(reduce){setTimeout(reveal,600)}else{setTimeout(function(){tl.className='ebk-sig ebk-y'},850);setTimeout(function(){tl.className='ebk-sig ebk-g'},1600);setTimeout(reveal,2050);}
+    setTimeout(reveal,3000); intro.addEventListener('click',reveal);
+  }else{ if(intro)intro.remove(); done=true; }
+
+  // 2. contact fallback for pages that have no contact section
+  if(C.addContact&&!doc.getElementById('contact')){
+    var sec=doc.createElement('section');sec.id='contact';
+    sec.innerHTML='<div id="ebk-contact"><div class="ebk-w"><div><span class="ebk-k">Contact us</span><h2>Start the conversation.</h2><p>For public agencies, legal professionals and everyone else: tell us about the review, question or decision in front of you.</p><p>Email <b class="ebk-mail">rafat@ebmobility.com</b></p><p><small>Rafat Raie, P.E. · East Bay Mobility · California</small></p></div><form id="ebk-cf" novalidate><input name="n" placeholder="Name" autocomplete="name"><input name="o" placeholder="Organization" autocomplete="organization"><input name="e" type="email" placeholder="Email" autocomplete="email"><select name="t"><option>Development review</option><option>Traffic engineering review</option><option>Municipal staff support</option><option>Special assignment / second opinion</option><option>Forensic &amp; litigation support</option><option>Something else</option></select><textarea name="m" placeholder="Message"></textarea><button type="submit">Send message</button><small id="ebk-cfn">Your email app opens with the message ready. If nothing opens, write to rafat@ebmobility.com.</small></form></div></div>';
+    var tgt=C.contactBefore&&doc.querySelector(C.contactBefore);
+    if(tgt)tgt.parentNode.insertBefore(sec,tgt);else doc.body.appendChild(sec);
+    doc.getElementById('ebk-cf').addEventListener('submit',function(e){e.preventDefault();var f=e.target;
+      if(!f.n.value||!f.e.value||!f.m.value){doc.getElementById('ebk-cfn').textContent='Please add your name, email and a message.';return}
+      var body='Name: '+f.n.value+'\nOrganization: '+f.o.value+'\nEmail: '+f.e.value+'\nTopic: '+f.t.value+'\n\n'+f.m.value;
+      location.href='mailto:rafat@ebmobility.com?subject='+encodeURIComponent('Inquiry: '+f.t.value)+'&body='+encodeURIComponent(body)});
+  }
+
+  // 3. section dock: Home, the page's sections, Contact us
+  var dock=null,links=[];
+  function target(h){return h==='#top'?null:doc.querySelector(h)}
+  function go(h){var el=target(h);var to=el?el.getBoundingClientRect().top+scrollY-(C.offset||70):0;var d=to-scrollY;
+    if(Math.abs(d)>innerHeight*1.5)window.scrollTo(0,to-Math.sign(d)*innerHeight*.6);
+    window.scrollTo({top:to,behavior:reduce?'auto':'smooth'})}
+  if(C.nav&&C.nav.length){
+    dock=doc.createElement('div');dock.id='ebk-dock';dock.setAttribute('role','navigation');dock.setAttribute('aria-label','Sections');
+    var tr=doc.createElement('div');tr.className='ebk-track';dock.appendChild(tr);
+    C.nav.forEach(function(n){var a=doc.createElement('a');a.href=n[1];a.innerHTML='<i></i>'+n[0];a.addEventListener('click',function(e){e.preventDefault();go(n[1])});tr.appendChild(a);links.push(a)});
+    var cta=doc.createElement('a');cta.className='ebk-cta';cta.href='#contact';cta.textContent='Contact us';cta.addEventListener('click',function(e){e.preventDefault();go('#contact')});dock.appendChild(cta);
+    doc.body.appendChild(dock);
+    // room under the last block so the bar never sits on the footer text
+    var pad=doc.createElement('div');pad.id='ebk-pad';var lastEl=doc.body.lastElementChild;while(lastEl&&/^(SCRIPT|STYLE|NAV|CANVAS|DIV)$/.test(lastEl.tagName)&&lastEl.id&&lastEl.id.indexOf('ebk-')===0)lastEl=lastEl.previousElementSibling;
+    var bgc='';for(var el=doc.querySelector('footer')||lastEl;el&&el!==doc.documentElement;el=el.parentElement){var c=getComputedStyle(el).backgroundColor;if(c&&c!=='transparent'&&c!=='rgba(0, 0, 0, 0)'){bgc=c;break}}
+    pad.style.cssText='height:84px;background:'+(bgc||'transparent');doc.body.insertBefore(pad,dock);
+    var last=-1;
+    function spy(){var k=0;C.nav.forEach(function(n,i){var el=target(n[1]);if(el&&el.getBoundingClientRect().top<innerHeight*.4)k=i});
+      if(k!==last){last=k;links.forEach(function(a,i){a.classList.toggle('ebk-on',i===k)});var a=links[k];if(a&&tr.scrollWidth>tr.clientWidth)tr.scrollTo({left:a.offsetLeft-tr.clientWidth/2+a.offsetWidth/2,behavior:'smooth'})}}
+    addEventListener('scroll',spy,{passive:true});addEventListener('resize',spy);spy();
+  }
+  function showDock(){if(dock)dock.classList.add('ebk-in')}
+  if(done)setTimeout(showDock,300);
+
+  // 4. car cursor (mouse and trackpad only): smoke or light trails
+  if(C.cursor&&!reduce&&matchMedia('(pointer:fine)').matches){
+    var cv=doc.createElement('canvas');cv.id='ebk-car';doc.body.appendChild(cv);var x=cv.getContext('2d'),dpr=Math.min(2,devicePixelRatio||1),W=0,H=0;
+    function size(){W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';x.setTransform(dpr,0,0,dpr,0,0)}size();addEventListener('resize',size);
+    root.classList.add('ebk-carcur');
+    var mx=-100,my=-100,cx=-100,cy=-100,ang=0,spd=0,hover=false,seen=false,parts=[],trail=[],t0=performance.now();
+    var lightsMode=C.cursor==='lights';
+    addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;if(!seen){cx=mx;cy=my;seen=true}var el=e.target;hover=!!(el&&el.closest&&el.closest('a,button,[role=button],label,summary,select'))},{passive:true});
+    doc.addEventListener('mouseleave',function(){seen=false;mx=cx=-200;my=cy=-200});
+    function car(){var L=hover?46:40,Wd=hover?22:19;x.save();x.translate(cx,cy);x.rotate(ang);
+      // body: nose at the pointer
+      x.translate(-L*.5,0);
+      if(lightsMode||hover){var g=x.createRadialGradient(L*.5+18,0,2,L*.5+18,0,46);g.addColorStop(0,'rgba(255,250,220,.38)');g.addColorStop(1,'rgba(255,250,220,0)');x.fillStyle=g;x.beginPath();x.moveTo(L*.5,-5);x.lineTo(L*.5+60,-26);x.lineTo(L*.5+60,26);x.lineTo(L*.5,5);x.fill()}
+      x.shadowColor='rgba(0,0,0,.35)';x.shadowBlur=8;x.shadowOffsetY=3;
+      var bg=x.createLinearGradient(0,-Wd/2,0,Wd/2);bg.addColorStop(0,C.carColor2||'#2a6fb0');bg.addColorStop(.5,C.carColor||'#1f7fb8');bg.addColorStop(1,C.carColor2||'#164e7a');
+      x.fillStyle=bg;rr(-L/2,-Wd/2,L,Wd,Wd*.42);x.fill();x.shadowColor='transparent';
+      x.fillStyle='rgba(10,20,30,.78)';rr(-L*.12,-Wd*.36,L*.36,Wd*.72,4);x.fill();
+      x.fillStyle='rgba(255,255,255,.35)';rr(-L*.08,-Wd*.3,L*.12,Wd*.6,3);x.fill();
+      x.fillStyle='rgba(10,20,30,.6)';rr(-L*.36,-Wd*.3,L*.12,Wd*.6,3);x.fill();
+      x.fillStyle='#fffbe6';x.beginPath();x.arc(L/2-2,-Wd*.3,1.8,0,7);x.arc(L/2-2,Wd*.3,1.8,0,7);x.fill();
+      x.fillStyle=spd<1.2?'#ff2a1a':'#c81e14';x.beginPath();x.arc(-L/2+1.5,-Wd*.3,1.9,0,7);x.arc(-L/2+1.5,Wd*.3,1.9,0,7);x.fill();
+      x.restore()}
+    function rr(a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath()}
+    function frame(t){var dt=Math.min(40,t-t0);t0=t;
+      var px=cx,py=cy;cx+=(mx-cx)*.32;cy+=(my-cy)*.32;var vx=cx-px,vy=cy-py;spd=Math.hypot(vx,vy);
+      if(spd>.4){var a=Math.atan2(vy,vx),d=a-ang;d=Math.atan2(Math.sin(d),Math.cos(d));ang+=d*.25}
+      x.clearRect(0,0,W,H);
+      if(seen){
+        var bx=cx-Math.cos(ang)*40,by=cy-Math.sin(ang)*40,nx=-Math.sin(ang),ny=Math.cos(ang);
+        if(lightsMode){
+          trail.push({l:[bx+nx*6,by+ny*6],r:[bx-nx*6,by-ny*6],h:[cx+nx*5.5,cy+ny*5.5],k:[cx-nx*5.5,cy-ny*5.5],a:1});if(trail.length>48)trail.shift();
+          trail.forEach(function(p){p.a-=dt/700});trail=trail.filter(function(p){return p.a>0});
+          x.lineCap='round';x.globalCompositeOperation='lighter';
+          [['l','255,40,30'],['r','255,40,30'],['h','255,245,200'],['k','255,245,200']].forEach(function(s,si){
+            for(var i=1;i<trail.length;i++){var p=trail[i-1],q=trail[i];x.strokeStyle='rgba('+s[1]+','+(q.a*(si<2?.9:.35))+')';x.lineWidth=(si<2?3.4:2.2)*(.4+q.a);x.beginPath();x.moveTo(p[s[0]][0],p[s[0]][1]);x.lineTo(q[s[0]][0],q[s[0]][1]);x.stroke()}});
+          x.globalCompositeOperation='source-over';
+        }else{
+          if(spd>1)for(var k=0;k<Math.min(3,1+spd/8);k++)parts.push({x:bx+(Math.random()-.5)*6,y:by+(Math.random()-.5)*6,vx:-Math.cos(ang)*(.4+Math.random()*.6)+(Math.random()-.5)*.5,vy:-Math.sin(ang)*(.4+Math.random()*.6)+(Math.random()-.5)*.5-.15,r:4+Math.random()*4,a:.7});
+          parts.forEach(function(p){p.x+=p.vx*dt/16;p.y+=p.vy*dt/16;p.r+=dt/38;p.a-=dt/1400});parts=parts.filter(function(p){return p.a>0});if(parts.length>160)parts.splice(0,parts.length-160);
+          parts.forEach(function(p){var g=x.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r);g.addColorStop(0,'rgba('+(C.smoke||'150,156,165')+','+p.a*.8+')');g.addColorStop(1,'rgba('+(C.smoke||'150,156,165')+',0)');x.fillStyle=g;x.beginPath();x.arc(p.x,p.y,p.r,0,7);x.fill()});
+        }
+        car();
+      }
+      requestAnimationFrame(frame)}
+    requestAnimationFrame(frame);
+  }
+})();
+</script>
+<!--/EBM-KIT-->
+
 </body>
 </html>
