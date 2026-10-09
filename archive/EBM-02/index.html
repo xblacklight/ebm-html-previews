@@ -162,6 +162,7 @@ footer{padding:28px 7vw 48px;font-family:ui-sans-serif,system-ui,sans-serif;font
 })();
 </script>
 <!--EBM-KIT-->
+<!-- East Bay Mobility, Rafat Raie, P.E. | Website designed and directed by David (Hazem) Al-Raie | (c) 2026 East Bay Mobility. All rights reserved. -->
 <style id="ebk-style">
 /* EBM shared kit: 3D traffic-signal intro, section dock, car cursor, contact fallback. Everything is prefixed ebk- so it never collides with the page. */
 #ebk-intro{position:fixed;inset:0;z-index:2147483000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;transition:opacity .55s ease,transform .7s cubic-bezier(.2,.7,.1,1);cursor:pointer}
@@ -273,13 +274,9 @@ html.ebk-carcur input,html.ebk-carcur textarea,html.ebk-carcur select,html.ebk-c
   // 2. contact fallback for pages that have no contact section
   if(C.addContact&&!doc.getElementById('contact')){
     var sec=doc.createElement('section');sec.id='contact';
-    sec.innerHTML='<div id="ebk-contact"><div class="ebk-w"><div><span class="ebk-k">Contact us</span><h2>Start the conversation.</h2><p>For public agencies, legal professionals and everyone else: tell us about the review, question or decision in front of you.</p><p>Email <b class="ebk-mail">rafat@ebmobility.com</b></p><p><small>Rafat Raie, P.E. · East Bay Mobility · California</small></p></div><form id="ebk-cf" novalidate><input name="n" placeholder="Name" autocomplete="name"><input name="o" placeholder="Organization" autocomplete="organization"><input name="e" type="email" placeholder="Email" autocomplete="email"><select name="t"><option>Development review</option><option>Traffic engineering review</option><option>Municipal staff support</option><option>Special assignment / second opinion</option><option>Forensic &amp; litigation support</option><option>Something else</option></select><textarea name="m" placeholder="Message"></textarea><button type="submit">Send message</button><small id="ebk-cfn">Your email app opens with the message ready. If nothing opens, write to rafat@ebmobility.com.</small></form></div></div>';
+    sec.innerHTML='<div id="ebk-contact"><div class="ebk-w"><div><span class="ebk-k">Contact us</span><h2>Start the conversation.</h2><p>For public agencies, legal professionals and everyone else: tell us about the review, question or decision in front of you.</p><p>Email <b class="ebk-mail">rafat@ebmobility.com</b></p><p><small>Rafat Raie, P.E. · East Bay Mobility · California</small></p></div><form id="ebk-cf" novalidate><input name="n" placeholder="Name" autocomplete="name"><input name="o" placeholder="Organization" autocomplete="organization"><input name="e" type="email" placeholder="Email" autocomplete="email"><select name="t"><option>Development review</option><option>Traffic engineering review</option><option>Municipal staff support</option><option>Special assignment / second opinion</option><option>Forensic &amp; litigation support</option><option>Something else</option></select><textarea name="m" placeholder="Message"></textarea><button type="submit">Send message</button><small id="ebk-cfn">Your message goes straight to Rafat Raie&rsquo;s inbox.</small></form></div></div>';
     var tgt=C.contactBefore&&doc.querySelector(C.contactBefore);
     if(tgt)tgt.parentNode.insertBefore(sec,tgt);else doc.body.appendChild(sec);
-    doc.getElementById('ebk-cf').addEventListener('submit',function(e){e.preventDefault();var f=e.target;
-      if(!f.n.value||!f.e.value||!f.m.value){doc.getElementById('ebk-cfn').textContent='Please add your name, email and a message.';return}
-      var body='Name: '+f.n.value+'\nOrganization: '+f.o.value+'\nEmail: '+f.e.value+'\nTopic: '+f.t.value+'\n\n'+f.m.value;
-      location.href='mailto:rafat@ebmobility.com?subject='+encodeURIComponent('Inquiry: '+f.t.value)+'&body='+encodeURIComponent(body)});
   }
 
   // 3. section dock: Home, the page's sections, Contact us
@@ -308,15 +305,17 @@ html.ebk-carcur input,html.ebk-carcur textarea,html.ebk-carcur select,html.ebk-c
   function showDock(){if(dock)dock.classList.add('ebk-in')}
   if(done)setTimeout(showDock,300);
 
-  // 4. car cursor (mouse and trackpad only): smoke or light trails
-  if(C.cursor&&!reduce&&matchMedia('(pointer:fine)').matches){
+  // 4. car cursor: follows the mouse on computers and the finger on phones and tablets, with smoke or light trails
+  if(C.cursor&&!reduce){
     var cv=doc.createElement('canvas');cv.id='ebk-car';doc.body.appendChild(cv);var x=cv.getContext('2d'),dpr=Math.min(2,devicePixelRatio||1),W=0,H=0;
     function size(){W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';x.setTransform(dpr,0,0,dpr,0,0)}size();addEventListener('resize',size);
-    root.classList.add('ebk-carcur');
     var mx=-100,my=-100,cx=-100,cy=-100,ang=0,spd=0,hover=false,seen=false,parts=[],trail=[],t0=performance.now();
     var lightsMode=C.cursor==='lights';
-    addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;if(!seen){cx=mx;cy=my;seen=true}var el=e.target;hover=!!(el&&el.closest&&el.closest('a,button,[role=button],label,summary,select'))},{passive:true});
-    doc.addEventListener('mouseleave',function(){seen=false;mx=cx=-200;my=cy=-200});
+    var touchMode=false,lastT=0,ga=1;
+    addEventListener('pointermove',function(e){if(e.pointerType!=='mouse')return;if(!root.classList.contains('ebk-carcur'))root.classList.add('ebk-carcur');touchMode=false;mx=e.clientX;my=e.clientY;if(!seen){cx=mx;cy=my;seen=true}var el=e.target;hover=!!(el&&el.closest&&el.closest('a,button,[role=button],label,summary,select'))},{passive:true});
+    doc.addEventListener('mouseleave',function(){if(!touchMode){seen=false;mx=cx=-200;my=cy=-200}});
+    function tch(e){var t=e.touches&&e.touches[0];if(!t)return;var now=performance.now();mx=t.clientX;my=t.clientY;if(!seen||!touchMode||now-lastT>1100){cx=mx;cy=my}seen=true;touchMode=true;hover=false;lastT=now}
+    addEventListener('touchstart',tch,{passive:true});addEventListener('touchmove',tch,{passive:true});
     function car(){var L=hover?46:40,Wd=hover?22:19;x.save();x.translate(cx,cy);x.rotate(ang);
       // body: nose at the pointer
       x.translate(-L*.5,0);
@@ -335,25 +334,43 @@ html.ebk-carcur input,html.ebk-carcur textarea,html.ebk-carcur select,html.ebk-c
       var px=cx,py=cy;cx+=(mx-cx)*.32;cy+=(my-cy)*.32;var vx=cx-px,vy=cy-py;spd=Math.hypot(vx,vy);
       if(spd>.4){var a=Math.atan2(vy,vx),d=a-ang;d=Math.atan2(Math.sin(d),Math.cos(d));ang+=d*.25}
       x.clearRect(0,0,W,H);
-      if(seen){
+      ga=touchMode?Math.max(0,Math.min(1,1-(t-lastT-700)/450)):1;
+      if(seen&&ga<=0&&!parts.length&&!trail.length){seen=false}
+      if(seen){x.globalAlpha=ga;
         var bx=cx-Math.cos(ang)*40,by=cy-Math.sin(ang)*40,nx=-Math.sin(ang),ny=Math.cos(ang);
         if(lightsMode){
-          trail.push({l:[bx+nx*6,by+ny*6],r:[bx-nx*6,by-ny*6],h:[cx+nx*5.5,cy+ny*5.5],k:[cx-nx*5.5,cy-ny*5.5],a:1});if(trail.length>48)trail.shift();
+          if(ga>.05)trail.push({l:[bx+nx*6,by+ny*6],r:[bx-nx*6,by-ny*6],h:[cx+nx*5.5,cy+ny*5.5],k:[cx-nx*5.5,cy-ny*5.5],a:1});if(trail.length>48)trail.shift();
           trail.forEach(function(p){p.a-=dt/700});trail=trail.filter(function(p){return p.a>0});
           x.lineCap='round';x.globalCompositeOperation='lighter';
           [['l','255,40,30'],['r','255,40,30'],['h','255,245,200'],['k','255,245,200']].forEach(function(s,si){
             for(var i=1;i<trail.length;i++){var p=trail[i-1],q=trail[i];x.strokeStyle='rgba('+s[1]+','+(q.a*(si<2?.9:.35))+')';x.lineWidth=(si<2?3.4:2.2)*(.4+q.a);x.beginPath();x.moveTo(p[s[0]][0],p[s[0]][1]);x.lineTo(q[s[0]][0],q[s[0]][1]);x.stroke()}});
           x.globalCompositeOperation='source-over';
         }else{
-          if(spd>1)for(var k=0;k<Math.min(3,1+spd/8);k++)parts.push({x:bx+(Math.random()-.5)*6,y:by+(Math.random()-.5)*6,vx:-Math.cos(ang)*(.4+Math.random()*.6)+(Math.random()-.5)*.5,vy:-Math.sin(ang)*(.4+Math.random()*.6)+(Math.random()-.5)*.5-.15,r:4+Math.random()*4,a:.7});
+          if(spd>1&&ga>.05)for(var k=0;k<Math.min(3,1+spd/8);k++)parts.push({x:bx+(Math.random()-.5)*6,y:by+(Math.random()-.5)*6,vx:-Math.cos(ang)*(.4+Math.random()*.6)+(Math.random()-.5)*.5,vy:-Math.sin(ang)*(.4+Math.random()*.6)+(Math.random()-.5)*.5-.15,r:4+Math.random()*4,a:.7});
           parts.forEach(function(p){p.x+=p.vx*dt/16;p.y+=p.vy*dt/16;p.r+=dt/38;p.a-=dt/1400});parts=parts.filter(function(p){return p.a>0});if(parts.length>160)parts.splice(0,parts.length-160);
           parts.forEach(function(p){var g=x.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r);g.addColorStop(0,'rgba('+(C.smoke||'150,156,165')+','+p.a*.8+')');g.addColorStop(1,'rgba('+(C.smoke||'150,156,165')+',0)');x.fillStyle=g;x.beginPath();x.arc(p.x,p.y,p.r,0,7);x.fill()});
         }
-        car();
+        car();x.globalAlpha=1;
       }
       requestAnimationFrame(frame)}
     requestAnimationFrame(frame);
   }
+  // 5. contact forms send straight to Rafat's inbox (email app as a fallback)
+  var TO='rafat@ebmobility.com',FS='https://formsubmit.co/ajax/'+TO;
+  function note(f,msg,ok){var n=f.querySelector('.ebk-note');if(!n){n=doc.createElement('p');n.className='ebk-note';f.appendChild(n)}n.textContent=msg;n.style.cssText='margin:12px 0 0;padding:12px 14px;border-radius:8px;font:500 14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;'+(ok?'background:#e7f6ee;color:#0b5d3b':'background:#fff4e0;color:#7a4b00')}
+  doc.addEventListener('submit',function(e){var f=e.target;if(!f||!f.closest||!f.closest('#contact'))return;
+    e.preventDefault();e.stopImmediatePropagation();
+    var data={},mail='',msg='',topic='';
+    [].forEach.call(f.elements,function(el){if(!el.name&&!el.id&&!el.placeholder)return;if(/^(submit|button|reset|hidden)$/.test(el.type))return;var v=(el.value||'').trim();if(!v)return;
+      var lab=(el.id&&doc.querySelector('label[for="'+el.id+'"]'))||(el.closest&&el.closest('label')),lt=lab&&el.tagName!=='SELECT'&&lab.childElementCount<2?lab.textContent:'';var k=(lt||el.getAttribute('aria-label')||el.placeholder||el.name||el.id).replace(/[^\w &/()-]/g,'').replace(/\s+/g,' ').trim().slice(0,40)||'Field';if(el.tagName==='SELECT')k='Topic';if(el.tagName==='TEXTAREA')k='Message';if(el.type==='email')k='Email';if(data[k])k+=' 2';
+      if(el.type==='email'||/mail/i.test(el.name+el.id))mail=v;if(el.tagName==='TEXTAREA')msg=v;if(el.tagName==='SELECT'&&!topic)topic=v;data[k]=v});
+    if(!mail||!msg){note(f,'Please add your email address and a short message.');return}
+    data._subject='Website inquiry'+(topic?': '+topic:'');data._template='table';data._captcha='false';data._replyto=mail;
+    var btn=f.querySelector('[type=submit],button');if(btn)btn.disabled=true;note(f,'Sending...',true);
+    fetch(FS,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data)})
+      .then(function(r){return r.json()}).then(function(j){if(String(j.success)!=='true')throw 0;note(f,'Thank you. Your message went to Rafat Raie, and he will reply by email.',true);f.reset()})
+      .catch(function(){var body=Object.keys(data).filter(function(k){return k[0]!=='_'}).map(function(k){return k+': '+data[k]}).join('\n');note(f,'Your email app is opening with the message ready. If nothing opens, write to '+TO+'.');location.href='mailto:'+TO+'?subject='+encodeURIComponent(data._subject)+'&body='+encodeURIComponent(body)})
+      .then(function(){if(btn)btn.disabled=false})},true);
 })();
 </script>
 <!--/EBM-KIT-->

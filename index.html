@@ -1,298 +1,780 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>East Bay Mobility</title>
-<meta name="description" content="Independent senior traffic engineering for California public agencies and attorneys. Rafat Raie, P.E.">
+<title>East Bay Mobility | Senior Traffic Engineering</title>
+<meta name="description" content="On-call senior traffic engineering, development review and expert support for California public agencies. Led by Rafat Raie, P.E.">
+<link rel="icon" href="EBM-16/photos/logo-letters.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&family=Inter:wght@400;500;600&family=Instrument+Serif:ital@1&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* Layout: asymmetric 12-col on porcelain; hero is a live ring-and-barrier signal timing diagram */
+/* Layout: a drafting-sheet frame (hairline side rules, title-block strips) under an orbiting hero of intersection photos, 1985 to today */
 :root{
- --ground:#f3f5f4; --panel:#ffffff; --ink:#132126; --soft:#55656b; --rule:#d5dcdb;
- --go:#0a9a6c; --caution:#f0b323; --stop:#d8452f; --deep:#0f2e33;
- --display:"Bricolage Grotesque",system-ui,sans-serif; --body:"Atkinson Hyperlegible",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
- color-scheme:light;
+  --bg:#f2f2f0; --paper:#f7f7f5; --ink:#0d0d0e; --soft:#6b6b6e; --faint:#a3a3a6; --rule:#dcdcd8; --orbit:#c9c9c4;
+  --btn:#0d0d0e; --btnInk:#f7f7f5; --accent:#1f7fb8; --glow:rgba(13,13,14,.16);
+  --wide:"Archivo",system-ui,sans-serif; --serif:"Instrument Serif",Georgia,serif; --mono:"Geist Mono",ui-monospace,SFMono-Regular,Menlo,monospace; --text:"Inter",system-ui,sans-serif;
+  --ease:cubic-bezier(.2,.7,.1,1); --gut:clamp(16px,4vw,56px); --frame:1160px;
 }
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f0f11; --paper:#141416; --ink:#f1f1ee; --soft:#9a9a9e; --faint:#5e5e63; --rule:#26262a; --orbit:#2c2c31;
+  --btn:#f1f1ee; --btnInk:#0f0f11; --accent:#5cb6ea; --glow:rgba(0,0,0,.5); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f0f11; --paper:#141416; --ink:#f1f1ee; --soft:#9a9a9e; --faint:#5e5e63; --rule:#26262a; --orbit:#2c2c31;
+  --btn:#f1f1ee; --btnInk:#0f0f11; --accent:#5cb6ea; --glow:rgba(0,0,0,.5); color-scheme:dark}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{background:var(--ground);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.6;padding-inline:clamp(16px,4vw,56px)}
+body{background:var(--bg);color:var(--ink);font-family:var(--text);font-stretch:100%;font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body.lock{overflow:hidden}
 a{color:inherit}
-img{max-width:100%;display:block}
-.shell{max-width:1240px;margin:0 auto}
-h1,h2,h3{font-family:var(--display);text-wrap:balance;letter-spacing:-.025em}
-.k{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}
-/* top */
-.top{display:flex;justify-content:space-between;align-items:center;padding-block:26px;gap:20px;flex-wrap:wrap}
-.mark{display:flex;align-items:center;gap:12px;text-decoration:none;font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:-.02em}
-.mark .lamp{display:grid;gap:3px;padding:5px;background:var(--deep);border-radius:6px}
-.mark .lamp i{width:8px;height:8px;border-radius:50%;background:var(--stop)}
-.mark .lamp i:nth-child(2){background:var(--caution)}.mark .lamp i:nth-child(3){background:var(--go)}
-.top nav{display:flex;gap:26px;flex-wrap:wrap;font-size:15px}
-.top nav a{text-decoration:none;color:var(--soft)}
-.top nav a:hover,.top nav a:focus-visible{color:var(--ink)}
-.top nav a.cta{color:var(--ink);font-weight:700;border-bottom:2px solid var(--go)}
-/* hero */
-.hero{display:grid;grid-template-columns:repeat(12,1fr);gap:24px;padding-block:56px 40px;align-items:end}
-.hero h1{grid-column:1/9;font-weight:300;font-size:clamp(44px,7.4vw,104px);line-height:.96}
-.hero h1 b{font-weight:800;color:var(--deep)}
-.hero .intro{grid-column:9/13;color:var(--soft);font-size:17.5px;min-width:0}
-.hero .intro p+p{margin-top:14px}
-.paths{display:flex;flex-direction:column;gap:10px;margin-top:22px}
-.paths a{display:flex;justify-content:space-between;align-items:center;text-decoration:none;padding:14px 16px;background:var(--panel);border:1px solid var(--rule);border-radius:4px;font-weight:700;color:var(--ink);transition:border-color .2s,transform .2s}
-.paths a:hover,.paths a:focus-visible{border-color:var(--go);transform:translateX(4px)}
-.paths a span{font-family:var(--mono);font-size:12px;font-weight:400;color:var(--soft)}
-/* timing diagram */
-.tdia{background:var(--deep);color:#dbe6e4;border-radius:6px;padding:28px clamp(16px,3vw,36px) 22px;margin-bottom:24px;position:relative;overflow:hidden}
-.tdia .hd{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-family:var(--mono);font-size:12px;color:#8fb0ac;margin-bottom:20px}
-.tdia .hd b{color:#fff;font-weight:500}
-.rings{position:relative;display:grid;gap:10px}
-.ring{display:flex;height:46px;gap:0}
-.ph{display:flex;position:relative;min-width:0}
-.ph .g{background:var(--go);flex:1}
-.ph .y{background:var(--caution);width:calc(var(--y) * 1%)}
-.ph .r{background:var(--stop);width:calc(var(--r) * 1%)}
-.ph label{position:absolute;left:8px;top:50%;transform:translateY(-50%);font-family:var(--mono);font-size:12.5px;color:#05221a;font-weight:500;white-space:nowrap}
-.ph label small{opacity:.7;margin-left:6px}
-.barrier{position:absolute;top:-8px;bottom:-8px;left:50%;width:2px;background:#fff;opacity:.85}
-.barrier:after{content:"BARRIER";position:absolute;top:-16px;left:6px;font-family:var(--mono);font-size:10px;color:#8fb0ac}
-.head{position:absolute;top:-10px;bottom:-10px;width:2px;background:#fff;box-shadow:0 0 0 4px rgba(255,255,255,.12);left:0;animation:sweep 14s linear infinite}
-@keyframes sweep{to{left:100%}}
-.axis{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:#6f918c;margin-top:10px}
-.legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:16px;font-family:var(--mono);font-size:11.5px;color:#a7c0bc}
-.legend i{display:inline-block;width:10px;height:10px;margin-right:6px;vertical-align:-1px}
-.facts{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
-.facts div{padding:22px 18px 22px 0}
-.facts div+div{padding-left:18px;border-left:1px solid var(--rule)}
-.facts b{display:block;font-family:var(--display);font-weight:700;font-size:34px;letter-spacing:-.03em;line-height:1.05}
-.facts span{font-size:14px;color:var(--soft)}
-/* sections */
-section.blk{padding-block:96px;display:grid;grid-template-columns:repeat(12,1fr);gap:24px}
-.blk>.side{grid-column:1/5}
-.blk>.main{grid-column:5/13;min-width:0}
-.blk h2{font-weight:500;font-size:clamp(32px,4vw,52px);line-height:1.02;margin-top:14px}
-.blk .lede{color:var(--soft);margin-top:16px;max-width:36ch}
-.svc{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);border:1px solid var(--rule)}
-.svc article{background:var(--panel);padding:30px 28px;display:flex;flex-direction:column;gap:10px}
-.svc h3{font-weight:700;font-size:23px}
-.svc p{color:var(--soft);font-size:16px}
-.svc .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:8px}
-.svc .tags span{font-family:var(--mono);font-size:11px;padding:4px 8px;border:1px solid var(--rule);border-radius:3px;color:var(--soft)}
-.pledge{margin-top:24px;display:flex;gap:16px;align-items:center;padding:20px 24px;background:var(--panel);border:1px solid var(--rule);border-left:6px solid var(--go)}
-.pledge p{font-family:var(--display);font-size:20px;font-weight:500;letter-spacing:-.01em}
-/* forensic */
-.dark{background:var(--deep);color:#e4ecea;margin-inline:calc(-1*clamp(16px,4vw,56px));padding-inline:clamp(16px,4vw,56px)}
-.dark .shell>section.blk{padding-block:110px}
-.dark .k{color:#8fb0ac}
-.dark .lede{color:#a9c1bd}
-.q{font-family:var(--display);font-weight:300;font-size:clamp(26px,3.2vw,40px);line-height:1.15;letter-spacing:-.02em}
-.q b{font-weight:700;color:var(--caution)}
-.versus{display:grid;grid-template-columns:1fr 1fr;margin-top:40px;border:1px solid rgba(255,255,255,.16)}
-.versus div{padding:26px}
-.versus div+div{border-left:1px solid rgba(255,255,255,.16);background:rgba(10,154,108,.14)}
-.versus .k{display:block;margin-bottom:10px}
-.versus p{font-family:var(--display);font-size:21px;line-height:1.25}
-.note{margin-top:18px;color:#a9c1bd;max-width:62ch}
-.areas{margin-top:40px;display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid rgba(255,255,255,.16)}
-.areas span{padding:13px 12px 13px 0;border-bottom:1px solid rgba(255,255,255,.16);font-size:15px;display:flex;gap:10px;align-items:baseline}
-.areas span:before{content:"";flex:none;width:7px;height:7px;border-radius:50%;background:var(--caution);transform:translateY(-1px)}
-/* about */
-.cv{display:grid;gap:0;border-top:2px solid var(--ink)}
-.cv div{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:24px;padding:18px 0;border-bottom:1px solid var(--rule)}
-.cv b{font-family:var(--display);font-weight:700;font-size:18px;letter-spacing:-.01em}
-.cv span{color:var(--soft)}
-.feat{margin-top:28px;display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center;background:var(--panel);border:1px solid var(--rule);padding:22px}
-.feat .n{font-family:var(--display);font-weight:800;font-size:56px;line-height:1;color:var(--go);letter-spacing:-.04em}
-.feat p{color:var(--soft)}
-.feat p b{color:var(--ink)}
-/* why */
-.why{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-.why div{border-top:3px solid var(--ink);padding-top:18px}
-.why h3{font-size:21px;font-weight:700;margin-bottom:8px}
-.why p{color:var(--soft);font-size:16px}
-/* contact */
-.forms{display:grid;grid-template-columns:1fr 1fr;gap:24px}
-form{background:var(--panel);border:1px solid var(--rule);padding:28px;display:grid;gap:14px;align-content:start}
-form h3{font-size:24px;font-weight:700}
-form .k{margin-top:-8px}
-.fld{display:grid;gap:5px}
-.fld label{font-size:13px;font-weight:700}
-input,select,textarea{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1px solid var(--rule);border-radius:3px;background:var(--ground);color:var(--ink)}
-input:focus,select:focus,textarea:focus{outline:2px solid var(--go);outline-offset:1px}
-textarea{min-height:100px;resize:vertical}
-form button{justify-self:start;background:var(--ink);color:#fff;border:0;border-radius:3px;padding:13px 22px;font:700 15px var(--body);cursor:pointer}
-form button:hover,form button:focus-visible{background:var(--go)}
-.sent{font-size:14px;color:var(--go)}
-.mail{margin-top:20px;color:var(--soft)}
-.mail b{color:var(--ink);user-select:all}
-footer{border-top:1px solid var(--rule);padding-block:28px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:14px;color:var(--soft)}
-@media (max-width:960px){
- .hero h1,.hero .intro,.blk>.side,.blk>.main{grid-column:1/-1}
- .facts{grid-template-columns:1fr 1fr}.facts div:nth-child(3){border-left:0;padding-left:0}.facts div:nth-child(-n+2){border-bottom:1px solid var(--rule)}
- .areas{grid-template-columns:1fr 1fr}
- .why,.forms{grid-template-columns:1fr}
- section.blk{padding-block:64px}
+img{display:block;max-width:100%}
+h1,h2,h3{font-family:var(--wide);font-stretch:125%;font-weight:700;letter-spacing:-.035em;line-height:1.02;text-wrap:balance}
+i.sf{font-family:var(--serif);font-style:italic;font-weight:400;font-stretch:100%;letter-spacing:-.01em}
+.mono{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+.btn{display:inline-flex;align-items:center;gap:10px;height:52px;padding:0 26px;font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;text-decoration:none;border:1px solid var(--btn);cursor:pointer;transition:transform .2s var(--ease),background .2s,color .2s}
+.btn.k{background:var(--btn);color:var(--btnInk)}
+.btn.o{background:transparent;color:var(--ink)}
+.btn:hover{transform:translateY(-2px)}
+.btn:focus-visible,a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+/* intro: traffic light */
+#intro{position:fixed;inset:0;z-index:100;background:#0b0c0e;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;transition:opacity .55s ease,transform .7s var(--ease)}
+#intro.go{opacity:0;transform:scale(1.04);pointer-events:none}
+/* 3D signal head: yellow retroreflective backplate, cast housing, door rings, LED lens arrays, tunnel visors */
+#intro{perspective:1200px;background:radial-gradient(ellipse 60% 50% at 50% 42%,#15181c,#08090b 70%)}
+.sig{--lw:84px;position:relative;width:206px;height:420px;transform-style:preserve-3d;transform:rotateY(-34deg) rotateX(4deg);animation:sigturn 2.4s cubic-bezier(.2,.7,.1,1) forwards;flex:none}
+@keyframes sigturn{to{transform:rotateY(-18deg) rotateX(2deg)}}
+.sig .bp{position:absolute;inset:0;border-radius:12px;border:9px solid transparent;background:linear-gradient(#0d0e10,#121417) padding-box,repeating-linear-gradient(135deg,#f4cf22 0 2px,#e2bb12 2px 4px,#f7d93f 4px 5px) border-box;box-shadow:0 40px 90px -20px rgba(0,0,0,.9),inset 0 0 0 1px rgba(255,255,255,.04)}
+.sig .bp:after{content:"";position:absolute;inset:-9px;border-radius:12px;background:linear-gradient(115deg,rgba(255,255,255,.22),transparent 35%);pointer-events:none}
+.sig .sl{position:absolute;left:31px;right:31px;top:24px;bottom:24px;border-radius:16px;background:#1c1e21;transform:translateZ(calc(var(--z)*1px))}
+.sig .hs{position:absolute;left:31px;right:31px;top:24px;bottom:24px;border-radius:16px;transform:translateZ(18px);background:linear-gradient(90deg,#1b1d20,#33373c 22%,#2a2d31 55%,#17191b);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),inset 0 -2px 0 rgba(0,0,0,.5)}
+.sig .hs:before{content:"";position:absolute;inset:0;border-radius:inherit;background:repeating-linear-gradient(90deg,rgba(255,255,255,.015) 0 1px,transparent 1px 3px)}
+.sig .lamp{position:absolute;left:50%;width:104px;height:104px;margin-left:-52px;transform-style:preserve-3d;transform:translateZ(19px)}
+.sig .l1{top:36px}.sig .l2{top:158px}.sig .l3{top:280px}
+.sig .door{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle,#0a0b0c 0 44px,#3b3f44 45px,#1e2023 48px,#2c2f33 51px,#151719 52px);box-shadow:0 2px 3px rgba(0,0,0,.6)}
+.sig .lens{position:absolute;left:10px;top:10px;width:var(--lw);height:var(--lw);border-radius:50%;overflow:hidden;
+  --on:var(--dim);
+  background:
+    radial-gradient(circle at 50% 50%,transparent 58%,rgba(0,0,0,.55) 100%),
+    repeating-radial-gradient(circle at 50% 50%,rgba(255,255,255,.07) 0 1px,transparent 1.2px 5px),
+    radial-gradient(circle,var(--on) 0 1.25px,transparent 1.9px) 0 0/5.2px 5.2px,
+    radial-gradient(circle at 50% 50%,var(--b1),var(--b2));
+  transition:filter .12s,box-shadow .18s}
+.sig .lens:before{content:"";position:absolute;left:12%;top:7%;width:58%;height:34%;border-radius:50%;background:radial-gradient(ellipse at 50% 30%,rgba(255,255,255,.42),rgba(255,255,255,0) 70%);transform:rotate(-18deg)}
+.sig .lens:after{content:"";position:absolute;inset:4px;border-radius:50%;border:1px solid rgba(255,255,255,.08);border-bottom-color:transparent;border-left-color:transparent;transform:rotate(-30deg)}
+.sig .l1 .lens{--dim:#4a1210;--b1:#2a0b0a;--b2:#120404;--hot:#ff5a43;--h1:#ff8f72;--h2:#d71e12;--glow:rgba(255,52,30,.75)}
+.sig .l2 .lens{--dim:#4d3409;--b1:#2c1e06;--b2:#130d02;--hot:#ffc23a;--h1:#ffe08a;--h2:#e79a00;--glow:rgba(255,176,20,.7)}
+.sig .l3 .lens{--dim:#0b3d2f;--b1:#06261d;--b2:#02100b;--hot:#4dffc0;--h1:#a8ffe0;--h2:#00b57a;--glow:rgba(20,230,150,.7)}
+.sig.r .l1 .lens,.sig.y .l2 .lens,.sig.g .l3 .lens{--on:var(--hot);--b1:var(--h1);--b2:var(--h2);box-shadow:0 0 22px 4px var(--glow),0 0 70px 18px var(--glow)}
+.sig .hood{position:absolute;left:-10px;top:-12px;width:118px;height:118px;transform:translateZ(14px);pointer-events:none;border-radius:50%;
+  background:conic-gradient(from 225deg,#2b2f33 0deg,#5d636b 55deg,#7d848c 90deg,#4c5157 140deg,#1b1d20 230deg,#1b1d20 270deg,transparent 270.5deg);
+  -webkit-mask:radial-gradient(circle at 50% 50%,transparent 0 47px,#000 48px 58px,transparent 59px);mask:radial-gradient(circle at 50% 50%,transparent 0 47px,#000 48px 58px,transparent 59px);
+  filter:drop-shadow(-6px 8px 6px rgba(0,0,0,.55))}
+.sig .hood:after{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 225deg,transparent 0 30deg,rgba(255,255,255,.35) 80deg,transparent 120deg)}
+.sig .lens{box-shadow:inset 0 14px 16px -6px rgba(0,0,0,.75)}
+.sig.r .l1 .hood,.sig.y .l2 .hood,.sig.g .l3 .hood{background:conic-gradient(from 225deg,#2b2f33 0deg,color-mix(in srgb,var(--hot) 35%,#5d636b) 60deg,color-mix(in srgb,var(--hot) 25%,#7d848c) 90deg,#4c5157 140deg,#1b1d20 230deg,#1b1d20 270deg,transparent 270.5deg)}
+.sig .l1{--hot:#ff5a43}.sig .l2{--hot:#ffc23a}.sig .l3{--hot:#4dffc0}
+.sig .bloom{position:absolute;left:50%;width:300px;height:300px;margin-left:-150px;border-radius:50%;pointer-events:none;opacity:0;transform:translateZ(60px);transition:opacity .2s,top 0s;mix-blend-mode:screen;filter:blur(18px)}
+.sig.r .bloom{top:-60px;opacity:.55;background:radial-gradient(circle,rgba(255,60,40,.55),transparent 60%)}
+.sig.y .bloom{top:60px;opacity:.5;background:radial-gradient(circle,rgba(255,180,30,.5),transparent 60%)}
+.sig.g .bloom{top:182px;opacity:.55;background:radial-gradient(circle,rgba(30,240,160,.5),transparent 60%)}
+.sig .mount{position:absolute;left:50%;top:-38px;width:34px;height:40px;margin-left:-17px;background:linear-gradient(90deg,#1a1c1f,#3a3e43,#1a1c1f);border-radius:4px 4px 0 0;transform:translateZ(10px)}
+@media(max-height:700px),(max-width:420px){.sig{scale:.78;margin-block:-46px}}
+@media(prefers-reduced-motion:reduce){.sig{animation:none}}
+#intro .il{width:min(240px,60vw);background:#f4f6f8;border-radius:12px;padding:10px 14px}
+
+/* nav */
+header{position:fixed;top:0;left:0;right:0;z-index:50;height:60px;display:flex;align-items:stretch;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--rule)}
+header .logo{display:flex;align-items:center;padding:0 18px 0 var(--gut)}
+header .logo img{height:26px;width:auto}
+header nav{display:flex;align-items:center;gap:6px;padding-left:8px;flex:1;min-width:0}
+header nav a{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;color:var(--soft);padding:6px 12px;transition:color .2s,background .2s}
+header nav a:hover{color:var(--ink)}
+header nav a[href="#contact"]{display:none}
+@media(max-width:900px){header nav a[href="#contact"]{display:inline-block}}
+header nav a.on{background:var(--btn);color:var(--btnInk)}
+header .sep{width:1px;background:var(--rule);margin:0 10px;align-self:stretch}
+header .tools{display:flex;align-items:stretch}
+header .tools button{width:60px;border:0;border-left:1px solid var(--rule);background:transparent;color:var(--soft);cursor:pointer;display:grid;place-items:center}
+header .tools button svg{width:18px;height:18px}
+header .tools a.cta{display:flex;align-items:center;padding:0 26px;background:var(--btn);color:var(--btnInk);font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;white-space:nowrap}
+header nav{overflow-x:auto;scrollbar-width:none;-webkit-mask:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}
+header nav::-webkit-scrollbar{display:none}
+header nav a{white-space:nowrap;flex:none}
+html{scroll-padding-top:72px}
+@media(max-width:1100px){header .sep{display:none}header nav a{padding:6px 9px;letter-spacing:.12em}}
+@media(max-width:900px){
+  header{height:auto;flex-wrap:wrap}
+  header .logo{height:52px}
+  header .tools{margin-left:auto;height:52px}
+  header nav{order:3;flex:0 0 100%;height:44px;padding:0 var(--gut);gap:4px;border-top:1px solid var(--rule)}
+  header nav a{padding:6px 10px;font-size:11px}
+  html{scroll-padding-top:108px}
 }
-@media (max-width:620px){
- .svc,.versus{grid-template-columns:1fr}.versus div+div{border-left:0;border-top:1px solid rgba(255,255,255,.16)}
- .areas{grid-template-columns:1fr}
- .cv div{grid-template-columns:1fr;gap:4px}
- .ring{height:38px}.ph label small{display:none}.ph label{font-size:11px;left:5px}
- .top nav a:not(.cta){display:none}
+@media(max-width:420px){header .tools a.cta{padding:0 16px}}
+
+/* hero orbit */
+.hero{position:relative;height:100svh;min-height:640px;overflow:hidden;display:grid;place-items:center;padding-top:60px}
+.orbits{position:absolute;inset:0;pointer-events:none}
+.orbits svg{position:absolute;left:50%;top:54%;width:max(160vw,1700px);height:max(160vw,1700px);transform:translate(-50%,-50%)}
+.orbits circle{fill:none;stroke:var(--orbit);stroke-width:1.2}
+.orbits .tks{animation:spin 300s linear infinite}
+.orbits .tks circle{stroke-width:9;stroke-dasharray:1.2 34}
+.orbits .arc{stroke:var(--soft);stroke-width:2.2;stroke-dasharray:820 2700;stroke-linecap:round;animation:spin 90s linear infinite reverse;transform-origin:0 0}
+.cards{position:absolute;left:50%;top:54%;width:0;height:0}
+.ring{position:absolute;left:0;top:0;width:0;height:0;animation:spin var(--t) linear infinite}
+.ring.rev{animation-direction:reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+.c{position:absolute;left:0;top:0;transform:rotate(var(--a)) translateX(var(--r)) rotate(calc(-1*var(--a)))}
+.c .in{animation:spin var(--t) linear infinite reverse}
+.ring.rev .c .in{animation-direction:normal}
+.c .pic{display:block;width:var(--w);aspect-ratio:var(--ar,16/10);border-radius:12px;overflow:hidden;box-shadow:0 18px 40px -16px var(--glow),0 0 0 1px rgba(0,0,0,.06);transform:translate(-50%,-50%) perspective(700px) rotateY(var(--ry,0deg)) rotateX(var(--rx,0deg));filter:blur(var(--b,0px));opacity:var(--o,1);transition:transform .9s var(--ease)}
+.c .pic img{width:100%;height:100%;object-fit:cover}
+.scatter .c .pic{transition:none}
+.mid{position:relative;z-index:2;text-align:center;padding-inline:var(--gut);display:grid;justify-items:center;gap:20px;will-change:transform,filter,opacity}
+.mid::before{content:"";position:absolute;inset:-10% -14%;z-index:-1;pointer-events:none;background:radial-gradient(closest-side,var(--bg) 52%,color-mix(in srgb,var(--bg) 75%,transparent) 72%,transparent 100%)}
+.mid .mk{width:min(150px,28vw);height:auto;filter:drop-shadow(0 10px 30px var(--bg))}
+.word{font-family:var(--wide);font-stretch:125%;font-weight:800;font-size:clamp(40px,8.4vw,128px);letter-spacing:-.04em;line-height:.9;color:var(--ink);text-shadow:0 0 40px var(--bg),0 0 80px var(--bg)}
+.mid h2{font-size:clamp(24px,3vw,40px);font-weight:600;letter-spacing:-.03em;text-shadow:0 0 30px var(--bg)}
+.mid h2 i.sf{color:var(--soft)}
+.mid p{max-width:46ch;color:var(--soft);font-size:clamp(16px,1.4vw,19px);text-shadow:0 0 24px var(--bg),0 0 12px var(--bg)}
+.mid .btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:6px}
+.mid .meta{margin-top:10px;text-shadow:0 0 16px var(--bg)}
+@media(max-width:700px){.c.d{display:none}}
+
+/* frame */
+.frame{max-width:var(--frame);margin:0 auto;border-left:1px solid var(--rule);border-right:1px solid var(--rule);background:var(--paper);position:relative}
+@media(max-width:1180px){.frame{overflow-x:clip}}
+.wrapx{padding-inline:var(--gut)}
+.strip{display:flex;justify-content:space-between;gap:16px;padding:14px 34px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);position:relative}
+.strip:before,.strip:after{content:"+";position:absolute;top:-9px;font-family:var(--mono);font-size:14px;color:var(--faint);line-height:1}
+.strip:before{left:-5px}.strip:after{right:-5px}
+.strip .mono:first-child b{color:var(--ink);font-weight:500}
+.lead{padding:clamp(56px,9vw,110px) 34px clamp(40px,6vw,70px)}
+.lead h2{font-size:clamp(34px,5.2vw,68px);max-width:16ch}
+.lead p{margin-top:22px;max-width:58ch;color:var(--soft);font-size:18px}
+.lead.center{text-align:center}
+.lead.center h2,.lead.center p{margin-inline:auto}
+.grid{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--rule)}
+.cell{border-bottom:1px solid var(--rule);min-width:0}
+.cell:nth-child(odd){border-right:1px solid var(--rule)}
+.cell .lab{display:flex;justify-content:space-between;padding:12px 28px;border-bottom:1px solid var(--rule)}
+.cell figure{aspect-ratio:16/10;overflow:hidden;contain:paint;perspective:900px;background:var(--bg)}
+.cell figure img{width:100%;height:100%;object-fit:cover;transform-origin:center bottom;transition:transform 1.2s var(--ease)}
+.cell .tx{padding:24px 28px 30px}
+.cell h3{font-size:clamp(21px,2vw,26px);letter-spacing:-.025em}
+.cell p{margin-top:8px;color:var(--soft);font-size:15.5px;max-width:52ch}
+.cell .note{margin-top:14px;font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--ink);display:flex;gap:10px;align-items:flex-start;line-height:1.55}
+.cell .note:before{content:"";flex:none;width:7px;height:7px;margin-top:6px;background:var(--accent)}
+.cell.wide{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;border-right:0}
+.cell.wide .lab{grid-column:1/-1}
+.cell.wide figure{border-right:1px solid var(--rule);aspect-ratio:auto;min-height:280px}
+.cell.wide .tx{align-self:center}
+.cols3{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--rule)}
+.cols3>div{padding:30px 28px 34px;border-bottom:1px solid var(--rule);min-width:0}
+.cols3>div:not(:nth-child(3n)){border-right:1px solid var(--rule)}
+.cols3 .mono{display:block;margin-bottom:14px}
+.cols3 h3{font-size:19px;letter-spacing:-.02em;font-stretch:115%}
+.cols3 p{margin-top:8px;color:var(--soft);font-size:15px}
+.who{display:flex;flex-wrap:wrap;gap:8px;padding:0 34px 40px}
+.who span{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;padding:8px 12px;border:1px solid var(--rule);color:var(--soft)}
+.about{display:grid;grid-template-columns:5fr 7fr;border-top:1px solid var(--rule)}
+.about figure{border-right:1px solid var(--rule);min-height:420px;overflow:hidden;contain:paint}
+.about figure img{width:100%;height:100%;object-fit:cover}
+.about .tx{padding:clamp(28px,4vw,52px)}
+.about h2{font-size:clamp(32px,4vw,52px)}
+.about p{margin-top:16px;color:var(--soft);max-width:60ch}
+.about p.first{font-size:20px;color:var(--ink);line-height:1.5}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.chips span{font-family:var(--mono);font-size:11px;letter-spacing:.06em;padding:7px 10px;border:1px solid var(--rule);color:var(--soft)}
+.ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:30px}
+form{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--rule)}
+form label{display:grid;gap:4px;padding:16px 28px;border-bottom:1px solid var(--rule);font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);min-width:0}
+form label:nth-child(odd):not(.full){border-right:1px solid var(--rule)}
+form .full{grid-column:1/-1}
+form input,form select,form textarea{font:inherit;font-family:var(--wide);font-size:17px;letter-spacing:0;text-transform:none;color:var(--ink);background:transparent;border:0;outline:none;padding:4px 0}
+form textarea{min-height:120px;resize:vertical}
+form label:focus-within{background:color-mix(in srgb,var(--accent) 6%,transparent)}
+form .send{grid-column:1/-1;display:flex;gap:16px;align-items:center;flex-wrap:wrap;padding:24px 28px}
+form .send small{font-family:var(--mono);font-size:11px;color:var(--soft);letter-spacing:.04em}
+footer{max-width:var(--frame);margin:0 auto;border-left:1px solid var(--rule);border-right:1px solid var(--rule);border-top:1px solid var(--rule);background:var(--paper);display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr}
+footer>div{padding:34px 28px 40px;min-width:0}
+footer>div+div{border-left:1px solid var(--rule)}
+footer img{height:56px;width:auto;background:#f4f6f8;border-radius:8px;padding:6px 8px}
+footer p{margin-top:14px;color:var(--soft);font-size:14px}
+footer .mono{display:block;margin-bottom:12px}
+footer ul{list-style:none;display:grid;gap:6px;font-size:14.5px}
+footer a{text-decoration:none;color:var(--soft)}
+footer a:hover{color:var(--ink)}
+.foot2{max-width:var(--frame);margin:0 auto 0;border:1px solid var(--rule);border-bottom:0;padding:14px 28px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--paper)}
+@media(max-width:860px){
+  .grid,.cell.wide,.about,form{grid-template-columns:1fr}
+  .cell:nth-child(odd){border-right:0}
+  .cell.wide figure,.about figure{border-right:0;min-height:240px}
+  .cols3{grid-template-columns:1fr}.cols3>div:not(:nth-child(3n)){border-right:0}
+  form label:nth-child(odd):not(.full){border-right:0}
+  footer{grid-template-columns:1fr 1fr}footer>div:nth-child(3){border-left:0}footer>div{border-bottom:1px solid var(--rule)}
+  .strip,.lead,.who{padding-inline:20px}.cell .lab,.cell .tx,.cols3>div,form label,form .send{padding-inline:20px}
+  .strip .mono:last-child{display:none}
 }
-@media (prefers-reduced-motion:reduce){.head{animation:none;left:38%}html{scroll-behavior:auto}}
+
+/* firm statement, doors, forensic, ticker, work */
+.state{padding:clamp(56px,9vw,110px) 34px clamp(44px,6vw,70px)}
+.state p.big{font-size:clamp(22px,2.6vw,34px);line-height:1.32;letter-spacing:-.02em;max-width:34ch;font-weight:500;text-wrap:pretty}
+.state p.big em{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--soft)}
+.doors{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--rule)}
+.doors a{display:grid;gap:12px;align-content:start;padding:34px;text-decoration:none;color:inherit;border-bottom:1px solid var(--rule);transition:background .25s}
+.doors a:first-child{border-right:1px solid var(--rule)}
+.doors a:hover{background:var(--bg)}
+.doors h3{font-size:clamp(20px,2vw,26px);letter-spacing:-.02em;font-stretch:115%;text-wrap:balance}
+.doors p{color:var(--soft);font-size:15.5px;max-width:46ch}
+.doors .go{font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);margin-top:6px}
+.cell .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.cell .tags span{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--soft);padding:5px 9px;border:1px solid var(--rule)}
+.note-strip{margin:0;padding:18px 34px;border-bottom:1px solid var(--rule);color:var(--soft);font-size:15px}
+.note-strip b{color:var(--ink);font-weight:600}
+.q{padding:0 34px clamp(40px,6vw,64px)}
+.q blockquote{margin:0;padding:26px 0 0;border-top:1px solid var(--ink);font-family:var(--serif);font-style:italic;font-size:clamp(24px,2.8vw,36px);line-height:1.25;max-width:30ch}
+.dom{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--rule);counter-reset:d}
+.dom li{counter-increment:d;padding:18px 20px 20px;border-bottom:1px solid var(--rule);border-right:1px solid var(--rule);font-size:15px;min-width:0}
+.dom li:nth-child(4n){border-right:0}
+.dom li:before{content:counter(d,decimal-leading-zero);display:block;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint);margin-bottom:8px}
+.vs{display:grid;grid-template-columns:1fr 1fr}
+.vs>div{padding:34px;min-width:0}
+.vs>div:first-child{border-right:1px solid var(--rule);color:var(--soft)}
+.vs>div:last-child{background:var(--btn);color:var(--btnInk)}
+.vs .mono{display:block;margin-bottom:16px;color:inherit;opacity:.7}
+.vs h3{font-size:clamp(22px,2.4vw,30px);letter-spacing:-.02em;line-height:1.15;text-wrap:balance}
+.vs p{margin-top:12px;font-size:15px;opacity:.8}
+.ticker{overflow:hidden;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);background:var(--bg);position:relative;z-index:3}
+.ticker .tk{display:flex;width:max-content;animation:tick 60s linear infinite}
+.ticker span{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--soft);padding:13px 22px;white-space:nowrap}
+.ticker span:after{content:"\2022";margin-left:44px;color:var(--faint)}
+@keyframes tick{to{transform:translateX(-50%)}}
+.work{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--rule)}
+.work article{border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);min-width:0}
+.work article:nth-child(3n){border-right:0}
+.work figure{position:relative;aspect-ratio:4/3;overflow:hidden;contain:paint;background:var(--bg)}
+.work figure img{width:100%;height:100%;object-fit:cover}
+.work .tag{position:absolute;left:12px;bottom:12px;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;background:rgba(10,10,12,.72);color:#fff;padding:6px 10px;backdrop-filter:blur(6px)}
+.work .tx{padding:20px 24px 26px}
+.work h3{font-size:18px;letter-spacing:-.02em;font-stretch:112%}
+.work p{margin-top:8px;color:var(--soft);font-size:14.5px}
+.js .cell.in figure img,.js .work .in img,.work figure img{animation:kb 18s ease-in-out infinite alternate}
+@keyframes kb{from{scale:1;translate:0 0}to{scale:1.07;translate:-2% -1.5%}}
+@media(prefers-reduced-motion:reduce){.ticker .tk,.cell figure img,.work figure img{animation:none!important}}
+@media(max-width:1000px){.dom{grid-template-columns:1fr 1fr}.dom li:nth-child(4n){border-right:1px solid var(--rule)}.dom li:nth-child(2n){border-right:0}}
+@media(max-width:860px){.doors,.vs,.work{grid-template-columns:1fr}.doors a:first-child,.vs>div:first-child,.work article{border-right:0}.vs>div:first-child{border-bottom:1px solid var(--rule)}.state,.q,.note-strip{padding-inline:20px}.doors a,.vs>div{padding:26px 20px}.work .tx{padding-inline:20px}}
+@media(max-width:480px){.dom li{padding:14px 14px 16px;font-size:14px}}
+@media(max-width:340px){.dom{grid-template-columns:1fr}.dom li{border-right:0!important}}
+
+.facts{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--rule)}
+.facts>div{padding:22px 24px 24px;border-right:1px solid var(--rule);min-width:0}
+.facts>div:last-child{border-right:0}
+.facts .mono{display:block;margin-bottom:10px}
+.facts p{font-size:14.5px;color:var(--ink)}
+.facts a{color:var(--accent)}
+@media(max-width:1000px){.facts{grid-template-columns:1fr 1fr}.facts>div:nth-child(2){border-right:0}.facts>div:nth-child(-n+2){border-bottom:1px solid var(--rule)}}
+@media(max-width:560px){.facts{grid-template-columns:1fr}.facts>div{border-right:0;border-bottom:1px solid var(--rule)}.facts>div:last-child{border-bottom:0}}
+
+/* life-line rail */
+/* right edge: year ruler + chapter stack, like a life timeline */
+.ruler{position:fixed;top:60px;bottom:0;right:0;width:60px;z-index:40;overflow:hidden;cursor:crosshair;border-left:1px solid var(--rule);background:color-mix(in srgb,var(--bg) 70%,transparent);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.ruler .rk{position:absolute;left:0;right:0;top:0;will-change:transform}
+.ruler .t{position:absolute;right:0;height:1px;width:12px;background:var(--faint)}
+.ruler .t.M{width:22px;background:var(--soft)}
+.ruler .t b{position:absolute;right:28px;top:-7px;font:500 9.5px/1 var(--mono);letter-spacing:.04em;color:var(--soft)}
+.ruler .rmark{position:absolute;left:0;right:0;height:1px;background:var(--accent);will-change:transform}
+.ruler .rmark span{position:absolute;right:6px;top:5px;font:500 9.5px/1.35 var(--mono);color:var(--accent);letter-spacing:.04em;text-align:right;white-space:nowrap}
+.chap{position:fixed;right:80px;top:122px;bottom:28px;z-index:39;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end;opacity:0;transition:opacity .5s}
+.chap.show{opacity:1}
+.chap div{display:grid;justify-items:end}
+.chap span{font-family:var(--wide);font-stretch:125%;font-weight:700;text-transform:uppercase;letter-spacing:.01em;line-height:1.15;color:var(--faint);font-size:15px;animation:chin .5s var(--ease) both}
+.chap .ctop span.now{font-size:32px;color:var(--ink);letter-spacing:-.01em;margin-top:2px}
+.chap .ctop span.brand{font-size:13px;letter-spacing:.08em;font-weight:500}
+@keyframes chin{from{opacity:0;transform:translateY(8px);filter:blur(4px)}}
+section{position:relative}
+.vlab{position:absolute;right:-92px;top:64px;writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--wide);font-stretch:125%;font-weight:700;text-transform:uppercase;font-size:24px;letter-spacing:.02em;color:var(--faint);pointer-events:none}
+.strip{position:sticky;top:60px;z-index:20;background:color-mix(in srgb,var(--paper) 72%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+@media(max-width:900px){.strip{top:96px}}
+@media(max-width:1180px){.chap{display:none}}
+/* tablets and phones keep the year ruler: a slimmer rail, the page makes room for it */
+@media(max-width:1180px){.ruler{width:46px}body{padding-right:46px}.ruler .t b{right:20px;font-size:8.5px}}
+@media(max-width:900px){.ruler{top:96px}}
+@media(max-width:600px){.ruler{width:30px}body{padding-right:30px}.ruler .t b{display:none}.ruler .t{width:8px}.ruler .t.M{width:14px}.ruler .rmark span{right:3px;font-size:8.5px;background:color-mix(in srgb,var(--bg) 85%,transparent);padding:2px 0 2px 2px}}
+@media(max-width:1380px){.vlab{display:none}}
+
+
+/* reveal: blur-to-focus, from a visible resting state when scripts are off */
+.js .rv{opacity:0;transform:translateY(34px);filter:blur(10px);transition:opacity 1s var(--ease),transform 1.1s var(--ease),filter 1.1s var(--ease)}
+.js .rv.in{opacity:1;transform:none;filter:none}
+.js .cell figure img{transform:rotateX(14deg) scale(1.08)}
+.js .cell.in figure img{transform:none}
+.d1{transition-delay:.1s!important}.d2{transition-delay:.2s!important}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.js .rv{opacity:1;transform:none;filter:none}}
 </style>
+<script>document.documentElement.classList.add('js');try{var t=localStorage.getItem('ebm-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
-<body>
-<div class="shell">
-<header class="top">
- <a class="mark" href="#top"><span class="lamp" aria-hidden="true"><i></i><i></i><i></i></span>East Bay Mobility</a>
- <nav aria-label="Main"><a href="#agencies">Public agencies</a><a href="#attorneys">Attorneys</a><a href="#principal">Principal</a><a class="cta" href="#contact">Contact</a></nav>
+<body class="lock" id="top">
+
+<div id="intro" aria-hidden="true"><div class="tl sig r" id="tl"><div class="mount"></div><div class="bp"></div><div class="sl" style="--z:3"></div><div class="sl" style="--z:6"></div><div class="sl" style="--z:9"></div><div class="sl" style="--z:12"></div><div class="sl" style="--z:15"></div><div class="hs"></div><div class="lamp l1"><div class="door"></div><div class="lens"></div><div class="hood"></div></div><div class="lamp l2"><div class="door"></div><div class="lens"></div><div class="hood"></div></div><div class="lamp l3"><div class="door"></div><div class="lens"></div><div class="hood"></div></div><div class="bloom"></div></div><img class="il" src="EBM-16/photos/logo-full.png" alt=""></div>
+
+<header>
+  <a class="logo" href="#top" aria-label="East Bay Mobility home"><img src="EBM-16/photos/logo-letters.png" alt="EBM"></a>
+  <nav aria-label="Main">
+    <a class="on" href="#top">Home</a><a href="#firm">The firm</a><a href="#story">Our story</a><a href="#services">Services</a><a href="#forensic">Forensic</a><span class="sep"></span><a href="#why">Why us</a><a href="#work">Work</a><a href="#about">Rafat Raie</a><a href="#contact">Contact</a>
+  </nav>
+  <div class="tools">
+    <button id="themeBtn" type="button" aria-label="Switch light or dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg></button>
+    <a class="cta" href="#contact">Contact us</a>
+  </div>
 </header>
 
-<section class="hero" id="top">
- <h1>Forty years of <b>timing, judgment</b> and standards. One engineer.</h1>
- <div class="intro">
-  <p>Independent, senior-level traffic engineering for California public agencies and the attorneys who need a roadway expert. Every assignment is handled personally by Rafat Raie, P.E.</p>
-  <div class="paths">
-   <a href="#agencies">For Public Agencies <span>on-call · review</span></a>
-   <a href="#attorneys">For Attorneys <span>forensic · litigation</span></a>
+<section class="hero" id="hero">
+  <div class="orbits"><svg viewBox="-1000 -1000 2000 2000" aria-hidden="true"><circle r="210"/><circle r="380"/><circle r="560"/><circle r="760"/><circle r="980"/><g class="tks"><circle r="380"/><circle r="760"/></g><circle class="arc" r="560"/></svg></div>
+  <div class="cards" id="cards"></div>
+  <div class="mid" id="mid">
+    <img class="mk" src="EBM-16/photos/logo-letters.png" alt="">
+    <h1 class="word">EAST BAY<br>MOBILITY</h1>
+    <h2>Senior traffic engineering <i class="sf">for California.</i></h2>
+    <p>Independent, senior-level traffic engineering for municipalities and legal professionals. Forty years of judgment at the intersection.</p>
+    <div class="btns"><a class="btn k" href="#contact">Contact us</a><a class="btn o" href="#services">Public agencies</a><a class="btn o" href="#forensic">Legal professionals</a></div>
+    <div class="mono meta">40+ years · City Traffic Engineer · UC Berkeley instructor since 2001</div>
   </div>
- </div>
 </section>
+<div class="ticker" aria-hidden="true"><div class="tk"><span>Development review</span><span>Traffic impact studies</span><span>VMT / SB 743</span><span>Signing &amp; striping</span><span>Traffic control plans</span><span>Sight distance</span><span>Stop-control studies</span><span>Signal operations</span><span>CA MUTCD compliance</span><span>Work zones</span><span>Pedestrian &amp; bicycle facilities</span><span>Second opinions</span><span>Forensic &amp; litigation support</span><span>Development review</span><span>Traffic impact studies</span><span>VMT / SB 743</span><span>Signing &amp; striping</span><span>Traffic control plans</span><span>Sight distance</span><span>Stop-control studies</span><span>Signal operations</span><span>CA MUTCD compliance</span><span>Work zones</span><span>Pedestrian &amp; bicycle facilities</span><span>Second opinions</span><span>Forensic &amp; litigation support</span></div></div>
 
-<figure class="tdia" aria-label="Animated eight-phase ring and barrier signal timing diagram">
- <div class="hd"><span><b>Ring-and-barrier diagram</b> · 8-phase actuated intersection</span><span>Cycle <b>120 s</b> · Yellow 4.0 s · All-red 1.0 s</span></div>
- <div class="rings">
-  <div class="ring">
-   <div class="ph" style="flex:18;--y:22;--r:6"><span class="g"></span><span class="y"></span><span class="r"></span><label>Ø1<small>NB left</small></label></div>
-   <div class="ph" style="flex:42;--y:10;--r:2"><span class="g"></span><span class="y"></span><span class="r"></span><label>Ø2<small>SB through</small></label></div>
-   <div class="ph" style="flex:16;--y:25;--r:6"><span class="g"></span><span class="y"></span><span class="r"></span><label>Ø3<small>EB left</small></label></div>
-   <div class="ph" style="flex:44;--y:9;--r:2"><span class="g"></span><span class="y"></span><span class="r"></span><label>Ø4<small>WB through</small></label></div>
-  </div>
-  <div class="ring">
-   <div class="ph" style="flex:22;--y:18;--r:5"><span class="g"></span><span class="y"></span><span class="r"></span><label>Ø5<small>SB left</small></label></div>
-   <div class="ph" style="flex:38;--y:11;--r:3"><span class="g"></span><span class="y"></span><span class="r"></span><label>Ø6<small>NB through</small></label></div>
-   <div class="ph" style="flex:20;--y:20;--r:5"><span class="g"></span><span class="y"></span><span class="r"></span><label>Ø7<small>WB left</small></label></div>
-   <div class="ph" style="flex:40;--y:10;--r:3"><span class="g"></span><span class="y"></span><span class="r"></span><label>Ø8<small>EB through</small></label></div>
-  </div>
-  <span class="barrier" aria-hidden="true"></span>
-  <span class="head" aria-hidden="true"></span>
- </div>
- <div class="axis"><span>0 s</span><span>30</span><span>60</span><span>90</span><span>120 s</span></div>
- <div class="legend"><span><i style="background:var(--go)"></i>Green</span><span><i style="background:var(--caution)"></i>Yellow change</span><span><i style="background:var(--stop)"></i>Red clearance</span></div>
-</figure>
+<main class="frame">
+  <section id="firm">
+    <div class="strip"><span class="mono"><b>01</b> / The firm</span><span class="mono">Municipalities · legal professionals</span></div>
+    <div class="state">
+      <p class="big rv">East Bay Mobility is a specialized traffic engineering consulting practice providing municipalities and legal professionals with independent, senior-level transportation engineering expertise. <em>Led by a traffic engineer with 40 years of public- and private-sector experience, the firm focuses on assignments where professional judgment, practical municipal experience, and a thorough understanding of traffic engineering standards are more important than large consulting teams.</em></p>
+    </div>
+    <div class="doors">
+      <a class="rv" href="#services"><span class="mono">For public agencies</span><h3>On-Call Senior Traffic Engineering &amp; Development Review Services</h3><p>For cities, counties and transportation agencies that need an experienced traffic engineer, not another full-service engineering firm.</p><span class="go">Municipal services →</span></a>
+      <a class="rv d1" href="#forensic"><span class="mono">For legal professionals</span><h3>Traffic Engineering Forensic &amp; Litigation Support</h3><p>Did the roadway and traffic-control environment contribute to the collision, and did it meet accepted traffic-engineering practice?</p><span class="go">Forensic support →</span></a>
+    </div>
+  </section>
 
-<div class="facts">
- <div><b>40 years</b><span>Public- and private-sector practice</span></div>
- <div><b>City Traffic Engineer</b><span>For multiple California cities</span></div>
- <div><b>Since 2001</b><span>Instructor, UC Berkeley TechTransfer</span></div>
- <div><b>U.S. first</b><span>Cloud-based emergency vehicle preemption</span></div>
-</div>
+  <section id="story">
+    <div class="strip"><span class="mono"><b>02</b> / Forty years at the intersection</span><span class="mono">1985 · today · next</span></div>
+    <div class="lead"><h2 class="rv">The judgment that only <i class="sf">decades</i> can build.</h2><p class="rv d1">Signals went from electromechanical dials to the cloud. Streets went from moving cars to serving everyone. Rafat Raie worked through every one of those changes, on the public side of the counter.</p></div>
+    <div class="grid" id="eras"></div>
+  </section>
 
-<section class="blk" id="agencies">
- <div class="side">
-  <span class="k">For public agencies</span>
-  <h2>On-Call Senior Traffic Engineering &amp; Development Review</h2>
-  <p class="lede">For cities, towns and counties that need an experienced traffic engineer, not another full consulting firm.</p>
- </div>
- <div class="main">
-  <div class="svc">
-   <article><h3>Development Review</h3><p>Peer review of traffic studies and the conditions that follow them.</p><div class="tags"><span>Traffic impact studies</span><span>VMT</span><span>Circulation</span><span>Access &amp; parking</span><span>Conditions of approval</span></div></article>
-   <article><h3>Traffic Engineering Review</h3><p>Plans and operations checked against the CA MUTCD and accepted practice.</p><div class="tags"><span>Signing &amp; striping</span><span>Traffic control plans</span><span>Sight distance</span><span>Stop control</span><span>Safety</span></div></article>
-   <article><h3>Municipal Staff Support</h3><p>A senior extension of Public Works when the traffic engineer seat is empty or an independent opinion is needed.</p><div class="tags"><span>Interim City Traffic Engineer</span><span>Council &amp; commission items</span></div></article>
-   <article><h3>Special Assignments</h3><p>The difficult files: contested projects, unusual access, safety complaints, and second opinions on consultant recommendations.</p><div class="tags"><span>Intersection evaluation</span><span>Second opinions</span><span>Resident concerns</span></div></article>
-  </div>
-  <div class="pledge"><p>Senior professional judgment, not production. The principal performs every review.</p></div>
- </div>
-</section>
-</div>
+  <section id="services">
+    <div class="strip"><span class="mono"><b>03</b> / Municipal services</span><span class="mono">On-call · task orders</span></div>
+    <div class="lead"><span class="mono rv">On-Call Senior Traffic Engineering &amp; Development Review Services</span><h2 class="rv" style="margin-top:16px">Forty years of judgment, <i class="sf">not hours of production.</i></h2><p class="rv d1">The work where a city needs an experienced traffic engineer, but does not need another full-service engineering firm. Four areas, one senior engineer on every assignment.</p></div>
+    <div class="grid" id="svcs"></div>
+    <div class="facts">
+      <div class="rv"><span class="mono">Licensed</span><p>California Professional Engineer. <a href="https://search.dca.ca.gov/" target="_blank" rel="noopener">Verify with the state board ↗</a></p></div>
+      <div class="rv d1"><span class="mono">How we contract</span><p>On-call agreements and task orders, as prime or as a senior subconsultant on your consultant's team.</p></div>
+      <div class="rv d2"><span class="mono">On request</span><p>Statement of Qualifications, references and rate schedule.</p></div>
+      <div class="rv d2"><span class="mono">Response</span><p>A reply from the engineer himself within one business day.</p></div>
+    </div>
+    <p class="note-strip rv"><b>Deliberately focused.</b> We review, advise, decide and document. We don't run count programs, CAD production, modeling or large studies; we work alongside the firms that do.</p>
+  </section>
 
-<div class="dark" id="attorneys">
-<div class="shell">
-<section class="blk">
- <div class="side">
-  <span class="k">For attorneys</span>
-  <h2>Traffic Engineering Forensic &amp; Litigation Support</h2>
-  <p class="lede">The roadway and traffic control expert for plaintiff and defense counsel, public entities and insurers.</p>
- </div>
- <div class="main">
-  <p class="q">Did the roadway and its traffic control <b>contribute to the collision</b>, and was it designed, operated and maintained in accordance with accepted engineering practice?</p>
-  <div class="versus">
-   <div><span class="k">Reconstruction expert</span><p>What did the vehicles and drivers do?</p></div>
-   <div><span class="k">East Bay Mobility</span><p>What did the roadway, intersection and traffic control system do, and should it have been different?</p></div>
-  </div>
-  <p class="note">East Bay Mobility is not an accident reconstruction firm. We work alongside reconstructionists and supply the roadway analysis their opinions rely on.</p>
-  <div class="areas">
-   <span>Signs &amp; pavement markings</span><span>Intersection control</span><span>Signal operations</span><span>Sight distance</span>
-   <span>Roadway geometry</span><span>Work zones</span><span>Pedestrian &amp; bicycle facilities</span><span>Driveway design</span>
-   <span>Speed management</span><span>Warrant analyses</span><span>Maintenance &amp; changed conditions</span><span>Collision history</span>
-   <span>CA MUTCD compliance</span><span>Design standards</span><span>Agency records</span><span>Causation</span>
-  </div>
- </div>
-</section>
-</div>
-</div>
+  <section id="forensic">
+    <div class="strip"><span class="mono"><b>04</b> / Forensic &amp; litigation support</span><span class="mono">Attorneys · public entities · insurers</span></div>
+    <div class="lead"><span class="mono rv">Traffic Engineering Forensic &amp; Litigation Support</span><h2 class="rv" style="margin-top:16px">The roadway has <i class="sf">a record too.</i></h2><p class="rv d1">A reconstructionist determines speeds, impact angles, braking, perception and reaction, and vehicle dynamics. Our work answers a different question.</p></div>
+    <div class="q rv"><blockquote>Did the roadway and traffic-control environment contribute to the collision, and was it designed, operated, maintained and controlled consistent with accepted traffic-engineering practice?</blockquote></div>
+    <ol class="dom" id="dom"></ol>
+    <div class="vs">
+      <div class="rv"><span class="mono">Reconstruction expert</span><h3>What did the vehicles and drivers do?</h3><p>Speeds, impact angles, braking, perception and reaction, vehicle dynamics.</p></div>
+      <div class="rv d1"><span class="mono">East Bay Mobility</span><h3>What did the roadway, intersection and traffic-control system do, and should it have been different?</h3><p>We are the traffic-engineering and roadway expert who works alongside reconstructionists, and we welcome their referrals.</p></div>
+    </div>
+    <div class="facts">
+      <div class="rv"><span class="mono">Case types</span><p>Dangerous condition of public property (Gov. Code 835), design immunity (830.6), failure to warn, signal, sight-distance and work-zone claims.</p></div>
+      <div class="rv d1"><span class="mono">Who we work for</span><p>Plaintiff and defense counsel, public entities, risk pools and insurers.</p></div>
+      <div class="rv d2"><span class="mono">On request</span><p>CV, fee schedule and testimony list.</p></div>
+      <div class="rv d2"><span class="mono">Conflict check first</span><p>Send the party and agency names before any case details.</p></div>
+    </div>
+  </section>
 
-<div class="shell">
-<section class="blk" id="principal">
- <div class="side">
-  <span class="k">The principal</span>
-  <h2>Rafat Raie, P.E.</h2>
-  <p class="lede">A California traffic engineer who has run city traffic programs, led regional technology plans, and taught the profession for twenty-five years.</p>
- </div>
- <div class="main">
-  <div class="cv">
-   <div><b>City Traffic Engineer</b><span>Multiple cities in Northern and Southern California</span></div>
-   <div><b>City of San Rafael</b><span>Deputy Director of Public Works and City Traffic Engineer</span></div>
-   <div><b>City of Walnut Creek</b><span>Traffic Engineer, Contra Costa County</span></div>
-   <div><b>Contra Costa Transportation Authority</b><span>Led the Authority's first Digital Motions Master Plan</span></div>
-   <div><b>UC Berkeley ITS TechTransfer</b><span>Instructor since 2001: traffic engineering fundamentals, signal diagnostics, pedestrian design, PE exam review</span></div>
-   <div><b>Education</b><span>B.S. Civil Engineering, San José State University</span></div>
-  </div>
-  <div class="feat"><span class="n">53</span><p><b>Signals, 56 police vehicles, one cloud.</b> In San Rafael he delivered the first cloud-based emergency vehicle preemption system deployed in the United States.</p></div>
- </div>
-</section>
+  <section id="why">
+    <div class="strip"><span class="mono"><b>05</b> / Why agencies call</span><span class="mono">For the people who answer for the roadway</span></div>
+    <div class="lead"><h2 class="rv">Senior expertise <i class="sf">without</i> the overhead.</h2><p class="rv d1">Small and mid-sized agencies often need a senior traffic engineer for specific decisions, not a permanent position or a large consultant team.</p></div>
+    <div class="who rv"><span>Public Works Directors</span><span>City &amp; County Engineers</span><span>Caltrans &amp; State DOT staff</span><span>Transportation authorities</span><span>Planning departments</span><span>Small towns without a traffic engineer</span><span>Attorneys &amp; risk pools</span><span>Reconstruction firms</span></div>
+    <div class="cols3" id="whys"></div>
+  </section>
 
-<section class="blk" id="why" style="padding-top:0">
- <div class="side"><span class="k">Why a senior independent practice</span><h2>Small on purpose.</h2></div>
- <div class="main why">
-  <div><h3>No hand-offs</h3><p>The engineer you retain reviews the record, walks the site and signs the opinion.</p></div>
-  <div><h3>Agency fluency</h3><p>Findings written the way staff, councils and courts read them.</p></div>
-  <div><h3>Independent</h3><p>No design contracts to protect. Opinions follow the standards and the facts.</p></div>
- </div>
-</section>
+  <section id="work">
+    <div class="strip"><span class="mono"><b>06</b> / On the record</span><span class="mono">Selected public work</span></div>
+    <div class="lead"><h2 class="rv">Proven <i class="sf">on California streets.</i></h2></div>
+    <div class="work" id="workg"></div>
+  </section>
 
-<section class="blk" id="contact" style="padding-top:0">
- <div class="side"><span class="k">Contact</span><h2>Start with a short note.</h2><p class="mail">Or write directly to <b>info@ebmobility.com</b></p></div>
- <div class="main forms">
-  <form data-kind="Public agency inquiry">
-   <h3>Public agencies</h3><span class="k">On-call · review · special assignments</span>
-   <div class="fld"><label for="a-name">Name</label><input id="a-name" required></div>
-   <div class="fld"><label for="a-org">Agency</label><input id="a-org"></div>
-   <div class="fld"><label for="a-mail">Email</label><input id="a-mail" type="email" required></div>
-   <div class="fld"><label for="a-type">Service</label><select id="a-type"><option>Development Review</option><option>Traffic Engineering Review</option><option>Municipal Staff Support</option><option>Special Assignment</option></select></div>
-   <div class="fld"><label for="a-msg">Project details</label><textarea id="a-msg"></textarea></div>
-   <button type="submit">Send inquiry</button><p class="sent" hidden></p>
-  </form>
-  <form data-kind="Attorney case inquiry">
-   <h3>Attorneys</h3><span class="k">Case evaluation · consultation · testimony</span>
-   <div class="fld"><label for="b-name">Name</label><input id="b-name" required></div>
-   <div class="fld"><label for="b-org">Firm</label><input id="b-org"></div>
-   <div class="fld"><label for="b-mail">Email</label><input id="b-mail" type="email" required></div>
-   <div class="fld"><label for="b-side">Representing</label><select id="b-side"><option>Plaintiff</option><option>Defense</option><option>Public entity</option><option>Insurer</option></select></div>
-   <div class="fld"><label for="b-msg">Case summary (no confidential details)</label><textarea id="b-msg"></textarea></div>
-   <button type="submit">Request case review</button><p class="sent" hidden></p>
-  </form>
- </div>
-</section>
+  <section id="about">
+    <div class="strip"><span class="mono"><b>07</b> / Leadership</span><span class="mono">Rafat Raie, P.E.</span></div>
+    <div class="about">
+      <figure class="rv"><img src="EBM-16/photos/rafat.jpg" alt="Signalized intersection at dusk" loading="lazy"></figure>
+      <div class="tx">
+        <h2 class="rv">Rafat Raie, <i class="sf">P.E.</i></h2>
+        <p class="first rv d1">Rafat Raie has spent more than forty years making California streets work, most of them on the public side of the counter.</p>
+        <p class="rv d1">He has served as City Traffic Engineer for communities across Northern and Southern California, including the City of Walnut Creek and the City of San Rafael, where he was Deputy Director of Public Works. In San Rafael he led a cloud-based emergency vehicle preemption program that connected 53 traffic signals with the city's emergency fleet. He went on to serve as a Principal at Advanced Mobility Group and led the Contra Costa Transportation Authority's first Digital Motions Master Plan.</p>
+        <p class="rv d2">Since 2001 he has taught practicing engineers through UC Berkeley's Technology Transfer Program, in courses from Fundamentals of Traffic Engineering to Traffic Signal Diagnostics and the California Traffic Engineer license review. He founded East Bay Mobility to bring that experience directly to the agencies that need it.</p>
+        <div class="chips rv d2"><span>B.S. Civil Engineering, San José State</span><span>UC Berkeley TechTransfer</span><span>City Traffic Engineer</span><span>Deputy Director of Public Works</span></div>
+      </div>
+    </div>
+  </section>
 
-<footer><span>© 2026 East Bay Mobility · Independent traffic engineering · California</span><span>Rafat Raie, P.E., Principal</span></footer>
-</div>
+  <section id="contact">
+    <div class="strip"><span class="mono"><b>08</b> / Contact us</span><span class="mono">Public agencies · private clients · legal teams</span></div>
+    <div class="lead center"><span class="mono rv">Serving California</span><h2 class="rv" style="margin-top:14px">Start <i class="sf">the conversation.</i></h2><p class="rv d1">Tell us about the review, question or decision in front of you. We'll reply with how we can help.</p></div>
+    <form id="cf" novalidate>
+      <label for="f-name">Name<input id="f-name" name="name" required autocomplete="name"></label>
+      <label for="f-org">Organization<input id="f-org" name="org" autocomplete="organization"></label>
+      <label for="f-email">Email<input id="f-email" name="email" type="email" required autocomplete="email"></label>
+      <label for="f-phone">Phone<input id="f-phone" name="phone" type="tel" autocomplete="tel"></label>
+      <label class="full" for="f-topic">How can we help?<select id="f-topic" name="topic"><option>Development review</option><option>Traffic engineering review</option><option>Municipal staff support</option><option>Special assignment / second opinion</option><option>Forensic &amp; litigation support</option><option>Something else</option></select></label>
+      <label class="full" for="f-msg">Message<textarea id="f-msg" name="msg" required></textarea></label>
+      <div class="send"><button class="btn k" type="submit">Send message</button><small id="cfNote">Or email rafat@ebmobility.com</small></div>
+    </form>
+  </section>
+</main>
+
+<footer>
+  <div><img src="EBM-16/photos/logo-full.png" alt="East Bay Mobility"><p>Independent, senior-level traffic engineering for California municipalities and legal professionals.</p></div>
+  <div><span class="mono">Services</span><ul><li><a href="#services">Development review</a></li><li><a href="#services">Traffic engineering review</a></li><li><a href="#services">Staff support</a></li><li><a href="#forensic">Forensic &amp; litigation</a></li></ul></div>
+  <div><span class="mono">Company</span><ul><li><a href="#story">Our story</a></li><li><a href="#about">Rafat Raie, P.E.</a></li><li><a href="#why">Why agencies call</a></li></ul></div>
+  <div><span class="mono">Contact</span><ul><li>rafat@ebmobility.com</li><li>California</li><li><a href="#contact">Contact form</a></li></ul></div>
+</footer>
+<div class="foot2"><span class="mono">© 2026 East Bay Mobility</span><span class="mono">Senior judgment · not production hours</span></div>
+
+<div class="ruler" id="ruler" aria-hidden="true"><div class="rk" id="rk"></div><div class="rmark" id="rmark"><span id="ryear"></span></div></div>
+<div class="chap" id="chap" aria-hidden="true"><div class="ctop" id="ctop"></div><div class="cbot" id="cbot"></div></div>
+
 <script>
-document.querySelectorAll('form').forEach(f=>f.addEventListener('submit',e=>{e.preventDefault();const v=[...f.querySelectorAll('input,select,textarea')].map(x=>(x.labels[0]?x.labels[0].textContent:'')+': '+x.value).join('\n');const s=f.querySelector('.sent');s.hidden=false;s.textContent='Your email app should open with this message. If it does not, write to info@ebmobility.com.';try{location.href='mailto:info@ebmobility.com?subject='+encodeURIComponent(f.dataset.kind)+'&body='+encodeURIComponent(v)}catch(_){}}));
+(function(){
+  var IMG='EBM-16/photos/';
+  var ERAS=[
+    ['The 1980s','1985','story-1980s','Fixed time, paper and pencil','Signals ran on electromechanical dials and timing plans worked out by hand. You learned a corridor by walking it.','The start of a forty-year career in California traffic engineering.'],
+    ['The 1990s','1990','story-1990s','Detection arrives','Inductive loops and actuated control let signals respond to real traffic. The Americans with Disabilities Act reshaped every crosswalk and curb ramp.','Years of city traffic engineering across Northern and Southern California.'],
+    ['The 2000s','2001','story-2000s','Systems and standards','Coordinated corridors, LED signal heads and pedestrian countdown signals spread across California streets.','2001: begins teaching practicing engineers at UC Berkeley’s Technology Transfer Program.'],
+    ['The 2010s','2013','story-2010s','Every user on the plan','Complete Streets and the California MUTCD put pedestrians, cyclists and transit on equal footing. SB 743 moved development review toward vehicle miles traveled.','Traffic Engineer, City of Walnut Creek.'],
+    ['The 2020s','2022','story-2020s','Cloud-connected signals','Signals, fleets and data platforms now talk to each other in real time.','City Traffic Engineer, San Rafael: leads a cloud-based emergency vehicle preemption deployment across 53 signals. 2026: founds East Bay Mobility.'],
+    ['Next','2030','story-next','Connected and automated','Vehicles that talk to signals and to each other. Automated driving. AI-assisted operations. Each still has to meet the same standards of safety and judgment.','Forty years of standards, ready for what comes next.']
+  ];
+  var SVCS=[
+    ['Development','service-development','Development Review','Peer review of traffic impact studies, VMT analyses, circulation plans, access studies, parking studies, conditions of approval and development improvement plans.',['Traffic impact studies','VMT / SB 743','Circulation plans','Access studies','Parking studies','Conditions of approval','Improvement plans']],
+    ['Review','service-review','Traffic Engineering Review','Signing and striping plans, traffic control plans, sight-distance evaluations, stop-control studies, traffic-safety evaluations and operational reviews.',['Signing & striping','Traffic control plans','Sight distance','Stop-control studies','Safety evaluations','Operational reviews']],
+    ['Staff support','service-staff','Municipal Staff Support','An extension of your Public Works or Engineering staff when the city lacks traffic-engineering capacity or needs a senior, independent opinion.',['Extension of staff','Senior independent opinion','Stop-sign & speed requests','School zones','Traffic Safety Committee','Council-ready memos']],
+    ['Assignments','service-assignments','Special Assignments','Controversial developments, unusual access conditions, safety complaints, intersection evaluations and second opinions on consultant recommendations.',['Controversial developments','Unusual access','Safety complaints','Intersection evaluations','Second opinions']]
+  ];
+  var DOM=['Signing and pavement markings','Intersection control','Traffic signal operations','Sight distance and visibility','Roadway geometry','Temporary traffic control and work zones','Pedestrian and bicycle facilities','Driveway and access design','Speed management','Traffic-control warrants','Maintenance and changed field conditions','Collision history and patterns','MUTCD / California MUTCD compliance','Design standards and engineering guidance','Agency records and prior studies','Whether an alleged deficiency caused the collision'];
+  var WORK=[
+    ['San Rafael · 2022','work-san-rafael','Cloud-based emergency vehicle preemption','As City Traffic Engineer, led a deployment connecting 53 traffic signals with the city&rsquo;s emergency fleet, one of the first cloud-based systems of its kind in the country.'],
+    ['Contra Costa · CCTA','work-ccta','Digital Motions Master Plan','Led the Contra Costa Transportation Authority&rsquo;s first Digital Motions Master Plan for connected, data-driven corridors.'],
+    ['UC Berkeley · since 2001','work-berkeley','Teaching the profession','Instructor in the Technology Transfer Program: traffic engineering fundamentals, signal diagnostics, pedestrian facility design and the California Traffic Engineer license review.']
+  ];
+  var WHYS=[
+    ['Capacity','Fills the gap on your staff','Senior expertise your team may not have in-house, without adding a full-time position.'],
+    ['Contracting','On-call, task-order based','Defined scopes and not-to-exceed budgets, the way agencies already contract for this work.'],
+    ['Accountability','The senior engineer does the work','The person you speak with reviews, writes and signs. No hand-offs.'],
+    ['Independence','An independent second opinion','A clear, unbiased read on consultant studies, contested projects and resident concerns.'],
+    ['Standards','Defensible recommendations','Grounded in the California MUTCD, Caltrans standards and documented practice, written for council and the record.'],
+    ['Technology','Fluent in the technology','Signal systems, emergency vehicle preemption, transit signal priority and connected corridors.']
+  ];
+  function esc(s){return s.replace(/&/g,'&amp;')}
+  function pad(n){return (n<10?'0':'')+n}
+  document.getElementById('eras').innerHTML=ERAS.map(function(e,i){return '<article class="cell rv" id="era-'+i+'"><div class="lab"><span class="mono">'+e[0]+'</span><span class="mono">'+e[1]+'</span></div><figure><img src="'+IMG+e[2]+'.jpg" alt="'+e[0]+' intersection" loading="lazy"></figure><div class="tx"><h3>'+e[3]+'</h3><p>'+e[4]+'</p><div class="note">'+e[5]+'</div></div></article>'}).join('');
+  document.getElementById('svcs').innerHTML=SVCS.map(function(s,i){return '<article class="cell rv"><div class="lab"><span class="mono">'+s[0]+'</span><span class="mono">'+pad(i+1)+'</span></div><figure><img src="'+IMG+s[1]+'.jpg" alt="" loading="lazy"></figure><div class="tx"><h3>'+esc(s[2])+'</h3><p>'+s[3]+'</p><div class="tags">'+s[4].map(function(t){return '<span>'+esc(t)+'</span>'}).join('')+'</div></div></article>'}).join('');
+  document.getElementById('dom').innerHTML=DOM.map(function(d,i){return '<li class="rv'+(i%4===1?' d1':i%4===2?' d2':'')+'">'+esc(d)+'</li>'}).join('');
+  document.getElementById('workg').innerHTML=WORK.map(function(w,i){return '<article class="rv'+(i===1?' d1':i===2?' d2':'')+'"><figure><img src="'+IMG+w[1]+'.jpg" alt="" loading="lazy"><span class="tag">'+w[0]+'</span></figure><div class="tx"><h3>'+w[2]+'</h3><p>'+w[3]+'</p></div></article>'}).join('');
+  document.getElementById('whys').innerHTML=WHYS.map(function(w,i){return '<div class="rv'+(i%3===1?' d1':i%3===2?' d2':'')+'"><span class="mono">'+w[0]+'</span><h3>'+w[1]+'</h3><p>'+w[2]+'</p></div>'}).join('');
+
+  // orbiting photo cards: [ring radius, angle, width, image, blur, opacity, mobile-hidden]
+  var POOL=['story-1980s','story-1990s','work-ccta','story-2000s','work-san-rafael','story-2010s','story-2020s','story-next','service-development','service-assignments','service-review','service-staff','work-berkeley'];
+  var RINGS=[{r:300,t:240,n:5,w:[150,190]},{r:470,t:320,n:7,w:[170,230],rev:1},{r:660,t:420,n:9,w:[190,260]},{r:860,t:520,n:9,w:[210,280],rev:1}];
+  var cards=document.getElementById('cards'),k=0,html='';
+  RINGS.forEach(function(R,ri){
+    html+='<div class="ring'+(R.rev?' rev':'')+'" style="--t:'+R.t+'s">';
+    for(var j=0;j<R.n;j++){
+      var a=(360/R.n)*j+ri*23, w=R.w[0]+((j*37+ri*11)%(R.w[1]-R.w[0])), img=POOL[k++%POOL.length];
+      var b=(j%4===3)?2.5:(j%5===4?1.2:0), o=b?0.8:1, d=(ri>=2&&j%2)||ri===3?' d':'';
+      var ry=((j%3)-1)*12, rx=((j%2)?6:-4), ar=(j%3===2)?'4/3':'16/10';
+      html+='<div class="c'+d+'" style="--a:'+a+'deg;--r:'+R.r+'px;--t:'+R.t+'s"><div class="in" style="--t:'+R.t+'s"><span class="pic" style="--w:'+w+'px;--b:'+b+'px;--o:'+o+';--ry:'+ry+'deg;--rx:'+rx+'deg;--ar:'+ar+'"><img src="'+IMG+img+'.jpg" alt="" loading="'+(ri<2?'eager':'lazy')+'"></span></div></div>';
+    }
+    html+='</div>';
+  });
+  cards.innerHTML=html;
+  var pics=[].slice.call(cards.querySelectorAll('.c'));
+
+  // intro: red -> amber -> green, page already rendered underneath (<= 3s)
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var intro=document.getElementById('intro'),tl=document.getElementById('tl');
+  function go(){ if(!intro||intro.classList.contains('go'))return; tl.className='tl sig g'; intro.classList.add('go'); document.body.classList.remove('lock'); setTimeout(function(){intro.remove()},800); }
+  if(reduce)setTimeout(go,500);else{setTimeout(function(){tl.className='tl sig y'},850);setTimeout(function(){tl.className='tl sig g'},1600);setTimeout(go,2000);}
+  intro.addEventListener('click',go); setTimeout(go,3000);
+
+  // reveal
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{rootMargin:'0px 0px -10% 0px'});
+  document.querySelectorAll('.rv').forEach(function(el){io.observe(el)});
+
+  // theme toggle
+  document.getElementById('themeBtn').addEventListener('click',function(){
+    var r=document.documentElement, cur=r.dataset.theme||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'), nx=cur==='dark'?'light':'dark';
+    r.dataset.theme=nx; try{localStorage.setItem('ebm-theme',nx)}catch(e){}
+  });
+
+  // right edge: a year ruler (1985 to 2030 across the page) and the chapter stack
+  function clamp(v,a,b){return v<a?a:v>b?b:v}
+  var CH=[['firm','The firm'],['story','Our story'],['services','Services'],['forensic','Forensic'],['why','Why us'],['work','Work'],['about','Rafat Raie'],['contact','Contact']];
+  CH.forEach(function(c){var el=document.getElementById(c[0]);if(el)el.insertAdjacentHTML('afterbegin','<span class="vlab" aria-hidden="true">'+c[1]+'</span>')});
+  var Y0=1985,Y1=2030,STEP=30,rk=document.getElementById('rk'),rmark=document.getElementById('rmark'),ryear=document.getElementById('ryear'),chap=document.getElementById('chap'),ctop=document.getElementById('ctop'),cbot=document.getElementById('cbot');
+  var tk='';for(var yy=Y0-6;yy<=Y1+6;yy++){var M=yy%5===0;tk+='<i class="t'+(M?' M':'')+'" style="top:'+((yy-Y0)*STEP)+'px">'+(M&&yy>=Y0&&yy<=Y1?'<b>'+yy+'</b>':'')+'</i>'}
+  rk.innerHTML=tk;
+  var rulerEl=document.getElementById('ruler');
+  rulerEl.addEventListener('click',function(e){var H=document.documentElement.scrollHeight-innerHeight,b=rulerEl.getBoundingClientRect();scrollTo({top:clamp((e.clientY-b.top-14)/(b.height-48),0,1)*H,behavior:'smooth'})});
+  var lastCh=-2;
+  function drawChap(k){if(k===lastCh)return;lastCh=k;
+    var top='<span class="brand">East Bay Mobility</span>',bot='';
+    CH.forEach(function(c,i){if(i===k)top+='<span class="now">'+c[1]+'</span>';else if(i>k&&i<=k+3)bot+='<span style="animation-delay:'+(i-k)*40+'ms">'+c[1]+'</span>'});
+    ctop.innerHTML=top;cbot.innerHTML=bot}
+  function layout(){}
+  var mid=document.getElementById('mid'),hero=document.getElementById('hero'),navLinks=[].slice.call(document.querySelectorAll('header nav a'));
+  var lastAct='',nav=document.querySelector('header nav');
+  function onScroll(){
+    var y=scrollY,H=document.documentElement.scrollHeight-innerHeight,p=H>0?y/H:0,h=hero.offsetHeight,q=clamp(y/h,0,1);
+    // hero: cards scatter outward, title lifts and softens
+    if(q<1){
+      cards.classList.toggle('scatter',q>0);
+      pics.forEach(function(c,i){var s=c.firstChild.firstChild; s.style.translate=q?((i%2?1:-1)*q*120)+'px '+(q*-220*(1+(i%3)*.4))+'px':''; s.style.scale=q?String(1+q*.35):''; });
+      cards.style.opacity=String(1-q*1.1);
+      mid.style.transform='translateY('+(-q*120)+'px)'; mid.style.filter='blur('+(q*8)+'px)'; mid.style.opacity=String(1-q*1.3);
+    }
+    var RH=rulerEl.clientHeight||innerHeight-60,my=14+p*(RH-48),yr=Y0+p*(Y1-Y0);rmark.style.transform='translateY('+my+'px)';rk.style.transform='translateY('+(my-(yr-Y0)*STEP)+'px)';ryear.innerHTML=Math.floor(yr)+'<br>'+String(Math.round(p*100)).padStart(3,'0')+'%';
+    var k=-1;CH.forEach(function(c,i){var el=document.getElementById(c[0]);if(el&&el.getBoundingClientRect().top<innerHeight*.45)k=i});drawChap(k);chap.classList.toggle('show',y>h*.5);
+    var sec=['top','firm','story','services','forensic','why','work','about','contact'],act='top';
+    sec.forEach(function(id){var el=document.getElementById(id);if(el&&el.getBoundingClientRect().top<innerHeight*.4)act=id});
+    if(act!==lastAct){lastAct=act;navLinks.forEach(function(a){var on=a.getAttribute('href')==='#'+act;a.classList.toggle('on',on);if(on&&nav.scrollWidth>nav.clientWidth)nav.scrollTo({left:Math.max(0,a.offsetLeft-nav.clientWidth/2+a.offsetWidth/2),behavior:'smooth'})})}
+  }
+  document.addEventListener('click',function(e){
+    var a=e.target.closest&&e.target.closest('a[href^="#"]');if(!a)return;var id=a.getAttribute('href').slice(1),el=id==='top'?document.body:document.getElementById(id);if(!el)return;
+    e.preventDefault();var pad=parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop)||0,to=id==='top'?0:el.getBoundingClientRect().top+scrollY-pad,d=to-scrollY;
+    if(Math.abs(d)>innerHeight*1.5){document.documentElement.style.scrollBehavior='auto';scrollTo(0,to-Math.sign(d)*innerHeight*.6);document.documentElement.style.scrollBehavior='';}
+    scrollTo({top:to,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});history.replaceState(null,'','#'+id);
+  });
+  addEventListener('scroll',onScroll,{passive:true});addEventListener('resize',function(){layout();onScroll()});addEventListener('load',function(){layout();onScroll()});layout();onScroll();
+
+  // contact form: opens the visitor's email app; the address stays visible as text
+  document.getElementById('cf').addEventListener('submit',function(e){e.preventDefault();var f=e.target;
+    if(!f.name.value||!f.email.value||!f.msg.value){document.getElementById('cfNote').textContent='Please add your name, email and a message.';return}
+    var body='Name: '+f.name.value+'\nOrganization: '+f.org.value+'\nEmail: '+f.email.value+'\nPhone: '+f.phone.value+'\nTopic: '+f.topic.value+'\n\n'+f.msg.value;
+    document.getElementById('cfNote').textContent='Opening your email app. If nothing opens, email rafat@ebmobility.com.';
+    location.href='mailto:rafat@ebmobility.com?subject='+encodeURIComponent('Inquiry: '+f.topic.value)+'&body='+encodeURIComponent(body)});
+})();
 </script>
+<!--EBM-KIT-->
+<!-- East Bay Mobility, Rafat Raie, P.E. | Website designed and directed by David (Hazem) Al-Raie | (c) 2026 East Bay Mobility. All rights reserved. -->
+<style id="ebk-style">
+/* EBM shared kit: 3D traffic-signal intro, section dock, car cursor, contact fallback. Everything is prefixed ebk- so it never collides with the page. */
+#ebk-intro{position:fixed;inset:0;z-index:2147483000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;transition:opacity .55s ease,transform .7s cubic-bezier(.2,.7,.1,1);cursor:pointer}
+#ebk-intro.ebk-go{opacity:0;transform:scale(1.04);pointer-events:none}
+#ebk-intro *{box-sizing:border-box}
+#ebk-intro .ebk-logo{width:min(230px,58vw);height:auto;background:#f4f6f8;border-radius:12px;padding:10px 14px;box-shadow:0 20px 50px -20px rgba(0,0,0,.8)}
+#ebk-intro .ebk-skip{position:absolute;bottom:22px;left:0;right:0;text-align:center;font:500 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.2em;text-transform:uppercase;color:#6b7078}
+/* 3D signal head: yellow retroreflective backplate, cast housing, door rings, LED lens arrays, tunnel visors */
+#ebk-intro{perspective:1200px;background:radial-gradient(ellipse 60% 50% at 50% 42%,#15181c,#08090b 70%)}
+.ebk-sig{--lw:84px;position:relative;width:206px;height:420px;transform-style:preserve-3d;transform:rotateY(-34deg) rotateX(4deg);animation:ebksigturn 2.4s cubic-bezier(.2,.7,.1,1) forwards;flex:none}
+@keyframes ebksigturn{to{transform:rotateY(-18deg) rotateX(2deg)}}
+.ebk-sig .ebk-bp{position:absolute;inset:0;border-radius:12px;border:9px solid transparent;background:linear-gradient(#0d0e10,#121417) padding-box,repeating-linear-gradient(135deg,#f4cf22 0 2px,#e2bb12 2px 4px,#f7d93f 4px 5px) border-box;box-shadow:0 40px 90px -20px rgba(0,0,0,.9),inset 0 0 0 1px rgba(255,255,255,.04)}
+.ebk-sig .ebk-bp:after{content:"";position:absolute;inset:-9px;border-radius:12px;background:linear-gradient(115deg,rgba(255,255,255,.22),transparent 35%);pointer-events:none}
+.ebk-sig .ebk-sl{position:absolute;left:31px;right:31px;top:24px;bottom:24px;border-radius:16px;background:#1c1e21;transform:translateZ(calc(var(--z)*1px))}
+.ebk-sig .ebk-hs{position:absolute;left:31px;right:31px;top:24px;bottom:24px;border-radius:16px;transform:translateZ(18px);background:linear-gradient(90deg,#1b1d20,#33373c 22%,#2a2d31 55%,#17191b);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),inset 0 -2px 0 rgba(0,0,0,.5)}
+.ebk-sig .ebk-hs:before{content:"";position:absolute;inset:0;border-radius:inherit;background:repeating-linear-gradient(90deg,rgba(255,255,255,.015) 0 1px,transparent 1px 3px)}
+.ebk-sig .ebk-lamp{position:absolute;left:50%;width:104px;height:104px;margin-left:-52px;transform-style:preserve-3d;transform:translateZ(19px)}
+.ebk-sig .ebk-l1{top:36px}.ebk-sig .ebk-l2{top:158px}.ebk-sig .ebk-l3{top:280px}
+.ebk-sig .ebk-door{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle,#0a0b0c 0 44px,#3b3f44 45px,#1e2023 48px,#2c2f33 51px,#151719 52px);box-shadow:0 2px 3px rgba(0,0,0,.6)}
+.ebk-sig .ebk-lens{position:absolute;left:10px;top:10px;width:var(--lw);height:var(--lw);border-radius:50%;overflow:hidden;
+  --on:var(--dim);
+  background:
+    radial-gradient(circle at 50% 50%,transparent 58%,rgba(0,0,0,.55) 100%),
+    repeating-radial-gradient(circle at 50% 50%,rgba(255,255,255,.07) 0 1px,transparent 1.2px 5px),
+    radial-gradient(circle,var(--on) 0 1.25px,transparent 1.9px) 0 0/5.2px 5.2px,
+    radial-gradient(circle at 50% 50%,var(--b1),var(--b2));
+  transition:filter .12s,box-shadow .18s}
+.ebk-sig .ebk-lens:before{content:"";position:absolute;left:12%;top:7%;width:58%;height:34%;border-radius:50%;background:radial-gradient(ellipse at 50% 30%,rgba(255,255,255,.42),rgba(255,255,255,0) 70%);transform:rotate(-18deg)}
+.ebk-sig .ebk-lens:after{content:"";position:absolute;inset:4px;border-radius:50%;border:1px solid rgba(255,255,255,.08);border-bottom-color:transparent;border-left-color:transparent;transform:rotate(-30deg)}
+.ebk-sig .ebk-l1 .ebk-lens{--dim:#4a1210;--b1:#2a0b0a;--b2:#120404;--hot:#ff5a43;--h1:#ff8f72;--h2:#d71e12;--glow:rgba(255,52,30,.75)}
+.ebk-sig .ebk-l2 .ebk-lens{--dim:#4d3409;--b1:#2c1e06;--b2:#130d02;--hot:#ffc23a;--h1:#ffe08a;--h2:#e79a00;--glow:rgba(255,176,20,.7)}
+.ebk-sig .ebk-l3 .ebk-lens{--dim:#0b3d2f;--b1:#06261d;--b2:#02100b;--hot:#4dffc0;--h1:#a8ffe0;--h2:#00b57a;--glow:rgba(20,230,150,.7)}
+.ebk-sig.ebk-r .ebk-l1 .ebk-lens,.ebk-sig.ebk-y .ebk-l2 .ebk-lens,.ebk-sig.ebk-g .ebk-l3 .ebk-lens{--on:var(--hot);--b1:var(--h1);--b2:var(--h2);box-shadow:0 0 22px 4px var(--glow),0 0 70px 18px var(--glow)}
+.ebk-sig .ebk-hood{position:absolute;left:-10px;top:-12px;width:118px;height:118px;transform:translateZ(14px);pointer-events:none;border-radius:50%;
+  background:conic-gradient(from 225deg,#2b2f33 0deg,#5d636b 55deg,#7d848c 90deg,#4c5157 140deg,#1b1d20 230deg,#1b1d20 270deg,transparent 270.5deg);
+  -webkit-mask:radial-gradient(circle at 50% 50%,transparent 0 47px,#000 48px 58px,transparent 59px);mask:radial-gradient(circle at 50% 50%,transparent 0 47px,#000 48px 58px,transparent 59px);
+  filter:drop-shadow(-6px 8px 6px rgba(0,0,0,.55))}
+.ebk-sig .ebk-hood:after{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 225deg,transparent 0 30deg,rgba(255,255,255,.35) 80deg,transparent 120deg)}
+.ebk-sig .ebk-lens{box-shadow:inset 0 14px 16px -6px rgba(0,0,0,.75)}
+.ebk-sig.ebk-r .ebk-l1 .ebk-hood,.ebk-sig.ebk-y .ebk-l2 .ebk-hood,.ebk-sig.ebk-g .ebk-l3 .ebk-hood{background:conic-gradient(from 225deg,#2b2f33 0deg,color-mix(in srgb,var(--hot) 35%,#5d636b) 60deg,color-mix(in srgb,var(--hot) 25%,#7d848c) 90deg,#4c5157 140deg,#1b1d20 230deg,#1b1d20 270deg,transparent 270.5deg)}
+.ebk-sig .ebk-l1{--hot:#ff5a43}.ebk-sig .ebk-l2{--hot:#ffc23a}.ebk-sig .ebk-l3{--hot:#4dffc0}
+.ebk-sig .ebk-bloom{position:absolute;left:50%;width:300px;height:300px;margin-left:-150px;border-radius:50%;pointer-events:none;opacity:0;transform:translateZ(60px);transition:opacity .2s,top 0s;mix-blend-mode:screen;filter:blur(18px)}
+.ebk-sig.ebk-r .ebk-bloom{top:-60px;opacity:.55;background:radial-gradient(circle,rgba(255,60,40,.55),transparent 60%)}
+.ebk-sig.ebk-y .ebk-bloom{top:60px;opacity:.5;background:radial-gradient(circle,rgba(255,180,30,.5),transparent 60%)}
+.ebk-sig.ebk-g .ebk-bloom{top:182px;opacity:.55;background:radial-gradient(circle,rgba(30,240,160,.5),transparent 60%)}
+.ebk-sig .ebk-mount{position:absolute;left:50%;top:-38px;width:34px;height:40px;margin-left:-17px;background:linear-gradient(90deg,#1a1c1f,#3a3e43,#1a1c1f);border-radius:4px 4px 0 0;transform:translateZ(10px)}
+@media(max-height:700px),(max-width:420px){.ebk-sig{scale:.78;margin-block:-46px}}
+@media(prefers-reduced-motion:reduce){.ebk-sig{animation:none}}
+html.ebk-lock,html.ebk-lock body{overflow:hidden!important}
+
+
+/* section dock: a horizontal bar on every screen size */
+#ebk-dock{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translate(-50%,140%);z-index:2147482000;display:flex;align-items:center;gap:2px;max-width:calc(100vw - 24px);padding:5px;border-radius:999px;background:rgba(14,15,18,.82);backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);box-shadow:0 18px 50px -12px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.08);transition:transform .6s cubic-bezier(.2,.7,.1,1);font:500 12px/1 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+#ebk-dock.ebk-in{transform:translate(-50%,0)}
+#ebk-dock,#ebk-dock *{box-sizing:border-box}
+#ebk-dock{flex-wrap:nowrap!important;margin:0;width:auto;height:auto}
+#ebk-dock .ebk-track{flex:1 1 auto;flex-wrap:nowrap;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;min-width:0}
+#ebk-dock .ebk-track::-webkit-scrollbar{display:none}
+#ebk-dock a{margin:0;border:0!important;box-shadow:none;outline-offset:2px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-weight:500;line-height:1;background:transparent;flex:none;display:flex;align-items:center;gap:7px;padding:10px 14px;border-radius:999px;color:#c9ccd2;text-decoration:none;letter-spacing:.06em;text-transform:uppercase;font-size:11.5px;white-space:nowrap;transition:background .2s,color .2s}
+#ebk-dock a::before,#ebk-dock a::after{content:none!important;display:none!important}
+#ebk-dock a:hover{color:#fff;background:rgba(255,255,255,.08)}
+#ebk-dock a.ebk-on{color:#0d0e10;background:#fff}
+#ebk-dock a i{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.5}
+#ebk-dock a.ebk-on i{background:#e0261b;opacity:1}
+#ebk-dock a.ebk-back{color:#8f96a0;margin-right:2px;border-right:1px solid rgba(255,255,255,.12)!important;border-radius:999px 0 0 999px}
+#ebk-dock a.ebk-cta{flex:none;margin-left:4px;color:#fff;background:#0d0e10}
+#ebk-dock a.ebk-cta:hover{filter:brightness(1.1)}
+@media(max-width:560px){#ebk-dock{left:10px;right:10px;transform:translateY(140%);max-width:none}#ebk-dock.ebk-in{transform:none}#ebk-dock a{padding:10px 11px;font-size:11px}}
+@media print{#ebk-dock,#ebk-car{display:none}}
+
+/* contact fallback (only on pages without a contact section) */
+#ebk-contact{background:#0e1114;color:#e8ebef;padding:clamp(56px,8vw,96px) clamp(16px,5vw,64px) 140px;font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+#ebk-contact .ebk-w{max-width:980px;margin:0 auto;display:grid;grid-template-columns:1fr 1.2fr;gap:clamp(24px,5vw,64px)}
+#ebk-contact h2{font:700 clamp(30px,4vw,48px)/1.05 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;letter-spacing:-.02em;margin:10px 0 14px;color:#fff}
+#ebk-contact .ebk-k{font:500 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.2em;text-transform:uppercase;color:#8a919a}
+#ebk-contact p{color:#aab1ba;margin:0 0 10px}
+#ebk-contact b.ebk-mail{color:#fff;font:500 17px ui-monospace,SFMono-Regular,Menlo,monospace;user-select:all}
+#ebk-contact form{display:grid;gap:12px}
+#ebk-contact input,#ebk-contact select,#ebk-contact textarea{width:100%;box-sizing:border-box;font:inherit;color:#fff;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:12px 14px}
+#ebk-contact textarea{min-height:110px;resize:vertical}
+#ebk-contact button{justify-self:start;font:600 12px/1 system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#fff;background:#0d0e10;border:0;border-radius:999px;padding:15px 24px;cursor:pointer}
+#ebk-contact small{color:#8a919a}
+@media(max-width:760px){#ebk-contact .ebk-w{grid-template-columns:1fr}}
+
+/* car cursor */
+#ebk-car{position:fixed;inset:0;z-index:2147481000;pointer-events:none}
+html.ebk-carcur,html.ebk-carcur *{cursor:none!important}
+html.ebk-carcur input,html.ebk-carcur textarea,html.ebk-carcur select,html.ebk-carcur [contenteditable]{cursor:text!important}
+</style>
+<script>
+(function(){
+  var C={"intro": false, "nav": null, "offset": 70, "addContact": false, "contactBefore": null, "cursor": "smoke", "carColor": "#d8452f", "carColor2": "#8f2416", "smoke": "120,120,124"};
+  var doc=document,root=doc.documentElement,reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // 1. intro: red, amber, green, then reveal the page that is already rendered underneath (never more than 3 s)
+  var intro=doc.getElementById('ebk-intro'),tl=doc.getElementById('ebk-tl'),done=false;
+  function reveal(){ if(done)return; done=true; if(tl)tl.className='ebk-sig ebk-g'; if(intro){intro.classList.add('ebk-go');setTimeout(function(){intro.remove()},700);} root.classList.remove('ebk-lock'); setTimeout(showDock,250); }
+  if(C.intro&&intro){
+    root.classList.add('ebk-lock');
+    if(reduce){setTimeout(reveal,600)}else{setTimeout(function(){tl.className='ebk-sig ebk-y'},850);setTimeout(function(){tl.className='ebk-sig ebk-g'},1600);setTimeout(reveal,2050);}
+    setTimeout(reveal,3000); intro.addEventListener('click',reveal);
+  }else{ if(intro)intro.remove(); done=true; }
+
+  // 2. contact fallback for pages that have no contact section
+  if(C.addContact&&!doc.getElementById('contact')){
+    var sec=doc.createElement('section');sec.id='contact';
+    sec.innerHTML='<div id="ebk-contact"><div class="ebk-w"><div><span class="ebk-k">Contact us</span><h2>Start the conversation.</h2><p>For public agencies, legal professionals and everyone else: tell us about the review, question or decision in front of you.</p><p>Email <b class="ebk-mail">rafat@ebmobility.com</b></p><p><small>Rafat Raie, P.E. · East Bay Mobility · California</small></p></div><form id="ebk-cf" novalidate><input name="n" placeholder="Name" autocomplete="name"><input name="o" placeholder="Organization" autocomplete="organization"><input name="e" type="email" placeholder="Email" autocomplete="email"><select name="t"><option>Development review</option><option>Traffic engineering review</option><option>Municipal staff support</option><option>Special assignment / second opinion</option><option>Forensic &amp; litigation support</option><option>Something else</option></select><textarea name="m" placeholder="Message"></textarea><button type="submit">Send message</button><small id="ebk-cfn">Your message goes straight to Rafat Raie&rsquo;s inbox.</small></form></div></div>';
+    var tgt=C.contactBefore&&doc.querySelector(C.contactBefore);
+    if(tgt)tgt.parentNode.insertBefore(sec,tgt);else doc.body.appendChild(sec);
+  }
+
+  // 3. section dock: Home, the page's sections, Contact us
+  var dock=null,links=[];
+  function target(h){return h==='#top'?null:doc.querySelector(h)}
+  function go(h){var el=target(h);var to=el?el.getBoundingClientRect().top+scrollY-(C.offset||70):0;var d=to-scrollY;
+    if(Math.abs(d)>innerHeight*1.5)window.scrollTo(0,to-Math.sign(d)*innerHeight*.6);
+    window.scrollTo({top:to,behavior:reduce?'auto':'smooth'})}
+  if(C.nav&&C.nav.length){
+    dock=doc.createElement('div');dock.id='ebk-dock';dock.setAttribute('role','navigation');dock.setAttribute('aria-label','Sections');
+    var tr=doc.createElement('div');tr.className='ebk-track';dock.appendChild(tr);
+    // opened from the versions list: offer a way back to it
+    try{if(doc.referrer&&new URL(doc.referrer).origin===location.origin&&/version|\/$|index\.html$/.test(new URL(doc.referrer).pathname)&&!/EBM-\d/.test(new URL(doc.referrer).pathname)){var bk=doc.createElement('a');bk.className='ebk-back';bk.href='#';bk.title='All versions';bk.textContent='\u2190 Versions';bk.addEventListener('click',function(e){e.preventDefault();history.back()});dock.insertBefore(bk,tr)}}catch(e){}
+    C.nav.forEach(function(n){var a=doc.createElement('a');a.href=n[1];a.innerHTML='<i></i>'+n[0];a.addEventListener('click',function(e){e.preventDefault();go(n[1])});tr.appendChild(a);links.push(a)});
+    var cta=doc.createElement('a');cta.className='ebk-cta';cta.href='#contact';cta.textContent='Contact us';cta.addEventListener('click',function(e){e.preventDefault();go('#contact')});dock.appendChild(cta);
+    doc.body.appendChild(dock);
+    // room under the last block so the bar never sits on the footer text
+    var pad=doc.createElement('div');pad.id='ebk-pad';var lastEl=doc.body.lastElementChild;while(lastEl&&/^(SCRIPT|STYLE|NAV|CANVAS|DIV)$/.test(lastEl.tagName)&&lastEl.id&&lastEl.id.indexOf('ebk-')===0)lastEl=lastEl.previousElementSibling;
+    var bgc='';for(var el=doc.querySelector('footer')||lastEl;el&&el!==doc.documentElement;el=el.parentElement){var c=getComputedStyle(el).backgroundColor;if(c&&c!=='transparent'&&c!=='rgba(0, 0, 0, 0)'){bgc=c;break}}
+    pad.style.cssText='height:84px;background:'+(bgc||'transparent');doc.body.insertBefore(pad,dock);
+    var last=-1;
+    function spy(){var k=0;C.nav.forEach(function(n,i){var el=target(n[1]);var r=el&&el.getBoundingClientRect(),hid=!!el&&r.height<2;links[i].style.display=hid?'none':'';if(el&&!hid&&r.top<innerHeight*.4)k=i});
+      if(k!==last){last=k;links.forEach(function(a,i){a.classList.toggle('ebk-on',i===k)});var a=links[k];if(a&&tr.scrollWidth>tr.clientWidth)tr.scrollTo({left:a.offsetLeft-tr.clientWidth/2+a.offsetWidth/2,behavior:'smooth'})}}
+    addEventListener('scroll',spy,{passive:true});addEventListener('resize',spy);spy();
+  }
+  function showDock(){if(dock)dock.classList.add('ebk-in')}
+  if(done)setTimeout(showDock,300);
+
+  // 4. car cursor: follows the mouse on computers and the finger on phones and tablets, with smoke or light trails
+  if(C.cursor&&!reduce){
+    var cv=doc.createElement('canvas');cv.id='ebk-car';doc.body.appendChild(cv);var x=cv.getContext('2d'),dpr=Math.min(2,devicePixelRatio||1),W=0,H=0;
+    function size(){W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';x.setTransform(dpr,0,0,dpr,0,0)}size();addEventListener('resize',size);
+    var mx=-100,my=-100,cx=-100,cy=-100,ang=0,spd=0,hover=false,seen=false,parts=[],trail=[],t0=performance.now();
+    var lightsMode=C.cursor==='lights';
+    var touchMode=false,lastT=0,ga=1;
+    addEventListener('pointermove',function(e){if(e.pointerType!=='mouse')return;if(!root.classList.contains('ebk-carcur'))root.classList.add('ebk-carcur');touchMode=false;mx=e.clientX;my=e.clientY;if(!seen){cx=mx;cy=my;seen=true}var el=e.target;hover=!!(el&&el.closest&&el.closest('a,button,[role=button],label,summary,select'))},{passive:true});
+    doc.addEventListener('mouseleave',function(){if(!touchMode){seen=false;mx=cx=-200;my=cy=-200}});
+    function tch(e){var t=e.touches&&e.touches[0];if(!t)return;var now=performance.now();mx=t.clientX;my=t.clientY;if(!seen||!touchMode||now-lastT>1100){cx=mx;cy=my}seen=true;touchMode=true;hover=false;lastT=now}
+    addEventListener('touchstart',tch,{passive:true});addEventListener('touchmove',tch,{passive:true});
+    function car(){var L=hover?46:40,Wd=hover?22:19;x.save();x.translate(cx,cy);x.rotate(ang);
+      // body: nose at the pointer
+      x.translate(-L*.5,0);
+      if(lightsMode||hover){var g=x.createRadialGradient(L*.5+18,0,2,L*.5+18,0,46);g.addColorStop(0,'rgba(255,250,220,.38)');g.addColorStop(1,'rgba(255,250,220,0)');x.fillStyle=g;x.beginPath();x.moveTo(L*.5,-5);x.lineTo(L*.5+60,-26);x.lineTo(L*.5+60,26);x.lineTo(L*.5,5);x.fill()}
+      x.shadowColor='rgba(0,0,0,.35)';x.shadowBlur=8;x.shadowOffsetY=3;
+      var bg=x.createLinearGradient(0,-Wd/2,0,Wd/2);bg.addColorStop(0,C.carColor2||'#2a6fb0');bg.addColorStop(.5,C.carColor||'#1f7fb8');bg.addColorStop(1,C.carColor2||'#164e7a');
+      x.fillStyle=bg;rr(-L/2,-Wd/2,L,Wd,Wd*.42);x.fill();x.shadowColor='transparent';
+      x.fillStyle='rgba(10,20,30,.78)';rr(-L*.12,-Wd*.36,L*.36,Wd*.72,4);x.fill();
+      x.fillStyle='rgba(255,255,255,.35)';rr(-L*.08,-Wd*.3,L*.12,Wd*.6,3);x.fill();
+      x.fillStyle='rgba(10,20,30,.6)';rr(-L*.36,-Wd*.3,L*.12,Wd*.6,3);x.fill();
+      x.fillStyle='#fffbe6';x.beginPath();x.arc(L/2-2,-Wd*.3,1.8,0,7);x.arc(L/2-2,Wd*.3,1.8,0,7);x.fill();
+      x.fillStyle=spd<1.2?'#ff2a1a':'#c81e14';x.beginPath();x.arc(-L/2+1.5,-Wd*.3,1.9,0,7);x.arc(-L/2+1.5,Wd*.3,1.9,0,7);x.fill();
+      x.restore()}
+    function rr(a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath()}
+    function frame(t){var dt=Math.min(40,t-t0);t0=t;
+      var px=cx,py=cy;cx+=(mx-cx)*.32;cy+=(my-cy)*.32;var vx=cx-px,vy=cy-py;spd=Math.hypot(vx,vy);
+      if(spd>.4){var a=Math.atan2(vy,vx),d=a-ang;d=Math.atan2(Math.sin(d),Math.cos(d));ang+=d*.25}
+      x.clearRect(0,0,W,H);
+      ga=touchMode?Math.max(0,Math.min(1,1-(t-lastT-700)/450)):1;
+      if(seen&&ga<=0&&!parts.length&&!trail.length){seen=false}
+      if(seen){x.globalAlpha=ga;
+        var bx=cx-Math.cos(ang)*40,by=cy-Math.sin(ang)*40,nx=-Math.sin(ang),ny=Math.cos(ang);
+        if(lightsMode){
+          if(ga>.05)trail.push({l:[bx+nx*6,by+ny*6],r:[bx-nx*6,by-ny*6],h:[cx+nx*5.5,cy+ny*5.5],k:[cx-nx*5.5,cy-ny*5.5],a:1});if(trail.length>48)trail.shift();
+          trail.forEach(function(p){p.a-=dt/700});trail=trail.filter(function(p){return p.a>0});
+          x.lineCap='round';x.globalCompositeOperation='lighter';
+          [['l','255,40,30'],['r','255,40,30'],['h','255,245,200'],['k','255,245,200']].forEach(function(s,si){
+            for(var i=1;i<trail.length;i++){var p=trail[i-1],q=trail[i];x.strokeStyle='rgba('+s[1]+','+(q.a*(si<2?.9:.35))+')';x.lineWidth=(si<2?3.4:2.2)*(.4+q.a);x.beginPath();x.moveTo(p[s[0]][0],p[s[0]][1]);x.lineTo(q[s[0]][0],q[s[0]][1]);x.stroke()}});
+          x.globalCompositeOperation='source-over';
+        }else{
+          if(spd>1&&ga>.05)for(var k=0;k<Math.min(3,1+spd/8);k++)parts.push({x:bx+(Math.random()-.5)*6,y:by+(Math.random()-.5)*6,vx:-Math.cos(ang)*(.4+Math.random()*.6)+(Math.random()-.5)*.5,vy:-Math.sin(ang)*(.4+Math.random()*.6)+(Math.random()-.5)*.5-.15,r:4+Math.random()*4,a:.7});
+          parts.forEach(function(p){p.x+=p.vx*dt/16;p.y+=p.vy*dt/16;p.r+=dt/38;p.a-=dt/1400});parts=parts.filter(function(p){return p.a>0});if(parts.length>160)parts.splice(0,parts.length-160);
+          parts.forEach(function(p){var g=x.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r);g.addColorStop(0,'rgba('+(C.smoke||'150,156,165')+','+p.a*.8+')');g.addColorStop(1,'rgba('+(C.smoke||'150,156,165')+',0)');x.fillStyle=g;x.beginPath();x.arc(p.x,p.y,p.r,0,7);x.fill()});
+        }
+        car();x.globalAlpha=1;
+      }
+      requestAnimationFrame(frame)}
+    requestAnimationFrame(frame);
+  }
+  // 5. contact forms send straight to Rafat's inbox (email app as a fallback)
+  var TO='rafat@ebmobility.com',FS='https://formsubmit.co/ajax/'+TO;
+  function note(f,msg,ok){var n=f.querySelector('.ebk-note');if(!n){n=doc.createElement('p');n.className='ebk-note';f.appendChild(n)}n.textContent=msg;n.style.cssText='margin:12px 0 0;padding:12px 14px;border-radius:8px;font:500 14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;'+(ok?'background:#e7f6ee;color:#0b5d3b':'background:#fff4e0;color:#7a4b00')}
+  doc.addEventListener('submit',function(e){var f=e.target;if(!f||!f.closest||!f.closest('#contact'))return;
+    e.preventDefault();e.stopImmediatePropagation();
+    var data={},mail='',msg='',topic='';
+    [].forEach.call(f.elements,function(el){if(!el.name&&!el.id&&!el.placeholder)return;if(/^(submit|button|reset|hidden)$/.test(el.type))return;var v=(el.value||'').trim();if(!v)return;
+      var lab=(el.id&&doc.querySelector('label[for="'+el.id+'"]'))||(el.closest&&el.closest('label')),lt=lab&&el.tagName!=='SELECT'&&lab.childElementCount<2?lab.textContent:'';var k=(lt||el.getAttribute('aria-label')||el.placeholder||el.name||el.id).replace(/[^\w &/()-]/g,'').replace(/\s+/g,' ').trim().slice(0,40)||'Field';if(el.tagName==='SELECT')k='Topic';if(el.tagName==='TEXTAREA')k='Message';if(el.type==='email')k='Email';if(data[k])k+=' 2';
+      if(el.type==='email'||/mail/i.test(el.name+el.id))mail=v;if(el.tagName==='TEXTAREA')msg=v;if(el.tagName==='SELECT'&&!topic)topic=v;data[k]=v});
+    if(!mail||!msg){note(f,'Please add your email address and a short message.');return}
+    data._subject='Website inquiry'+(topic?': '+topic:'');data._template='table';data._captcha='false';data._replyto=mail;
+    var btn=f.querySelector('[type=submit],button');if(btn)btn.disabled=true;note(f,'Sending...',true);
+    fetch(FS,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data)})
+      .then(function(r){return r.json()}).then(function(j){if(String(j.success)!=='true')throw 0;note(f,'Thank you. Your message went to Rafat Raie, and he will reply by email.',true);f.reset()})
+      .catch(function(){var body=Object.keys(data).filter(function(k){return k[0]!=='_'}).map(function(k){return k+': '+data[k]}).join('\n');note(f,'Your email app is opening with the message ready. If nothing opens, write to '+TO+'.');location.href='mailto:'+TO+'?subject='+encodeURIComponent(data._subject)+'&body='+encodeURIComponent(body)})
+      .then(function(){if(btn)btn.disabled=false})},true);
+})();
+</script>
+<!--/EBM-KIT-->
+
 </body>
 </html>
