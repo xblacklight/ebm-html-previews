@@ -403,7 +403,7 @@ html.ebk-carcur input,html.ebk-carcur textarea,html.ebk-carcur select,html.ebk-c
     var bgc='';for(var el=doc.querySelector('footer')||lastEl;el&&el!==doc.documentElement;el=el.parentElement){var c=getComputedStyle(el).backgroundColor;if(c&&c!=='transparent'&&c!=='rgba(0, 0, 0, 0)'){bgc=c;break}}
     pad.style.cssText='height:84px;background:'+(bgc||'transparent');doc.body.insertBefore(pad,dock);
     var last=-1;
-    function spy(){var k=0;C.nav.forEach(function(n,i){var el=target(n[1]);if(el&&el.getBoundingClientRect().top<innerHeight*.4)k=i});
+    function spy(){var k=0;C.nav.forEach(function(n,i){var el=target(n[1]);var r=el&&el.getBoundingClientRect(),hid=!!el&&r.height<2;links[i].style.display=hid?'none':'';if(el&&!hid&&r.top<innerHeight*.4)k=i});
       if(k!==last){last=k;links.forEach(function(a,i){a.classList.toggle('ebk-on',i===k)});var a=links[k];if(a&&tr.scrollWidth>tr.clientWidth)tr.scrollTo({left:a.offsetLeft-tr.clientWidth/2+a.offsetWidth/2,behavior:'smooth'})}}
     addEventListener('scroll',spy,{passive:true});addEventListener('resize',spy);spy();
   }
