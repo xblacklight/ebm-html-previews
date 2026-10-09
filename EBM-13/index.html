@@ -590,6 +590,7 @@ html.ebk-lock,html.ebk-lock body{overflow:hidden!important}
 #ebk-dock a.ebk-on{color:#0d0e10;background:#fff}
 #ebk-dock a i{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.5}
 #ebk-dock a.ebk-on i{background:#e0261b;opacity:1}
+#ebk-dock a.ebk-back{color:#8f96a0;margin-right:2px;border-right:1px solid rgba(255,255,255,.12)!important;border-radius:999px 0 0 999px}
 #ebk-dock a.ebk-cta{flex:none;margin-left:4px;color:#fff;background:#0f6fa8}
 #ebk-dock a.ebk-cta:hover{filter:brightness(1.1)}
 @media(max-width:560px){#ebk-dock{left:10px;right:10px;transform:translateY(140%);max-width:none}#ebk-dock.ebk-in{transform:none}#ebk-dock a{padding:10px 11px;font-size:11px}}
@@ -654,6 +655,8 @@ html.ebk-carcur input,html.ebk-carcur textarea,html.ebk-carcur select,html.ebk-c
   if(C.nav&&C.nav.length){
     dock=doc.createElement('div');dock.id='ebk-dock';dock.setAttribute('role','navigation');dock.setAttribute('aria-label','Sections');
     var tr=doc.createElement('div');tr.className='ebk-track';dock.appendChild(tr);
+    // opened from the versions list: offer a way back to it
+    try{if(doc.referrer&&new URL(doc.referrer).origin===location.origin&&/version|\/$|index\.html$/.test(new URL(doc.referrer).pathname)&&!/EBM-\d/.test(new URL(doc.referrer).pathname)){var bk=doc.createElement('a');bk.className='ebk-back';bk.href='#';bk.title='All versions';bk.textContent='\u2190 Versions';bk.addEventListener('click',function(e){e.preventDefault();history.back()});dock.insertBefore(bk,tr)}}catch(e){}
     C.nav.forEach(function(n){var a=doc.createElement('a');a.href=n[1];a.innerHTML='<i></i>'+n[0];a.addEventListener('click',function(e){e.preventDefault();go(n[1])});tr.appendChild(a);links.push(a)});
     var cta=doc.createElement('a');cta.className='ebk-cta';cta.href='#contact';cta.textContent='Contact us';cta.addEventListener('click',function(e){e.preventDefault();go('#contact')});dock.appendChild(cta);
     doc.body.appendChild(dock);
